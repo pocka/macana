@@ -1,0 +1,6 @@
+{
+	"fmt": {
+		"useTabs": true,
+		"include": ["**/*.ts"]
+	}
+}
