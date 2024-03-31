@@ -49,9 +49,10 @@ $ deno fmt
 
 ## Running unit tests
 
-You need a read permission for the project directory due to some tests perform actual filesystem access.
 The most straightforward way to run the tests is to run this command on the repository root:
 
 ```
 $ deno test --allow-read=.
 ```
+
+If you omit the `--allow-read=.` permission, tests performing actual file I/O will be skipped.

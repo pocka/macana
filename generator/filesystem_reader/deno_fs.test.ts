@@ -11,7 +11,14 @@ import {
 import { DenoFsReader } from "./deno_fs.ts";
 import type { DirectoryReader } from "./interface.ts";
 
-Deno.test("Should read file tree", async () => {
+Deno.test("Should read file tree", {
+	// Skip this test if read permission is not granted.
+	// Without this, simple `deno test` would fail or prompt permissions, which is annoying.
+	ignore: (await Deno.permissions.query({
+		name: "read",
+		path: new URL("../", import.meta.url),
+	})).state !== "granted",
+}, async () => {
 	const reader = new DenoFsReader(new URL("../", import.meta.url));
 
 	const root = await reader.getRootDirectory();
