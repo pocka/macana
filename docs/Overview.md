@@ -1,0 +1,1 @@
+Macana is a tool to generate a static web site from Obsidian Vault.

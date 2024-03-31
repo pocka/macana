@@ -1,0 +1,36 @@
+{
+	"nodes":[
+		{"id":"16ecec9768556d1e","type":"group","x":40,"y":-1000,"width":1120,"height":964,"color":"2","label":"Generator"},
+		{"id":"cef7273c31316035","type":"group","x":320,"y":-1400,"width":740,"height":220,"label":"Legends"},
+		{"id":"6eb909fa8cc61ae3","type":"text","text":"# Tree Builder\nResponsible for parsing and building a document tree, responsing for query.","x":100,"y":-470,"width":340,"height":130,"color":"5"},
+		{"id":"be29f4cfc87ef7d8","type":"text","text":"# FileSystem Reader\nResponsible for listing, reading, and watching directory or file. This module can only operate inside a source directory.","x":100,"y":-263,"width":340,"height":188,"color":"5"},
+		{"id":"c79ac0d3442961f7","type":"text","text":"# Page Builder\nResponsible for building a page from a document and a document tree.","x":100,"y":-700,"width":340,"height":140,"color":"5"},
+		{"id":"365cf0be0cbcaa06","type":"text","text":"# Plugin registry\nA plugin registers what element (Markdown AST node or HTML element) to process at first, then Page Builder invokes registered plugin if matching element found.","x":100,"y":-960,"width":500,"height":160,"color":"5"},
+		{"id":"b47e4fabfd3da80f","type":"text","text":"# CLI","x":1300,"y":-960,"width":250,"height":100,"color":"1"},
+		{"id":"0a9a5285a6521a49","type":"text","text":"# Core\nAct as an endpoint for the generator. Schedule and coordinates various modules.","x":798,"y":-650,"width":324,"height":180,"color":"5"},
+		{"id":"eea88958e6425901","type":"text","text":"# Obsidian Vault\nPage source data is stored as Markdown files in plain arbitrary directory.","x":-320,"y":-104,"width":300,"height":184},
+		{"id":"7df3ad03e3d0486c","type":"text","text":"# FileSystem Writer\nResponsible for creating and writing directory or file. This can only operate inside an output directory.","x":798,"y":-263,"width":324,"height":188,"color":"5"},
+		{"id":"b4d105b9f43d32e4","type":"text","text":"# Generated site\nHTML/CSS/JS files, along with RSS feed and other site metadata things.","x":798,"y":80,"width":320,"height":160},
+		{"id":"ed3a9fdae2c1eb0e","type":"text","text":"# User Agent\nMostly web browser.","x":1300,"y":160,"width":300,"height":160},
+		{"id":"d27605d3bbfcf821","type":"text","text":"# Dev Server","x":1345,"y":-147,"width":210,"height":86,"color":"1"},
+		{"id":"a4415114ae6abd10","type":"text","text":"# Module\nBox with this color indicates the box is a module.","x":340,"y":-1360,"width":280,"height":140,"color":"5"},
+		{"id":"985228be1f82ddfd","type":"text","text":"# Program\nBox with this color indicates the box is an executable.","x":698,"y":-1360,"width":280,"height":140,"color":"1"}
+	],
+	"edges":[
+		{"id":"60cf98a46738e9dd","fromNode":"be29f4cfc87ef7d8","fromSide":"bottom","toNode":"eea88958e6425901","toSide":"right"},
+		{"id":"e039e7acfd9bb090","fromNode":"7df3ad03e3d0486c","fromSide":"bottom","toNode":"b4d105b9f43d32e4","toSide":"top"},
+		{"id":"9d28e2e189fcc6d1","fromNode":"ed3a9fdae2c1eb0e","fromSide":"top","toNode":"d27605d3bbfcf821","toSide":"bottom","fromEnd":"arrow","label":"HTTP"},
+		{"id":"ca6c828dffb03024","fromNode":"d27605d3bbfcf821","fromSide":"top","toNode":"0a9a5285a6521a49","toSide":"right","label":"Request partial build"},
+		{"id":"798cdc01140de03d","fromNode":"6eb909fa8cc61ae3","fromSide":"left","toNode":"be29f4cfc87ef7d8","toSide":"left","label":"Read directories, files"},
+		{"id":"0648fddc22b04bbe","fromNode":"be29f4cfc87ef7d8","fromSide":"right","toNode":"6eb909fa8cc61ae3","toSide":"right","label":"Notify file or directory changes"},
+		{"id":"c56bdc7b7055b9f4","fromNode":"0a9a5285a6521a49","fromSide":"bottom","toNode":"6eb909fa8cc61ae3","toSide":"right","label":"Query node/tree"},
+		{"id":"fd5f1dc0b997b716","fromNode":"0a9a5285a6521a49","fromSide":"left","toNode":"c79ac0d3442961f7","toSide":"right","label":"Request build"},
+		{"id":"30585db0fd8df11b","fromNode":"c79ac0d3442961f7","fromSide":"right","toNode":"0a9a5285a6521a49","toSide":"top","label":"Return built files"},
+		{"id":"c239c70489df47e8","fromNode":"0a9a5285a6521a49","fromSide":"bottom","toNode":"7df3ad03e3d0486c","toSide":"top","label":"Write built files"},
+		{"id":"cabf2cab44a8e429","fromNode":"6eb909fa8cc61ae3","fromSide":"top","toNode":"0a9a5285a6521a49","toSide":"bottom","label":"Notify changes"},
+		{"id":"cc94c9e8055a0dfc","fromNode":"c79ac0d3442961f7","fromSide":"top","toNode":"365cf0be0cbcaa06","toSide":"bottom","label":"Invoke"},
+		{"id":"c208e5f9765537c3","fromNode":"365cf0be0cbcaa06","fromSide":"left","toNode":"c79ac0d3442961f7","toSide":"left","label":"Register"},
+		{"id":"cd1a900fbcb59fe9","fromNode":"0a9a5285a6521a49","fromSide":"right","toNode":"d27605d3bbfcf821","toSide":"left","label":"Return built files"},
+		{"id":"0a48b27acf8d3a52","fromNode":"b47e4fabfd3da80f","fromSide":"bottom","toNode":"0a9a5285a6521a49","toSide":"top","label":"Request full build"}
+	]
+}

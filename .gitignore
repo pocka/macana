@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# What: Obsidian Vault metadata directory
+#  Why: This directory contains personal preferences such as whether to enable Vim mode,
+#       which should not be forced to whom editing the document.
+#       While this could be considered as an environment specific artifacts like `.DS_Store`
+#       or `*.swp`, I decided to add this because this project is for Obsidian and `docs/`
+#       directory is supposed to be edited using Obsidian.
+docs/.obsidian
