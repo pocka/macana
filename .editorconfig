@@ -12,9 +12,3 @@ indent_style = tab
 [*.md]
 # Hard line break
 trim_trailing_whitespace = false
-
-# Adheres to the Zig Style Guide
-# https://ziglang.org/documentation/0.11.0/#Style-Guide
-[*.zig]
-indent_style = space
-indent_size = 4
