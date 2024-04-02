@@ -36,7 +36,7 @@ export interface DocumentMetadata {
  * If no parsers left, do not include the file in a document tree.
  */
 export interface Skip {
-	skip: true;
+	readonly skip: true;
 }
 
 export interface MetadataParser {
