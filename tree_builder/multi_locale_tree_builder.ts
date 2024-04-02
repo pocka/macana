@@ -15,6 +15,8 @@ import type {
 	TreeBuilder,
 } from "./interface.ts";
 
+import { assertDocumentTreeIsValid } from "./assert.ts";
+
 export interface MultiLocaleTreeBuilderConfig {
 	defaultLocale?: string;
 
@@ -56,14 +58,6 @@ export class MultiLocaleTreeBuilder implements TreeBuilder {
 			}
 
 			const locale = node.name;
-
-			// Simple BCP 47 language tag check, based on RFC 4646 (Tags for Identifying Languages)
-			// https://www.rfc-editor.org/rfc/rfc4646.txt
-			if (!(/^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(locale))) {
-				// TODO: Warning instead?
-				throw new Error(`Invalid BCP 47 language tag, found "${locale}".`);
-			}
-
 			const children = await node.read();
 			const entries = await Promise.all(
 				children.map((child) => this.#build(child, metadataParser)),
@@ -88,10 +82,14 @@ export class MultiLocaleTreeBuilder implements TreeBuilder {
 			);
 		}
 
-		return {
+		const tree: DocumentTree = {
 			defaultLocale: this.#config.defaultLocale || firstLocale,
 			locales: map,
 		};
+
+		assertDocumentTreeIsValid(tree);
+
+		return tree;
 	}
 
 	async #build(
@@ -121,16 +119,14 @@ export class MultiLocaleTreeBuilder implements TreeBuilder {
 
 		const children = await node.read();
 
-		const entries = await Promise.all(
+		const entries = (await Promise.all(
 			children.map((child) => this.#build(child, metadataParser)),
-		);
+		)).filter((child): child is NonNullable<typeof child> => !!child);
 
 		return {
 			metadata,
 			directory: node,
-			entries: entries.filter((child): child is NonNullable<typeof child> =>
-				!!child
-			),
+			entries,
 		};
 	}
 }

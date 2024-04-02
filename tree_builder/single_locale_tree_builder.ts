@@ -15,6 +15,8 @@ import type {
 	TreeBuilder,
 } from "./interface.ts";
 
+import { assertDocumentTreeIsValid } from "./assert.ts";
+
 export interface SingleLocaleTreeBuilderConfig {
 	/**
 	 * Locale string to use.
@@ -55,10 +57,14 @@ export class SingleLocaleTreeBuilder implements TreeBuilder {
 			entries.filter((entry): entry is NonNullable<typeof entry> => !!entry),
 		);
 
-		return {
+		const tree: DocumentTree = {
 			locales: map,
 			defaultLocale: this.#locale,
 		};
+
+		assertDocumentTreeIsValid(tree);
+
+		return tree;
 	}
 
 	async #build(

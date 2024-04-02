@@ -107,3 +107,16 @@ Deno.test("Should abort no locale directory found", async () => {
 		builder.build({ fileSystemReader, metadataParser })
 	);
 });
+
+Deno.test("Should abort if name conflicts", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "en/Foo Bar/Baz.md", content: "" },
+		{ path: "en/Foo Bar.md", content: "" },
+	]);
+	const metadataParser = new VaultParser();
+	const builder = new MultiLocaleTreeBuilder();
+
+	await assertRejects(() =>
+		builder.build({ fileSystemReader, metadataParser })
+	);
+});
