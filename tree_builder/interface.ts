@@ -28,6 +28,8 @@ export interface DocumentTree {
 		string,
 		ReadonlyArray<Document | DocumentDirectory>
 	>;
+
+	readonly defaultLocale: string;
 }
 
 export interface BuildParameters {

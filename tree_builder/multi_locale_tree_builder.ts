@@ -15,11 +15,8 @@ import type {
 	TreeBuilder,
 } from "./interface.ts";
 
-export interface SingleLocaleTreeBuilderConfig {
-	/**
-	 * Locale string to use.
-	 */
-	locale: string;
+export interface MultiLocaleTreeBuilderConfig {
+	defaultLocale?: string;
 
 	/**
 	 * Callback function to be invoked on every file and directory.
@@ -29,13 +26,11 @@ export interface SingleLocaleTreeBuilderConfig {
 	ignore?(fileOrDirectory: FileReader | DirectoryReader): boolean;
 }
 
-export class SingleLocaleTreeBuilder implements TreeBuilder {
-	#locale: string;
-	#ignore?: (fileOrDirectory: FileReader | DirectoryReader) => boolean;
+export class MultiLocaleTreeBuilder implements TreeBuilder {
+	#config: MultiLocaleTreeBuilderConfig;
 
-	constructor({ locale, ignore }: SingleLocaleTreeBuilderConfig) {
-		this.#locale = locale;
-		this.#ignore = ignore;
+	constructor(config: MultiLocaleTreeBuilderConfig = {}) {
+		this.#config = config;
 	}
 
 	async build(
@@ -43,21 +38,59 @@ export class SingleLocaleTreeBuilder implements TreeBuilder {
 	): Promise<DocumentTree> {
 		const root = await fileSystemReader.getRootDirectory();
 
-		const children = await root.read();
-
-		const entries = await Promise.all(
-			children.map((child) => this.#build(child, metadataParser)),
-		);
+		const nodes = await root.read();
 
 		const map = new Map<string, Array<Document | DocumentDirectory>>();
-		map.set(
-			this.#locale,
-			entries.filter((entry): entry is NonNullable<typeof entry> => !!entry),
-		);
+
+		for (const node of nodes) {
+			if (this.#config.ignore && this.#config.ignore(node)) {
+				// TODO: Debug log
+				continue;
+			}
+
+			if (node.type === "file") {
+				// TODO: Warning instead?
+				throw new Error(
+					`You can't have a regular file at top-level directory, found "${node.name}".`,
+				);
+			}
+
+			const locale = node.name;
+
+			// Simple BCP 47 language tag check, based on RFC 4646 (Tags for Identifying Languages)
+			// https://www.rfc-editor.org/rfc/rfc4646.txt
+			if (!(/^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(locale))) {
+				// TODO: Warning instead?
+				throw new Error(`Invalid BCP 47 language tag, found "${locale}".`);
+			}
+
+			const children = await node.read();
+			const entries = await Promise.all(
+				children.map((child) => this.#build(child, metadataParser)),
+			);
+
+			map.set(
+				locale,
+				entries.filter((entry): entry is NonNullable<typeof entry> => !!entry),
+			);
+		}
+
+		const firstLocale = map.keys().next().value;
+		if (typeof firstLocale !== "string") {
+			throw new Error("No locale directories found.");
+		}
+
+		if (this.#config.defaultLocale && !map.has(this.#config.defaultLocale)) {
+			throw new Error(
+				`Received defaultLocale=${this.#config.defaultLocale}, however we couldn't find that locale (found ${
+					Array.from(map.keys()).join(", ")
+				}).`,
+			);
+		}
 
 		return {
+			defaultLocale: this.#config.defaultLocale || firstLocale,
 			locales: map,
-			defaultLocale: this.#locale,
 		};
 	}
 
@@ -65,7 +98,7 @@ export class SingleLocaleTreeBuilder implements TreeBuilder {
 		node: FileReader | DirectoryReader,
 		metadataParser: MetadataParser,
 	): Promise<DocumentDirectory | Document | null> {
-		if (this.#ignore && this.#ignore(node)) {
+		if (this.#config.ignore && this.#config.ignore(node)) {
 			// TODO: Debug log
 			return null;
 		}
