@@ -9,3 +9,9 @@
 #       or `*.swp`, I decided to add this because this project is for Obsidian and `docs/`
 #       directory is supposed to be edited using Obsidian.
 docs/.obsidian
+
+# What: Temporary directory for testing actual file writer
+#  Why: Although test cleans up the temporary directory, there could be a chance the
+#       cleanup code does not work and the directory (accidentally) remains.
+#       This prevents VCS picking up the directory in that case.
+filesystem_writer/.test

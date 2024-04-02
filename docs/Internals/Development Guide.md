@@ -52,7 +52,8 @@ $ deno fmt
 The most straightforward way to run the tests is to run this command on the repository root:
 
 ```
-$ deno test --allow-read=.
+$ deno test --allow-read=. --allow-write=./filesystem_writer/.test
 ```
 
-If you omit the `--allow-read=.` permission, tests performing actual file I/O will be skipped.
+- If you omit the `--allow-read=.` permission, tests performing actual file I/O will be skipped.
+- If you omit the `--allow-write=./filesystem_writer/.test` permission, tests performing actual file write will be skipped.
