@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SEPARATOR } from "../../deps/deno.land/std/path/mod.ts";
+import { SEPARATOR } from "../deps/deno.land/std/path/mod.ts";
 
 import type {
 	DirectoryReader,

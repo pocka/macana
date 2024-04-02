@@ -5,7 +5,7 @@
 import {
 	assertEquals,
 	assertObjectMatch,
-} from "../../deps/deno.land/std/assert/mod.ts";
+} from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "./memory_fs.ts";
 import type { DirectoryReader, FileReader } from "./interface.ts";

@@ -5,8 +5,7 @@
 import {
 	assertEquals,
 	assertExists,
-	assertObjectMatch,
-} from "../../deps/deno.land/std/assert/mod.ts";
+} from "../deps/deno.land/std/assert/mod.ts";
 
 import { DenoFsReader } from "./deno_fs.ts";
 import type { DirectoryReader } from "./interface.ts";
@@ -24,13 +23,11 @@ Deno.test("Should read file tree", {
 	const root = await reader.getRootDirectory();
 
 	const rootEntries = await root.read();
-	assertEquals(rootEntries.length, 1);
-	assertObjectMatch(rootEntries[0], {
-		type: "directory",
-		name: "filesystem_reader",
-	});
-
-	const thisDirectory = rootEntries[0] as DirectoryReader;
+	const thisDirectory = rootEntries.find((entry) =>
+		entry.name === "filesystem_reader"
+	) as DirectoryReader;
+	assertExists(thisDirectory);
+	assertEquals(thisDirectory.type, "directory");
 	const thisDirectoryContents = await thisDirectory.read();
 
 	const thisFile = thisDirectoryContents.find((entry) =>
