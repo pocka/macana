@@ -2,5 +2,10 @@
 	"fmt": {
 		"useTabs": true,
 		"include": ["**/*.ts"]
+	},
+	"lint": {
+		"rules": {
+			"exclude": ["require-await"]
+		}
 	}
 }
