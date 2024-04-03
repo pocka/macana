@@ -29,10 +29,10 @@ export function validateTree(childWriter: FileSystemWriter): FileSystemWriter {
 	const nodes = new Map<string, NodeType>();
 
 	return {
-		write(path, content, opts) {
+		write(path, content) {
 			setNodeTypeRecur(path, NodeType.File, nodes);
 
-			return childWriter.write(path, content, opts);
+			return childWriter.write(path, content);
 		},
 	};
 }

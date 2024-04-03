@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { FileSystemWriter, WriteOptions } from "./interface.ts";
+import type { FileSystemWriter } from "./interface.ts";
 
 const SEP = "/";
 
@@ -12,15 +12,8 @@ export class MemoryFsWriter implements FileSystemWriter {
 	async write(
 		path: readonly string[],
 		content: Uint8Array,
-		opts: WriteOptions = {},
 	): Promise<void> {
 		const key = path.join(SEP);
-
-		if (opts.errorOnOverwrite) {
-			if (this.#files.has(key)) {
-				throw new Error(`Attempt to overwrite file at "${key}"`);
-			}
-		}
 
 		this.#files.set(key, content);
 	}
