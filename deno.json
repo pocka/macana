@@ -1,11 +1,15 @@
 {
 	"fmt": {
 		"useTabs": true,
-		"include": ["**/*.ts"]
+		"include": ["**/*.ts", "**/*.tsx"]
 	},
 	"lint": {
 		"rules": {
-			"exclude": ["require-await"]
+			"exclude": ["require-await", "require-yield"]
 		}
+	},
+	"tasks": {
+		"build-docs": "deno run --allow-read=docs --allow-write=docs/.dist docs/build.ts",
+		"serve-docs": "cd docs/.dist && deno run --allow-read=. --allow-net https://deno.land/std/http/file_server.ts ."
 	}
 }

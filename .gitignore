@@ -15,3 +15,7 @@ docs/.obsidian
 #       cleanup code does not work and the directory (accidentally) remains.
 #       This prevents VCS picking up the directory in that case.
 filesystem_writer/.test
+
+# What: Docs website build output directory
+#  Why: This directory contains build artifacts, not source code.
+docs/.dist
