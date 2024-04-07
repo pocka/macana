@@ -25,3 +25,7 @@ A document directory consists of *document metadata* of its own and zero or more
 ## Document tree
 
 Tree structured data contains *document metadata* and *document directories*.
+
+## Document content
+
+A parsed content of note or canvas.

@@ -11,11 +11,17 @@ import type {
 	DocumentMetadata,
 	MetadataParser,
 } from "../metadata_parser/interface.ts";
+import type {
+	ContentParser,
+	DocumentContent,
+} from "../content_parser/interface.ts";
 
 export interface Document {
 	readonly type: "document";
 	readonly metadata: DocumentMetadata;
 	readonly file: FileReader;
+
+	readonly content: DocumentContent;
 
 	/**
 	 * Document path: list of names, not file paths.
@@ -45,6 +51,7 @@ export interface DocumentTree {
 export interface BuildParameters {
 	readonly fileSystemReader: FileSystemReader;
 	readonly metadataParser: MetadataParser;
+	readonly contentParser: ContentParser;
 }
 
 export interface TreeBuilder {

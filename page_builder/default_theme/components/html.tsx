@@ -16,7 +16,6 @@ import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.
 
 import type {
 	Document,
-	DocumentDirectory,
 	DocumentTree,
 } from "../../../tree_builder/interface.ts";
 
@@ -60,7 +59,7 @@ export interface ViewProps {
 	/**
 	 * The document's content HTML.
 	 */
-	content: Mdast.Root;
+	content: Mdast.Nodes;
 
 	language: string;
 

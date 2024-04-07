@@ -5,7 +5,6 @@
 /** @jsx h */
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
-import { fromMarkdown } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 
 import type {
 	Document,
@@ -13,12 +12,18 @@ import type {
 	DocumentTree,
 } from "../../tree_builder/interface.ts";
 import type { BuildParameters, PageBuilder } from "../interface.ts";
+import type { DocumentContent } from "../../content_parser/interface.ts";
+import type { ObsidianMarkdownDocument } from "../../content_parser/obsidian_markdown.ts";
 
 import * as css from "./css.ts";
 
 import * as Html from "./components/html.tsx";
 
 import { PathResolverProvider } from "./contexts/path_resolver.tsx";
+
+function isObsidianMarkdown(x: DocumentContent): x is ObsidianMarkdownDocument {
+	return x.kind === "obsidian_markdown";
+}
 
 interface InnerBuildParameters {
 	item: DocumentDirectory | Document;
@@ -69,16 +74,15 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const { fileSystemWriter } = buildParameters;
 
 		if ("file" in item) {
-			const content = await item.file.read();
-
-			if (item.file.name.endsWith(".md")) {
+			if (isObsidianMarkdown(item.content)) {
+				const content = item.content.content;
 				const html = "<!DOCTYPE html>" + renderSSR(
 					() => (
 						// Adds 1 to depth due to	`<name>/index.html` conversion.
 						<PathResolverProvider depth={pathPrefix.length + 1}>
 							<Html.View
 								tree={tree}
-								content={fromMarkdown(content)}
+								content={content}
 								document={item}
 								language={item.metadata.language || parentLanguage}
 								copyright={this.#copyright}
@@ -97,15 +101,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 				return;
 			}
 
-			if (item.file.name.endsWith(".canvas")) {
-				// TODO: Proper logging
-				console.warn(
-					"Default theme page builder does not support Canvas yet.",
-				);
-				return;
-			}
-
-			return;
+			throw new Error(`Unsupported content type: ${item.content.kind}`);
 		}
 
 		await Promise.all(item.entries.map((entry) =>

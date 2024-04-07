@@ -9,7 +9,10 @@ import {
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { VaultParser } from "../metadata_parser/vault_parser.ts";
+import { noopParser } from "../content_parser/noop.ts";
 import { DefaultTreeBuilder } from "./default_tree_builder.ts";
+
+const contentParser = noopParser;
 
 Deno.test("Should read from top-level directory, as-is", async () => {
 	const fileSystemReader = new MemoryFsReader([
@@ -19,7 +22,11 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 	const metadataParser = new VaultParser();
 	const builder = new DefaultTreeBuilder({ defaultLanguage: "en" });
 
-	const tree = await builder.build({ fileSystemReader, metadataParser });
+	const tree = await builder.build({
+		fileSystemReader,
+		metadataParser,
+		contentParser,
+	});
 
 	assertObjectMatch(tree.nodes[0], {
 		metadata: {
@@ -69,7 +76,11 @@ Deno.test("Should ignore files and directories matches to `ignore` callback", as
 		},
 	});
 
-	const tree = await builder.build({ fileSystemReader, metadataParser });
+	const tree = await builder.build({
+		fileSystemReader,
+		metadataParser,
+		contentParser,
+	});
 
 	assertEquals(tree.nodes.length, 2);
 

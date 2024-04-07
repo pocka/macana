@@ -6,7 +6,6 @@ import type {
 	DirectoryReader,
 	FileReader,
 } from "../filesystem_reader/interface.ts";
-import type { MetadataParser } from "../metadata_parser/interface.ts";
 import type {
 	BuildParameters,
 	Document,
@@ -39,14 +38,16 @@ export class DefaultTreeBuilder implements TreeBuilder {
 	}
 
 	async build(
-		{ fileSystemReader, metadataParser }: BuildParameters,
+		{ fileSystemReader, metadataParser, contentParser }: BuildParameters,
 	): Promise<DocumentTree> {
 		const root = await fileSystemReader.getRootDirectory();
 
 		const children = await root.read();
 
 		const entries = await Promise.all(
-			children.map((child) => this.#build(child, metadataParser)),
+			children.map((child) =>
+				this.#build(child, { metadataParser, contentParser })
+			),
 		);
 
 		return {
@@ -60,7 +61,10 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 	async #build(
 		node: FileReader | DirectoryReader,
-		metadataParser: MetadataParser,
+		{ metadataParser, contentParser }: Omit<
+			BuildParameters,
+			"fileSystemReader"
+		>,
 		parentPath: readonly string[] = [],
 	): Promise<DocumentDirectory | Document | null> {
 		if (this.#ignore && this.#ignore(node)) {
@@ -78,10 +82,16 @@ export class DefaultTreeBuilder implements TreeBuilder {
 		}
 
 		if (node.type === "file") {
+			const content = await contentParser.parse({
+				fileReader: node,
+				documentMetadata: metadata,
+			});
+
 			return {
 				type: "document",
 				metadata,
 				file: node,
+				content,
 				path: [...parentPath, metadata.name],
 			};
 		}
@@ -90,7 +100,10 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 		const entries = await Promise.all(
 			children.map((child) =>
-				this.#build(child, metadataParser, [...parentPath, metadata.name])
+				this.#build(child, { metadataParser, contentParser }, [
+					...parentPath,
+					metadata.name,
+				])
 			),
 		);
 
