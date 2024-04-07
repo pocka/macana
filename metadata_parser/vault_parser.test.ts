@@ -4,6 +4,7 @@
 
 import { assertObjectMatch } from "../deps/deno.land/std/assert/mod.ts";
 
+import type { DirectoryReader } from "../filesystem_reader/interface.ts";
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { VaultParser } from "./vault_parser.ts";
 
@@ -150,6 +151,29 @@ title: Baz
 	);
 });
 
+Deno.test("Should use language defined in YAML frontmatter", async () => {
+	const fs = new MemoryFsReader([
+		{
+			path: "Foo Bar.md",
+			content: `---
+lang: en
+---`,
+		},
+	]);
+
+	const root = await fs.getRootDirectory();
+	const [file] = await root.read();
+
+	assertObjectMatch(
+		await new VaultParser({ readFrontMatter: true }).parse(file),
+		{
+			name: "foo%20bar",
+			title: "Foo Bar",
+			language: "en",
+		},
+	);
+});
+
 Deno.test("Should use both name and title defined in YAML frontmatter", async () => {
 	const fs = new MemoryFsReader([
 		{
@@ -192,6 +216,47 @@ title: Baz
 		{
 			name: "foo%20bar",
 			title: "Foo Bar",
+		},
+	);
+});
+
+Deno.test("Should use the language returned by user provided function", async () => {
+	const fs = new MemoryFsReader([
+		{
+			path: "en/Foo Bar.md",
+			content: "",
+		},
+		{
+			path: "ja/Foo Bar.md",
+			content: "",
+		},
+	]);
+
+	const root = await fs.getRootDirectory();
+	const [en, ja] = await root.read();
+
+	const parser = new VaultParser({
+		language(node) {
+			return node.type === "directory" && node.path.length === 1 &&
+				/^(en|ja)$/.test(node.name);
+		},
+	});
+
+	assertObjectMatch(
+		await parser.parse(en as DirectoryReader),
+		{
+			name: "en",
+			title: "en",
+			language: "en",
+		},
+	);
+
+	assertObjectMatch(
+		await parser.parse(ja),
+		{
+			name: "ja",
+			title: "ja",
+			language: "ja",
 		},
 	);
 });

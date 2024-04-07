@@ -15,13 +15,11 @@ import type {
 	TreeBuilder,
 } from "./interface.ts";
 
-import { assertDocumentTreeIsValid } from "./assert.ts";
-
-export interface SingleLocaleTreeBuilderConfig {
+export interface DefaultTreeBuilderConfig {
 	/**
-	 * Locale string to use.
+	 * Default language tag (BCP 47).
 	 */
-	locale: string;
+	defaultLanguage: string;
 
 	/**
 	 * Callback function to be invoked on every file and directory.
@@ -31,12 +29,12 @@ export interface SingleLocaleTreeBuilderConfig {
 	ignore?(fileOrDirectory: FileReader | DirectoryReader): boolean;
 }
 
-export class SingleLocaleTreeBuilder implements TreeBuilder {
-	#locale: string;
+export class DefaultTreeBuilder implements TreeBuilder {
+	#defaultLanguage: string;
 	#ignore?: (fileOrDirectory: FileReader | DirectoryReader) => boolean;
 
-	constructor({ locale, ignore }: SingleLocaleTreeBuilderConfig) {
-		this.#locale = locale;
+	constructor({ defaultLanguage, ignore }: DefaultTreeBuilderConfig) {
+		this.#defaultLanguage = defaultLanguage;
 		this.#ignore = ignore;
 	}
 
@@ -51,20 +49,12 @@ export class SingleLocaleTreeBuilder implements TreeBuilder {
 			children.map((child) => this.#build(child, metadataParser)),
 		);
 
-		const map = new Map<string, Array<Document | DocumentDirectory>>();
-		map.set(
-			this.#locale,
-			entries.filter((entry): entry is NonNullable<typeof entry> => !!entry),
-		);
-
-		const tree: DocumentTree = {
-			locales: map,
-			defaultLocale: this.#locale,
+		return {
+			nodes: entries.filter((entry): entry is NonNullable<typeof entry> =>
+				!!entry
+			),
+			defaultLanguage: this.#defaultLanguage,
 		};
-
-		assertDocumentTreeIsValid(tree);
-
-		return tree;
 	}
 
 	async #build(

@@ -4,7 +4,7 @@
 
 import { DenoFsReader } from "../filesystem_reader/deno_fs.ts";
 import { DenoFsWriter } from "../filesystem_writer/deno_fs.ts";
-import { MultiLocaleTreeBuilder } from "../tree_builder/multi_locale_tree_builder.ts";
+import { DefaultTreeBuilder } from "../tree_builder/default_tree_builder.ts";
 import { VaultParser } from "../metadata_parser/vault_parser.ts";
 import { DefaultThemeBuilder } from "../page_builder/default_theme/builder.tsx";
 
@@ -26,14 +26,19 @@ await Deno.mkdir(outDir, { recursive: true });
 
 const fileSystemReader = new DenoFsReader(srcDir);
 const fileSystemWriter = new DenoFsWriter(outDir);
-const treeBuilder = new MultiLocaleTreeBuilder({
-	defaultLocale: "en",
+const treeBuilder = new DefaultTreeBuilder({
+	defaultLanguage: "en",
 	ignore(node) {
 		return node.name.startsWith(".") ||
 			(node.path.length === 1 && node.name.endsWith(".ts"));
 	},
 });
-const metadataParser = new VaultParser();
+const metadataParser = new VaultParser({
+	language(node) {
+		return node.parent.type === "root" && node.type === "directory" &&
+			/^[a-z]+(-[a-z]+)*$/.test(node.name);
+	},
+});
 const pageBuilder = new DefaultThemeBuilder("© 2024 Shota FUJI");
 
 const documentTree = await treeBuilder.build({

@@ -21,11 +21,11 @@ import * as Html from "./components/html.tsx";
 import { PathResolverProvider } from "./contexts/path_resolver.tsx";
 
 interface InnerBuildParameters {
-	items: ReadonlyArray<DocumentDirectory | Document>;
+	item: DocumentDirectory | Document;
 
 	tree: DocumentTree;
 
-	locale: string;
+	parentLanguage: string;
 
 	pathPrefix?: readonly string[];
 
@@ -51,69 +51,71 @@ export class DefaultThemeBuilder implements PageBuilder {
 			new TextEncoder().encode(styles),
 		);
 
-		for (const [locale, items] of documentTree.locales) {
-			await this.#buildLocale({
-				items,
+		await Promise.all(documentTree.nodes.map((item) =>
+			this.#build({
+				item,
 				tree: documentTree,
-				locale,
-				pathPrefix: locale === documentTree.defaultLocale ? [] : [locale],
+				parentLanguage: documentTree.defaultLanguage,
+				pathPrefix: [],
 				buildParameters: { fileSystemWriter, fileSystemReader },
-			});
-		}
+			})
+		));
 	}
 
-	async #buildLocale(
-		{ items, tree, locale, pathPrefix = [], buildParameters }:
+	async #build(
+		{ item, tree, parentLanguage, pathPrefix = [], buildParameters }:
 			InnerBuildParameters,
 	): Promise<void> {
 		const { fileSystemWriter } = buildParameters;
 
-		for (const item of items) {
-			if ("file" in item) {
-				const content = await item.file.read();
+		if ("file" in item) {
+			const content = await item.file.read();
 
-				if (item.file.name.endsWith(".md")) {
-					const html = "<!DOCTYPE html>" + renderSSR(
-						() => (
-							// Adds 1 to depth due to	`<name>/index.html` conversion.
-							<PathResolverProvider depth={pathPrefix.length + 1}>
-								<Html.View
-									tree={tree}
-									content={fromMarkdown(content)}
-									document={item}
-									locale={locale}
-									copyright={this.#copyright}
-								/>
-							</PathResolverProvider>
-						),
-					);
+			if (item.file.name.endsWith(".md")) {
+				const html = "<!DOCTYPE html>" + renderSSR(
+					() => (
+						// Adds 1 to depth due to	`<name>/index.html` conversion.
+						<PathResolverProvider depth={pathPrefix.length + 1}>
+							<Html.View
+								tree={tree}
+								content={fromMarkdown(content)}
+								document={item}
+								language={item.metadata.language || parentLanguage}
+								copyright={this.#copyright}
+							/>
+						</PathResolverProvider>
+					),
+				);
 
-					const enc = new TextEncoder();
+				const enc = new TextEncoder();
 
-					await fileSystemWriter.write([
-						...pathPrefix,
-						item.file.name.replace(/\.md$/, ""),
-						"index.html",
-					], enc.encode(html));
-				}
-
-				if (item.file.name.endsWith(".canvas")) {
-					// TODO: Proper logging
-					console.warn(
-						"Default theme page builder does not support Canvas yet.",
-					);
-				}
-
-				continue;
+				await fileSystemWriter.write([
+					...pathPrefix,
+					item.file.name.replace(/\.md$/, ""),
+					"index.html",
+				], enc.encode(html));
+				return;
 			}
 
-			await this.#buildLocale({
-				items: item.entries,
+			if (item.file.name.endsWith(".canvas")) {
+				// TODO: Proper logging
+				console.warn(
+					"Default theme page builder does not support Canvas yet.",
+				);
+				return;
+			}
+
+			return;
+		}
+
+		await Promise.all(item.entries.map((entry) =>
+			this.#build({
+				item: entry,
 				tree,
-				locale,
+				parentLanguage: item.metadata.language || parentLanguage,
 				pathPrefix: [...pathPrefix, item.directory.name],
 				buildParameters,
-			});
-		}
+			})
+		));
 	}
 }

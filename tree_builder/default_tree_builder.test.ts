@@ -9,7 +9,7 @@ import {
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { VaultParser } from "../metadata_parser/vault_parser.ts";
-import { SingleLocaleTreeBuilder } from "./single_locale_tree_builder.ts";
+import { DefaultTreeBuilder } from "./default_tree_builder.ts";
 
 Deno.test("Should read from top-level directory, as-is", async () => {
 	const fileSystemReader = new MemoryFsReader([
@@ -17,13 +17,11 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 		{ path: "Foo.md", content: "" },
 	]);
 	const metadataParser = new VaultParser();
-	const builder = new SingleLocaleTreeBuilder({ locale: "en" });
+	const builder = new DefaultTreeBuilder({ defaultLanguage: "en" });
 
 	const tree = await builder.build({ fileSystemReader, metadataParser });
 
-	const items = tree.locales.get("en")!;
-
-	assertObjectMatch(items[0], {
+	assertObjectMatch(tree.nodes[0], {
 		metadata: {
 			name: "foo%20bar",
 			title: "Foo Bar",
@@ -44,7 +42,7 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 		],
 	});
 
-	assertObjectMatch(items[1], {
+	assertObjectMatch(tree.nodes[1], {
 		metadata: {
 			name: "foo",
 			title: "Foo",
@@ -64,8 +62,8 @@ Deno.test("Should ignore files and directories matches to `ignore` callback", as
 		{ path: "bar/foo/baz.md", content: "" },
 	]);
 	const metadataParser = new VaultParser();
-	const builder = new SingleLocaleTreeBuilder({
-		locale: "en",
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
 		ignore(node) {
 			return node.name === "foo";
 		},
@@ -73,11 +71,9 @@ Deno.test("Should ignore files and directories matches to `ignore` callback", as
 
 	const tree = await builder.build({ fileSystemReader, metadataParser });
 
-	const items = tree.locales.get("en")!;
+	assertEquals(tree.nodes.length, 2);
 
-	assertEquals(items.length, 2);
-
-	assertObjectMatch(items[0], {
+	assertObjectMatch(tree.nodes[0], {
 		metadata: {
 			name: "foo",
 			title: "foo",
@@ -85,7 +81,7 @@ Deno.test("Should ignore files and directories matches to `ignore` callback", as
 		file: { name: "foo.md" },
 	});
 
-	assertObjectMatch(items[1], {
+	assertObjectMatch(tree.nodes[1], {
 		metadata: {
 			name: "bar",
 			title: "bar",

@@ -6,7 +6,7 @@ A *document* consists of *document metadata* and *document content*.
 ## Document metadata
 
 Properties describing a *document* or a *document directory* required for generating a website.
-*Document metadata* consists of a *document name* and *document title*.
+*Document metadata* consists of a *document name*, *document title*, and language of the document or the document directory.
 
 ## Document name
 
@@ -33,4 +33,4 @@ A document directory consists of *document metadata* of its own and zero or more
 
 ## Document tree
 
-Tree structured data contains *document metadata* and *document directories* per locales.
+Tree structured data contains *document metadata* and *document directories*.

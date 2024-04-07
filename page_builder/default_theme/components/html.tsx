@@ -61,23 +61,15 @@ export interface ViewProps {
 	 */
 	content: Mdast.Root;
 
-	locale: string;
+	language: string;
 
 	copyright: string;
 }
 
 export function View(
-	{ document, locale, content, tree, copyright }: ViewProps,
+	{ document, language, content, tree, copyright }: ViewProps,
 ) {
 	const path = usePathResolver();
-
-	const topLevelDocs = tree.locales.get(locale);
-	if (!topLevelDocs) {
-		const locales = Array.from(tree.locales.keys());
-		throw new Error(
-			`Unknown locale: "${locale}" (available locales = ${locales.join(", ")})`,
-		);
-	}
 
 	const hast = toHast(content);
 
@@ -88,7 +80,7 @@ export function View(
 	const contentNodes = toNode(hast);
 
 	return (
-		<html lang={locale}>
+		<html lang={language}>
 			<head>
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -104,7 +96,6 @@ export function View(
 					nav={
 						<DocumentTreeUI.View
 							tree={tree}
-							currentLocale={locale}
 							currentPath={document.file.path}
 						/>
 					}

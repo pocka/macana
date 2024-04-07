@@ -24,12 +24,9 @@ export interface DocumentDirectory {
 }
 
 export interface DocumentTree {
-	readonly locales: ReadonlyMap<
-		string,
-		ReadonlyArray<Document | DocumentDirectory>
-	>;
+	readonly nodes: ReadonlyArray<Document | DocumentDirectory>;
 
-	readonly defaultLocale: string;
+	readonly defaultLanguage: string;
 }
 
 export interface BuildParameters {

@@ -15,6 +15,22 @@ function escapeNodeName(nodeName: string): string {
 	return encodeURIComponent(nodeName.toLowerCase());
 }
 
+function getFrontMatterValue(
+	frontmatter: Record<string, unknown>,
+	key: string,
+): string | undefined {
+	if (!(key in frontmatter)) {
+		return undefined;
+	}
+
+	const value = frontmatter[key];
+	if (typeof value !== "string") {
+		return undefined;
+	}
+
+	return value;
+}
+
 export interface VaultParserOptions {
 	/**
 	 * Whether to read YAML frontmatter of notes.
@@ -22,10 +38,23 @@ export interface VaultParserOptions {
 	 *
 	 * - Use `name` property for document name if defined.
 	 * - Use `title` property for document title if defined.
+	 * - Use `lang` property or `language` property as a document language if defined.
 	 *
 	 * This flag is off by-default for performance reasons.
 	 */
 	readFrontMatter?: boolean;
+
+	/**
+	 * A optional function to determine the language of a directory or a file.
+	 * Macana does not check whether the resulted language tag is valid.
+	 * @returns If this function returned a falsy value, Macana treat the directory or the file
+	 *          has no specified language. If this function returned `true`, Macana uses the file
+	 *          name or directory name as a language. If this function returned string, Macana
+	 *          uses the string as a language.
+	 */
+	language?(
+		node: FileReader | DirectoryReader,
+	): string | true | null | undefined | false;
 }
 
 /**
@@ -36,9 +65,11 @@ export interface VaultParserOptions {
  */
 export class VaultParser implements MetadataParser {
 	#readFrontMatter: boolean;
+	#language: VaultParserOptions["language"];
 
-	constructor({ readFrontMatter = false }: VaultParserOptions = {}) {
+	constructor({ readFrontMatter = false, language }: VaultParserOptions = {}) {
 		this.#readFrontMatter = readFrontMatter;
+		this.#language = language;
 	}
 
 	async parse(
@@ -48,6 +79,7 @@ export class VaultParser implements MetadataParser {
 			return {
 				name: escapeNodeName(node.name),
 				title: node.name,
+				language: this.#getLanguage(node),
 			};
 		}
 
@@ -59,6 +91,7 @@ export class VaultParser implements MetadataParser {
 				const fromFileName: DocumentMetadata = {
 					name: escapeNodeName(basename),
 					title: basename,
+					language: this.#getLanguage(node),
 				};
 
 				if (this.#readFrontMatter) {
@@ -67,6 +100,7 @@ export class VaultParser implements MetadataParser {
 					return {
 						name: parsed.name || fromFileName.name,
 						title: parsed.title || fromFileName.title,
+						language: parsed.language || fromFileName.language,
 					};
 				}
 
@@ -76,6 +110,7 @@ export class VaultParser implements MetadataParser {
 				return {
 					name: escapeNodeName(basename),
 					title: basename,
+					language: this.#getLanguage(node),
 				};
 			}
 			// Not an Obsidian document.
@@ -87,6 +122,23 @@ export class VaultParser implements MetadataParser {
 		}
 	}
 
+	#getLanguage(node: FileReader | DirectoryReader): string | undefined {
+		if (!this.#language) {
+			return undefined;
+		}
+
+		const result = this.#language(node);
+		if (!result) {
+			return undefined;
+		}
+
+		if (typeof result === "string") {
+			return result;
+		}
+
+		return node.name;
+	}
+
 	async #parseFrontMatter(
 		file: FileReader,
 	): Promise<Partial<DocumentMetadata>> {
@@ -95,14 +147,11 @@ export class VaultParser implements MetadataParser {
 		// Obsidian currently supports YAML frontmatter only.
 		const frontmatter = yamlFrontmatter.extract(markdown);
 
-		const name = ("name" in frontmatter.attrs &&
-			typeof frontmatter.attrs.name === "string" && frontmatter.attrs.name) ||
-			undefined;
+		const name = getFrontMatterValue(frontmatter.attrs, "name");
+		const title = getFrontMatterValue(frontmatter.attrs, "title");
+		const language = getFrontMatterValue(frontmatter.attrs, "lang") ||
+			getFrontMatterValue(frontmatter.attrs, "language");
 
-		const title = ("title" in frontmatter.attrs &&
-			typeof frontmatter.attrs.title === "string" &&
-			frontmatter.attrs.title) || undefined;
-
-		return { name, title };
+		return { name, title, language };
 	}
 }
