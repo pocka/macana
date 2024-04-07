@@ -220,7 +220,7 @@ title: Baz
 	);
 });
 
-Deno.test("Should use the language returned by user provided function", async () => {
+Deno.test("Should overrides", async () => {
 	const fs = new MemoryFsReader([
 		{
 			path: "en/Foo Bar.md",
@@ -236,9 +236,15 @@ Deno.test("Should use the language returned by user provided function", async ()
 	const [en, ja] = await root.read();
 
 	const parser = new VaultParser({
-		language(node) {
-			return node.type === "directory" && node.path.length === 1 &&
-				/^(en|ja)$/.test(node.name);
+		override(node) {
+			if (node.type !== "directory" || !(/^(en|ja)$/.test(node.name))) {
+				return null;
+			}
+
+			return {
+				title: node.name === "ja" ? "日本語" : "English",
+				language: node.name,
+			};
 		},
 	});
 
@@ -246,7 +252,7 @@ Deno.test("Should use the language returned by user provided function", async ()
 		await parser.parse(en as DirectoryReader),
 		{
 			name: "en",
-			title: "en",
+			title: "English",
 			language: "en",
 		},
 	);
@@ -255,7 +261,7 @@ Deno.test("Should use the language returned by user provided function", async ()
 		await parser.parse(ja),
 		{
 			name: "ja",
-			title: "ja",
+			title: "日本語",
 			language: "ja",
 		},
 	);

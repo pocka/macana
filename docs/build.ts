@@ -34,9 +34,31 @@ const treeBuilder = new DefaultTreeBuilder({
 	},
 });
 const metadataParser = new VaultParser({
-	language(node) {
-		return node.parent.type === "root" && node.type === "directory" &&
-			/^[a-z]+(-[a-z]+)*$/.test(node.name);
+	override(node) {
+		if (
+			node.parent.type !== "root" || node.type !== "directory" ||
+			!(/^[a-z]+(-[a-z]+)*$/.test(node.name))
+		) {
+			return null;
+		}
+
+		switch (node.name) {
+			case "ja":
+				return {
+					title: "日本語",
+					language: node.name,
+				};
+			case "en":
+				return {
+					title: "English",
+					language: node.name,
+				};
+			default: {
+				return {
+					language: node.name,
+				};
+			}
+		}
 	},
 });
 const pageBuilder = new DefaultThemeBuilder("© 2024 Shota FUJI");

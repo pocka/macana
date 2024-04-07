@@ -45,16 +45,13 @@ export interface VaultParserOptions {
 	readFrontMatter?: boolean;
 
 	/**
-	 * A optional function to determine the language of a directory or a file.
-	 * Macana does not check whether the resulted language tag is valid.
-	 * @returns If this function returned a falsy value, Macana treat the directory or the file
-	 *          has no specified language. If this function returned `true`, Macana uses the file
-	 *          name or directory name as a language. If this function returned string, Macana
-	 *          uses the string as a language.
+	 * An optional function to override default parsing behaviour.
+	 * If this function returned partial of metadata, Macana prefers it over default parsed metadata.
+	 * Metadata extracted from YAML frontmatters overrides the metadata this function returned.
 	 */
-	language?(
+	override?(
 		node: FileReader | DirectoryReader,
-	): string | true | null | undefined | false;
+	): Partial<DocumentMetadata> | false | null | undefined;
 }
 
 /**
@@ -65,21 +62,23 @@ export interface VaultParserOptions {
  */
 export class VaultParser implements MetadataParser {
 	#readFrontMatter: boolean;
-	#language: VaultParserOptions["language"];
+	#override: VaultParserOptions["override"];
 
-	constructor({ readFrontMatter = false, language }: VaultParserOptions = {}) {
+	constructor({ readFrontMatter = false, override }: VaultParserOptions = {}) {
 		this.#readFrontMatter = readFrontMatter;
-		this.#language = language;
+		this.#override = override;
 	}
 
 	async parse(
 		node: FileReader | DirectoryReader,
 	): Promise<DocumentMetadata | Skip> {
+		const overrides = this.#override?.(node) || null;
+
 		if (node.type === "directory") {
 			return {
-				name: escapeNodeName(node.name),
-				title: node.name,
-				language: this.#getLanguage(node),
+				name: overrides?.name || escapeNodeName(node.name),
+				title: overrides?.title || node.name,
+				language: overrides?.language,
 			};
 		}
 
@@ -89,9 +88,9 @@ export class VaultParser implements MetadataParser {
 		switch (ext) {
 			case ".md": {
 				const fromFileName: DocumentMetadata = {
-					name: escapeNodeName(basename),
-					title: basename,
-					language: this.#getLanguage(node),
+					name: overrides?.name || escapeNodeName(basename),
+					title: overrides?.title || basename,
+					language: overrides?.language,
 				};
 
 				if (this.#readFrontMatter) {
@@ -108,9 +107,9 @@ export class VaultParser implements MetadataParser {
 			}
 			case ".canvas": {
 				return {
-					name: escapeNodeName(basename),
-					title: basename,
-					language: this.#getLanguage(node),
+					name: overrides?.name || escapeNodeName(basename),
+					title: overrides?.title || basename,
+					language: overrides?.language,
 				};
 			}
 			// Not an Obsidian document.
@@ -120,23 +119,6 @@ export class VaultParser implements MetadataParser {
 				};
 			}
 		}
-	}
-
-	#getLanguage(node: FileReader | DirectoryReader): string | undefined {
-		if (!this.#language) {
-			return undefined;
-		}
-
-		const result = this.#language(node);
-		if (!result) {
-			return undefined;
-		}
-
-		if (typeof result === "string") {
-			return result;
-		}
-
-		return node.name;
 	}
 
 	async #parseFrontMatter(
