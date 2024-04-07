@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build and Deploy document website
+
+on:
+  # Run everytime push has made to the master branch.
+  push:
+    branches:
+      - "master"
+
+  # This line enables us to manually run this workflow.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  # Generation permission for OIDC token, required by how Pages deploy Action.
+  # https://github.com/actions/deploy-pages/issues/329#issuecomment-2030341950
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.41.x
+      - name: Build documentation website
+        run: "deno task build-docs"
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'docs/.dist'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

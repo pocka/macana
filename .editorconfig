@@ -12,3 +12,8 @@ indent_style = tab
 [*.md]
 # Hard line break
 trim_trailing_whitespace = false
+
+# YAML disallows the use of tab
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
