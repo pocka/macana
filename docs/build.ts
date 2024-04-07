@@ -4,7 +4,7 @@
 
 import { DenoFsReader } from "../filesystem_reader/deno_fs.ts";
 import { DenoFsWriter } from "../filesystem_writer/deno_fs.ts";
-import { MultiLocaleTreeBuilder } from "../tree_builder/multi_locale_tree_builder.ts"
+import { MultiLocaleTreeBuilder } from "../tree_builder/multi_locale_tree_builder.ts";
 import { VaultParser } from "../metadata_parser/vault_parser.ts";
 import { DefaultThemeBuilder } from "../page_builder/default_theme/builder.tsx";
 
@@ -29,7 +29,8 @@ const fileSystemWriter = new DenoFsWriter(outDir);
 const treeBuilder = new MultiLocaleTreeBuilder({
 	defaultLocale: "en",
 	ignore(node) {
-		return node.name.startsWith(".") || (node.path.length === 1 && node.name.endsWith(".ts"));
+		return node.name.startsWith(".") ||
+			(node.path.length === 1 && node.name.endsWith(".ts"));
 	},
 });
 const metadataParser = new VaultParser();

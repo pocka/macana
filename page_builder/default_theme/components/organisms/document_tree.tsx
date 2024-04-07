@@ -9,6 +9,7 @@ import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
 import type {
 	Document,
 	DocumentDirectory,
+	DocumentTree,
 } from "../../../../tree_builder/interface.ts";
 
 import { css } from "../../css.ts";
@@ -36,15 +37,45 @@ export const styles = css`
 `;
 
 export interface ViewProps {
-	tree: ReadonlyArray<Document | DocumentDirectory>;
+	tree: DocumentTree;
+
+	currentLocale: string;
 
 	currentPath: readonly string[];
 }
 
-export function View({ tree, currentPath }: ViewProps) {
+export function View({ tree, currentLocale, currentPath }: ViewProps) {
+	if (tree.locales.size > 1) {
+		return (
+			<ul className={C.Root}>
+				{Array.from(tree.locales.entries()).map(([locale, items]) => (
+					<li>
+						<details
+							className={C.Directory}
+							open={locale === currentLocale ? "" : undefined}
+						>
+							<summary>{locale}</summary>
+
+							<ul className={C.List} lang={locale}>
+								{items.map((item) => (
+									<Node value={item} currentPath={currentPath} />
+								))}
+							</ul>
+						</details>
+					</li>
+				))}
+			</ul>
+		);
+	}
+
+	const singleLocale = tree.locales.get(tree.defaultLocale);
+	if (!singleLocale) {
+		throw new Error(`Locale not found: ${tree.defaultLocale}`);
+	}
+
 	return (
 		<ul className={C.Root}>
-			{tree.map((entry) => (
+			{singleLocale.map((entry) => (
 				<Node
 					value={entry}
 					currentPath={currentPath}

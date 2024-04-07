@@ -103,7 +103,8 @@ export function View(
 					aside={toc.length > 0 && <Toc.View toc={toc} />}
 					nav={
 						<DocumentTreeUI.View
-							tree={topLevelDocs}
+							tree={tree}
+							currentLocale={locale}
 							currentPath={document.file.path}
 						/>
 					}
