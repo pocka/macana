@@ -1,0 +1,52 @@
+- [x] Using Vault as a site structure
+- [ ] Markdown Parsing
+	- [x] CommonMark
+	- [ ] GitHub Flavored Markdown
+		- [ ] ~~Strikethrough~~
+		- [ ] Task Lists
+		- [ ] Footnotes
+		- [ ] Autolinks
+		- [ ] Tables
+		- [ ] Diagrams (Mermaid) ... Maybe no support, as Mermaid's overall quality is questionable.
+		- [ ] MathJax ... No support if it can't generate MathML at build time.
+	- [ ] Syntax Highlighting
+	- [ ] Obsidian Extensions
+		- [ ] Internal Link path resolution
+			- [ ] Absolute path in vault
+			- [ ] Relative path to file
+			- [ ] Shortest path when possible
+		- [ ] Wikilink
+			- [ ] Label
+			- [ ] Heading
+			- [ ] Block reference
+		- [ ] Defining a block
+		- [ ] Image size annotation
+		- [ ] Embeddings
+			- [ ] Image file
+			- [ ] Audio file
+			- [ ] PDF file
+			- [ ] List from another file
+			- [ ] Search results
+		- [ ] ==Highlight==
+		- [ ] Callouts
+		- [ ] Comments %% You can check this item once I'm no longer visible %%
+		- [ ] Strip Raw HTML (only `<title>` is troublesome, but align behavior to Obsidian's)
+			- [ ] `<script>` <script>console.log("This tag should be eliminated: escaping is not suffice")</script>
+			- [ ] `<title>` <title>Foo</title>
+			- [ ] `<style>` <style>* { display: none; }</style>
+		- [ ] Keep Raw HTML (Unified libraries tends to ignore spec by default, needs to opt-out)
+			- [ ] <span style="color: red; background-color: yellow;">Colored text</span>
+			- [ ] Strip attributes not exist in whitelist
+- [ ] Document sorting
+- [ ] Search functionality
+- [ ] Creation / Update date
+- [ ] Tags
+- [ ] Config for site logo
+- [ ] Tool's logo
+- [ ] Proper styling
+- [ ] Switch to drawer menu when side navigation cannot fit
+- [ ] CLI for opinionated build
+	- [ ] Simple JSONC config
+- [ ] Usage document
+	- [ ] Library usage
+	- [ ] CLI usage
