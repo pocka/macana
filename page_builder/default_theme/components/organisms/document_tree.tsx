@@ -66,8 +66,8 @@ function Node({ value, currentPath }: NodeProps) {
 
 	if ("file" in value) {
 		const path = pathResolver.resolve([
-			...value.file.path.slice(0, -1),
-			value.file.name.replace(/\.md$/, ""),
+			...value.path.map((segment) => encodeURIComponent(segment)),
+			// For trailing slash
 			"",
 		]);
 

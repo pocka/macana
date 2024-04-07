@@ -10,15 +10,6 @@ import type {
 export interface DocumentMetadata {
 	/**
 	 * An identifier for a document, unique among a directory the document belongs to.
-	 * A *document name* appears in a generated URL, thus available characters are limited to:
-	 *
-	 * - Alphabet (`a-z`, `A-Z`)
-	 * - Digit (`0-9`)
-	 * - Percent symbol (`%`)
-	 * - Hyphen (`-`)
-	 * - Dot (`.`)
-	 * - Underscore (`_`)
-	 * - Tilde (`~`)
 	 */
 	readonly name: string;
 

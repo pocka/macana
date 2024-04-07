@@ -50,6 +50,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 		);
 
 		return {
+			type: "tree",
 			nodes: entries.filter((entry): entry is NonNullable<typeof entry> =>
 				!!entry
 			),
@@ -60,6 +61,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 	async #build(
 		node: FileReader | DirectoryReader,
 		metadataParser: MetadataParser,
+		parentPath: readonly string[] = [],
 	): Promise<DocumentDirectory | Document | null> {
 		if (this.#ignore && this.#ignore(node)) {
 			// TODO: Debug log
@@ -77,23 +79,29 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 		if (node.type === "file") {
 			return {
+				type: "document",
 				metadata,
 				file: node,
+				path: [...parentPath, metadata.name],
 			};
 		}
 
 		const children = await node.read();
 
 		const entries = await Promise.all(
-			children.map((child) => this.#build(child, metadataParser)),
+			children.map((child) =>
+				this.#build(child, metadataParser, [...parentPath, metadata.name])
+			),
 		);
 
 		return {
+			type: "directory",
 			metadata,
 			directory: node,
 			entries: entries.filter((child): child is NonNullable<typeof child> =>
 				!!child
 			),
+			path: [...parentPath, metadata.name],
 		};
 	}
 }

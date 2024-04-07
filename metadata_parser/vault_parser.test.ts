@@ -42,40 +42,6 @@ Deno.test("Should use directory name as title", async () => {
 	});
 });
 
-Deno.test("Should lowercase filename for name", async () => {
-	const fs = new MemoryFsReader([
-		{
-			path: "Foo.md",
-			content: "",
-		},
-	]);
-
-	const root = await fs.getRootDirectory();
-	const [file] = await root.read();
-
-	assertObjectMatch(await new VaultParser().parse(file), {
-		name: "foo",
-		title: "Foo",
-	});
-});
-
-Deno.test("Should encode to URI-safe name", async () => {
-	const fs = new MemoryFsReader([
-		{
-			path: "My Awesome Document, Progress 75%.md",
-			content: "",
-		},
-	]);
-
-	const root = await fs.getRootDirectory();
-	const [file] = await root.read();
-
-	assertObjectMatch(await new VaultParser().parse(file), {
-		name: "my%20awesome%20document%2C%20progress%2075%25",
-		title: "My Awesome Document, Progress 75%",
-	});
-});
-
 Deno.test("Should parse canvas file", async () => {
 	const fs = new MemoryFsReader([
 		{
@@ -145,7 +111,7 @@ title: Baz
 	assertObjectMatch(
 		await new VaultParser({ readFrontMatter: true }).parse(file),
 		{
-			name: "foo%20bar",
+			name: "Foo Bar",
 			title: "Baz",
 		},
 	);
@@ -167,7 +133,7 @@ lang: en
 	assertObjectMatch(
 		await new VaultParser({ readFrontMatter: true }).parse(file),
 		{
-			name: "foo%20bar",
+			name: "Foo Bar",
 			title: "Foo Bar",
 			language: "en",
 		},
@@ -214,7 +180,7 @@ title: Baz
 	assertObjectMatch(
 		await new VaultParser().parse(file),
 		{
-			name: "foo%20bar",
+			name: "Foo Bar",
 			title: "Foo Bar",
 		},
 	);

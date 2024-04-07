@@ -23,7 +23,7 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 
 	assertObjectMatch(tree.nodes[0], {
 		metadata: {
-			name: "foo%20bar",
+			name: "Foo Bar",
 			title: "Foo Bar",
 		},
 		directory: {
@@ -32,7 +32,7 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 		entries: [
 			{
 				metadata: {
-					name: "baz%20qux",
+					name: "Baz Qux",
 					title: "Baz Qux",
 				},
 				file: {
@@ -44,7 +44,7 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 
 	assertObjectMatch(tree.nodes[1], {
 		metadata: {
-			name: "foo",
+			name: "Foo",
 			title: "Foo",
 		},
 		file: {

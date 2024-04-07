@@ -11,10 +11,6 @@ import type {
 } from "../filesystem_reader/interface.ts";
 import type { DocumentMetadata, MetadataParser, Skip } from "./interface.ts";
 
-function escapeNodeName(nodeName: string): string {
-	return encodeURIComponent(nodeName.toLowerCase());
-}
-
 function getFrontMatterValue(
 	frontmatter: Record<string, unknown>,
 	key: string,
@@ -76,7 +72,7 @@ export class VaultParser implements MetadataParser {
 
 		if (node.type === "directory") {
 			return {
-				name: overrides?.name || escapeNodeName(node.name),
+				name: overrides?.name || node.name,
 				title: overrides?.title || node.name,
 				language: overrides?.language,
 			};
@@ -88,7 +84,7 @@ export class VaultParser implements MetadataParser {
 		switch (ext) {
 			case ".md": {
 				const fromFileName: DocumentMetadata = {
-					name: overrides?.name || escapeNodeName(basename),
+					name: overrides?.name || basename,
 					title: overrides?.title || basename,
 					language: overrides?.language,
 				};
@@ -107,7 +103,7 @@ export class VaultParser implements MetadataParser {
 			}
 			case ".canvas": {
 				return {
-					name: overrides?.name || escapeNodeName(basename),
+					name: overrides?.name || basename,
 					title: overrides?.title || basename,
 					language: overrides?.language,
 				};

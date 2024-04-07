@@ -13,17 +13,30 @@ import type {
 } from "../metadata_parser/interface.ts";
 
 export interface Document {
+	readonly type: "document";
 	readonly metadata: DocumentMetadata;
 	readonly file: FileReader;
+
+	/**
+	 * Document path: list of names, not file paths.
+	 */
+	readonly path: readonly string[];
 }
 
 export interface DocumentDirectory {
+	readonly type: "directory";
 	readonly metadata: DocumentMetadata;
 	readonly directory: DirectoryReader;
 	readonly entries: ReadonlyArray<Document | DocumentDirectory>;
+
+	/**
+	 * Document path: list of names, not file paths.
+	 */
+	readonly path: readonly string[];
 }
 
 export interface DocumentTree {
+	readonly type: "tree";
 	readonly nodes: ReadonlyArray<Document | DocumentDirectory>;
 
 	readonly defaultLanguage: string;

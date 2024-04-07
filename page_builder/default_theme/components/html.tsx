@@ -16,6 +16,7 @@ import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.
 
 import type {
 	Document,
+	DocumentDirectory,
 	DocumentTree,
 } from "../../../tree_builder/interface.ts";
 
@@ -96,7 +97,7 @@ export function View(
 					nav={
 						<DocumentTreeUI.View
 							tree={tree}
-							currentPath={document.file.path}
+							currentPath={document.path}
 						/>
 					}
 					footer={<Footer.View copyright={copyright} />}

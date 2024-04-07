@@ -91,7 +91,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 				await fileSystemWriter.write([
 					...pathPrefix,
-					item.file.name.replace(/\.md$/, ""),
+					item.metadata.name,
 					"index.html",
 				], enc.encode(html));
 				return;
@@ -113,7 +113,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 				item: entry,
 				tree,
 				parentLanguage: item.metadata.language || parentLanguage,
-				pathPrefix: [...pathPrefix, item.directory.name],
+				pathPrefix: [...pathPrefix, item.metadata.name],
 				buildParameters,
 			})
 		));
