@@ -37,6 +37,19 @@
 		- [ ] Keep Raw HTML (Unified libraries tends to ignore spec by default, needs to opt-out)
 			- [ ] <span style="color: red; background-color: yellow;">Colored text</span>
 			- [ ] Strip attributes not exist in whitelist
+- [ ] JSONCanvas
+	- [ ] Node rendering
+		- [x] Basic shapes
+		- [x] Colors
+		- [ ] Text node
+		- [ ] Group node
+		- [ ] Link node
+		- [ ] File node
+	- [ ] Edge rendering
+		- [x] Basic shape
+		- [x] Arrow
+		- [x] Colors
+		- [ ] Label
 - [ ] Document sorting
 - [ ] Search functionality
 - [ ] Creation / Update date

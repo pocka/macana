@@ -6,6 +6,8 @@ import { DenoFsReader } from "../filesystem_reader/deno_fs.ts";
 import { DenoFsWriter } from "../filesystem_writer/deno_fs.ts";
 import { DefaultTreeBuilder } from "../tree_builder/default_tree_builder.ts";
 import { ObsidianMarkdownParser } from "../content_parser/obsidian_markdown.ts";
+import { JSONCanvasParser } from "../content_parser/json_canvas.ts";
+import { oneof } from "../content_parser/oneof.ts";
 import { VaultParser } from "../metadata_parser/vault_parser.ts";
 import { DefaultThemeBuilder } from "../page_builder/default_theme/builder.tsx";
 
@@ -34,7 +36,10 @@ const treeBuilder = new DefaultTreeBuilder({
 			(node.path.length === 1 && node.name.endsWith(".ts"));
 	},
 });
-const contentParser = new ObsidianMarkdownParser();
+const contentParser = oneof(
+	new JSONCanvasParser(),
+	new ObsidianMarkdownParser(),
+);
 const metadataParser = new VaultParser({
 	override(node) {
 		if (

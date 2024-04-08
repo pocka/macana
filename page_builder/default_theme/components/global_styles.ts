@@ -21,6 +21,18 @@ export const globalStyles = css`
 		--color-fg-light: #c5c5c5;
 		--color-border: #b4af9d;
 		color: var(--color-fg);
+
+		--canvas-color-red: #e03131;
+		--canvas-color-orange: #f76707;
+		--canvas-color-yellow: #fcc419;
+		--canvas-color-green: #2f9e44;
+		--canvas-color-cyan: #22b8cf;
+		--canvas-color-purple: #ae3ec9;
+		--canvas-color-fallback: #adb5bd;
+
+		--canvas-node-bg-opacity: 0.05;
+		--canvas-node-stroke-width: 2px;
+		--canvas-edge-stroke-width: 6px;
 	}
 
 	@media (prefers-color-scheme: dark) {
@@ -31,6 +43,8 @@ export const globalStyles = css`
 			--color-fg-sub: #f3edd9;
 			--color-fg-light: #c5c5c5;
 			--color-border: #b4af9d;
+
+			--canvas-node-bg-opacity: 0.1;
 		}
 	}
 

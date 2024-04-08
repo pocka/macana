@@ -10,7 +10,6 @@ import {
 	jsx,
 	jsxs,
 } from "../../../deps/deno.land/x/nano_jsx/jsx-runtime/index.ts";
-import type * as Mdast from "../../../deps/esm.sh/mdast/types.ts";
 import { toHast } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
@@ -18,6 +17,8 @@ import type {
 	Document,
 	DocumentTree,
 } from "../../../tree_builder/interface.ts";
+import type { ObsidianMarkdownDocument } from "../../../content_parser/obsidian_markdown.ts";
+import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
 
 import { usePathResolver } from "../contexts/path_resolver.tsx";
 import * as css from "../css.ts";
@@ -29,6 +30,7 @@ import * as DocumentTreeUI from "./organisms/document_tree.tsx";
 import * as Footer from "./organisms/footer.tsx";
 import * as Toc from "./organisms/toc.tsx";
 import * as SiteLayout from "./templates/site_layout.tsx";
+import * as JSONCanvasRenderer from "./json_canvas_renderer.tsx";
 
 function toNode(hast: ReturnType<typeof toHast>) {
 	return toJsxRuntime(hast, {
@@ -46,20 +48,71 @@ export const styles = css.join(
 	Footer.styles,
 	SiteLayout.styles,
 	Toc.styles,
+	JSONCanvasRenderer.styles,
 );
 
+interface ObsidianMarkdownBodyProps extends ViewProps {
+	content: ObsidianMarkdownDocument;
+}
+
+function ObsidianMarkdownBody(
+	{ content, document, tree, copyright }: ObsidianMarkdownBodyProps,
+) {
+	const hast = toHast(content.content);
+
+	const toc = tocMut(hast).map((item) =>
+		mapTocItem(item, (item) => toNode({ type: "root", children: item }))
+	);
+
+	const contentNodes = toNode(hast);
+
+	return (
+		<SiteLayout.View
+			aside={toc.length > 0 && <Toc.View toc={toc} />}
+			nav={
+				<DocumentTreeUI.View
+					tree={tree}
+					currentPath={document.path}
+				/>
+			}
+			footer={<Footer.View copyright={copyright} />}
+		>
+			<h1>{document.metadata.title}</h1>
+			{contentNodes}
+		</SiteLayout.View>
+	);
+}
+
+interface JSONCanvasBodyProps extends ViewProps {
+	content: JSONCanvasDocument;
+}
+
+function JSONCanvasBody(
+	{ content, document, copyright, tree }: JSONCanvasBodyProps,
+) {
+	return (
+		<SiteLayout.View
+			nav={
+				<DocumentTreeUI.View
+					tree={tree}
+					currentPath={document.path}
+				/>
+			}
+			footer={<Footer.View copyright={copyright} />}
+		>
+			<h1>{document.metadata.title}</h1>
+			<JSONCanvasRenderer.View data={content.content} />
+		</SiteLayout.View>
+	);
+}
+
 export interface ViewProps {
-	document: Document;
+	document: Document<ObsidianMarkdownDocument | JSONCanvasDocument>;
 
 	/**
 	 * Root document tree, for navigations and links.
 	 */
 	tree: DocumentTree;
-
-	/**
-	 * The document's content HTML.
-	 */
-	content: Mdast.Nodes;
 
 	language: string;
 
@@ -67,17 +120,11 @@ export interface ViewProps {
 }
 
 export function View(
-	{ document, language, content, tree, copyright }: ViewProps,
+	props: ViewProps,
 ) {
+	const { document, language } = props;
+
 	const path = usePathResolver();
-
-	const hast = toHast(content);
-
-	const toc = tocMut(hast).map((item) =>
-		mapTocItem(item, (item) => toNode({ type: "root", children: item }))
-	);
-
-	const contentNodes = toNode(hast);
 
 	return (
 		<html lang={language}>
@@ -91,19 +138,9 @@ export function View(
 				/>
 			</head>
 			<body>
-				<SiteLayout.View
-					aside={toc.length > 0 && <Toc.View toc={toc} />}
-					nav={
-						<DocumentTreeUI.View
-							tree={tree}
-							currentPath={document.path}
-						/>
-					}
-					footer={<Footer.View copyright={copyright} />}
-				>
-					<h1>{document.metadata.title}</h1>
-					{contentNodes}
-				</SiteLayout.View>
+				{document.content.kind === "json_canvas"
+					? <JSONCanvasBody content={document.content} {...props} />
+					: <ObsidianMarkdownBody content={document.content} {...props} />}
 			</body>
 		</html>
 	);

@@ -16,12 +16,12 @@ import type {
 	DocumentContent,
 } from "../content_parser/interface.ts";
 
-export interface Document {
+export interface Document<Content extends DocumentContent = DocumentContent> {
 	readonly type: "document";
 	readonly metadata: DocumentMetadata;
 	readonly file: FileReader;
 
-	readonly content: DocumentContent;
+	readonly content: Content;
 
 	/**
 	 * Document path: list of names, not file paths.

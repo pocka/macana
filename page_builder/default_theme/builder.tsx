@@ -12,8 +12,8 @@ import type {
 	DocumentTree,
 } from "../../tree_builder/interface.ts";
 import type { BuildParameters, PageBuilder } from "../interface.ts";
-import type { DocumentContent } from "../../content_parser/interface.ts";
 import type { ObsidianMarkdownDocument } from "../../content_parser/obsidian_markdown.ts";
+import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
 
 import * as css from "./css.ts";
 
@@ -21,8 +21,14 @@ import * as Html from "./components/html.tsx";
 
 import { PathResolverProvider } from "./contexts/path_resolver.tsx";
 
-function isObsidianMarkdown(x: DocumentContent): x is ObsidianMarkdownDocument {
-	return x.kind === "obsidian_markdown";
+function isObsidianMarkdown(
+	x: Document,
+): x is Document<ObsidianMarkdownDocument> {
+	return x.content.kind === "obsidian_markdown";
+}
+
+function isJSONCanvas(x: Document): x is Document<JSONCanvasDocument> {
+	return x.content.kind === "json_canvas";
 }
 
 interface InnerBuildParameters {
@@ -74,15 +80,13 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const { fileSystemWriter } = buildParameters;
 
 		if ("file" in item) {
-			if (isObsidianMarkdown(item.content)) {
-				const content = item.content.content;
+			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
 				const html = "<!DOCTYPE html>" + renderSSR(
 					() => (
 						// Adds 1 to depth due to	`<name>/index.html` conversion.
 						<PathResolverProvider depth={pathPrefix.length + 1}>
 							<Html.View
 								tree={tree}
-								content={content}
 								document={item}
 								language={item.metadata.language || parentLanguage}
 								copyright={this.#copyright}
