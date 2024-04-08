@@ -4,12 +4,12 @@
 
 import { SEPARATOR } from "../deps/deno.land/std/path/mod.ts";
 
+import type { FileSystemReader } from "./interface.ts";
 import type {
 	DirectoryReader,
 	FileReader,
-	FileSystemReader,
 	RootDirectoryReader,
-} from "./interface.ts";
+} from "../types.ts";
 
 export class DenoFsReader implements FileSystemReader {
 	#root: string;

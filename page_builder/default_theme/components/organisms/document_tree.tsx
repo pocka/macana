@@ -10,7 +10,7 @@ import type {
 	Document,
 	DocumentDirectory,
 	DocumentTree,
-} from "../../../../tree_builder/interface.ts";
+} from "../../../../types.ts";
 
 import { css } from "../../css.ts";
 import { usePathResolver } from "../../contexts/path_resolver.tsx";

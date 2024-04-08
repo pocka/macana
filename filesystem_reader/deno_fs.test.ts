@@ -8,7 +8,7 @@ import {
 } from "../deps/deno.land/std/assert/mod.ts";
 
 import { DenoFsReader } from "./deno_fs.ts";
-import type { DirectoryReader } from "./interface.ts";
+import type { DirectoryReader } from "../types.ts";
 
 Deno.test("Should read file tree", {
 	// Skip this test if read permission is not granted.

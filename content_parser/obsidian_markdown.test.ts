@@ -5,10 +5,9 @@
 import { assertObjectMatch } from "../deps/deno.land/std/assert/mod.ts";
 
 import { VaultParser } from "../metadata_parser/vault_parser.ts";
-import type { DocumentMetadata } from "../metadata_parser/interface.ts";
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
-import type { FileReader } from "../filesystem_reader/interface.ts";
 import { ObsidianMarkdownParser } from "./obsidian_markdown.ts";
+import type { DocumentMetadata, FileReader } from "../types.ts";
 
 const metadataParser = new VaultParser();
 

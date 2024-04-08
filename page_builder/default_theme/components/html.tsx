@@ -13,10 +13,7 @@ import {
 import { toHast } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
-import type {
-	Document,
-	DocumentTree,
-} from "../../../tree_builder/interface.ts";
+import type { Document, DocumentTree } from "../../../types.ts";
 import type { ObsidianMarkdownDocument } from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
 

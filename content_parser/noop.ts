@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ContentParser, DocumentContent } from "./interface.ts";
+import type { ContentParser } from "./interface.ts";
+import type { DocumentContent } from "../types.ts";
 
 export type NullDocument = DocumentContent<"null", null>;
 

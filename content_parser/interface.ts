@@ -2,16 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DocumentMetadata } from "../metadata_parser/interface.ts";
-import type { FileReader } from "../filesystem_reader/interface.ts";
-
-export interface DocumentContent<
-	Kind extends string = string,
-	Content = unknown,
-> {
-	kind: Kind;
-	content: Content;
-}
+import type {
+	DocumentContent,
+	DocumentMetadata,
+	FileReader,
+} from "../types.ts";
 
 export interface ParseParameters {
 	fileReader: FileReader;

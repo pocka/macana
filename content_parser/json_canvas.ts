@@ -2,11 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type {
-	ContentParser,
-	DocumentContent,
-	ParseParameters,
-} from "./interface.ts";
+import type { ContentParser, ParseParameters } from "./interface.ts";
+import type { DocumentContent } from "../types.ts";
 
 import { isJSONCanvas, type JSONCanvas } from "./json_canvas/types.ts";
 

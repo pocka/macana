@@ -6,14 +6,10 @@
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 
-import type {
-	Document,
-	DocumentDirectory,
-	DocumentTree,
-} from "../../tree_builder/interface.ts";
 import type { BuildParameters, PageBuilder } from "../interface.ts";
 import type { ObsidianMarkdownDocument } from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
+import type { Document, DocumentDirectory, DocumentTree } from "../../types.ts";
 
 import * as css from "./css.ts";
 

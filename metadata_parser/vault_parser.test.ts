@@ -4,9 +4,9 @@
 
 import { assertObjectMatch } from "../deps/deno.land/std/assert/mod.ts";
 
-import type { DirectoryReader } from "../filesystem_reader/interface.ts";
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { VaultParser } from "./vault_parser.ts";
+import type { DirectoryReader } from "../types.ts";
 
 Deno.test("Should use filename as title", async () => {
 	const fs = new MemoryFsReader([

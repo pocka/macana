@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type { FileSystemReader } from "./interface.ts";
 import type {
 	DirectoryReader,
 	FileReader,
-	FileSystemReader,
 	RootDirectoryReader,
-} from "./interface.ts";
+} from "../types.ts";
 
 interface FileBuilder {
 	path: string | readonly string[];

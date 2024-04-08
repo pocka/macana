@@ -8,7 +8,7 @@ import {
 } from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "./memory_fs.ts";
-import type { DirectoryReader, FileReader } from "./interface.ts";
+import type { DirectoryReader, FileReader } from "../types.ts";
 
 Deno.test("Should create a in-memory file tree", async () => {
 	const reader = new MemoryFsReader([

@@ -5,11 +5,12 @@
 import { extname } from "../deps/deno.land/std/path/mod.ts";
 import * as yamlFrontmatter from "../deps/deno.land/std/front_matter/yaml.ts";
 
+import type { MetadataParser, Skip } from "./interface.ts";
 import type {
 	DirectoryReader,
+	DocumentMetadata,
 	FileReader,
-} from "../filesystem_reader/interface.ts";
-import type { DocumentMetadata, MetadataParser, Skip } from "./interface.ts";
+} from "../types.ts";
 
 function getFrontMatterValue(
 	frontmatter: Record<string, unknown>,

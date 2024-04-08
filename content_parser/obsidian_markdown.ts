@@ -5,11 +5,8 @@
 import type * as Mdast from "../deps/esm.sh/mdast/types.ts";
 import { fromMarkdown } from "../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 
-import type {
-	ContentParser,
-	DocumentContent,
-	ParseParameters,
-} from "./interface.ts";
+import type { ContentParser, ParseParameters } from "./interface.ts";
+import type { DocumentContent } from "../types.ts";
 
 export type ObsidianMarkdownDocument = DocumentContent<
 	"obsidian_markdown",

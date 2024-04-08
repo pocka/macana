@@ -2,17 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type { BuildParameters, TreeBuilder } from "./interface.ts";
 import type {
 	DirectoryReader,
-	FileReader,
-} from "../filesystem_reader/interface.ts";
-import type {
-	BuildParameters,
 	Document,
 	DocumentDirectory,
 	DocumentTree,
-	TreeBuilder,
-} from "./interface.ts";
+	FileReader,
+} from "../types.ts";
 
 export interface DefaultTreeBuilderConfig {
 	/**
