@@ -2,11 +2,11 @@
 - [ ] Markdown Parsing
 	- [x] CommonMark
 	- [ ] GitHub Flavored Markdown
-		- [ ] ~~Strikethrough~~
-		- [ ] Task Lists
-		- [ ] Footnotes
-		- [ ] Autolinks
-		- [ ] Tables
+		- [x] Strikethrough
+		- [x] Task Lists
+		- [x] Footnotes
+		- [x] Autolinks
+		- [x] Tables
 		- [ ] Diagrams (Mermaid) ... Maybe no support, as Mermaid's overall quality is questionable.
 		- [ ] MathJax ... No support if it can't generate MathML at build time.
 	- [ ] Syntax Highlighting

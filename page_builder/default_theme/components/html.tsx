@@ -12,6 +12,7 @@ import {
 } from "../../../deps/deno.land/x/nano_jsx/jsx-runtime/index.ts";
 import { toHast } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
+import * as HastToJSXRuntime from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
 import type { Document, DocumentTree } from "../../../types.ts";
 import type { ObsidianMarkdownDocument } from "../../../content_parser/obsidian_markdown.ts";
@@ -29,13 +30,37 @@ import * as Toc from "./organisms/toc.tsx";
 import * as SiteLayout from "./templates/site_layout.tsx";
 import * as JSONCanvasRenderer from "./json_canvas_renderer.tsx";
 
+function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
+	const ret: HastToJSXRuntime.Props = {};
+
+	for (const key in props) {
+		switch (props[key]) {
+			// nanojsx cannot handle falsy attribute correctly
+			case false:
+			case null:
+				break;
+			// ideal `true` for boolean attribute is empty string, but nanojsx emits `"true"`.
+			case true:
+				ret[key] = "";
+				break;
+			default:
+				ret[key] = props[key];
+				break;
+		}
+	}
+
+	return ret;
+}
+
 function toNode(hast: ReturnType<typeof toHast>) {
 	return toJsxRuntime(hast, {
 		Fragment,
-		// @ts-ignore: library type being unnecessary narrow
-		jsx,
-		// @ts-ignore: library type being unnecessary narrow
-		jsxs,
+		jsx(type, props, key) {
+			return jsx(type, nanoifyProps(props), key || "");
+		},
+		jsxs(type, props, key) {
+			return jsxs(type, nanoifyProps(props), key || "");
+		},
 	});
 }
 

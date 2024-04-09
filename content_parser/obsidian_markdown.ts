@@ -5,6 +5,8 @@
 import * as yamlFrontmatter from "../deps/deno.land/std/front_matter/yaml.ts";
 import type * as Mdast from "../deps/esm.sh/mdast/types.ts";
 import { fromMarkdown } from "../deps/esm.sh/mdast-util-from-markdown/mod.ts";
+import { gfmFromMarkdown } from "../deps/esm.sh/mdast-util-gfm/mod.ts";
+import { gfm } from "../deps/esm.sh/micromark-extension-gfm/mod.ts";
 
 import type {
 	ContentParser,
@@ -55,6 +57,13 @@ export interface ObsidianMarkdownParserOptions {
 	frontmatter?: boolean;
 }
 
+function parseMarkdown(markdown: string | Uint8Array) {
+	return fromMarkdown(markdown, {
+		extensions: [gfm()],
+		mdastExtensions: [gfmFromMarkdown()],
+	});
+}
+
 export class ObsidianMarkdownParser implements ContentParser {
 	#frontmatter: boolean;
 
@@ -70,7 +79,7 @@ export class ObsidianMarkdownParser implements ContentParser {
 		if (!this.#frontmatter) {
 			return {
 				kind: "obsidian_markdown",
-				content: fromMarkdown(bytes),
+				content: parseMarkdown(bytes),
 			};
 		}
 
@@ -91,7 +100,7 @@ export class ObsidianMarkdownParser implements ContentParser {
 			},
 			documentContent: {
 				kind: "obsidian_markdown",
-				content: fromMarkdown(frontmatter.body),
+				content: parseMarkdown(frontmatter.body),
 			},
 		};
 	}
