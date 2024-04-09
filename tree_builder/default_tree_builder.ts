@@ -2,14 +2,130 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { extname } from "../deps/deno.land/std/path/mod.ts";
+
 import type { BuildParameters, TreeBuilder } from "./interface.ts";
 import type {
 	DirectoryReader,
 	Document,
 	DocumentDirectory,
+	DocumentMetadata,
 	DocumentTree,
 	FileReader,
 } from "../types.ts";
+
+export type TreeBuildStrategyFunctionReturns = {
+	skip: true;
+} | {
+	skip?: false;
+	metadata: DocumentMetadata;
+};
+
+export interface TreeBuildStrategy {
+	(
+		fileOrDirectory: FileReader | DirectoryReader,
+		metadata: DocumentMetadata,
+	):
+		| TreeBuildStrategyFunctionReturns
+		| Promise<TreeBuildStrategyFunctionReturns>;
+}
+
+/**
+ * Only accepts files having specific file extension.
+ * Files not having an extension in the list will be excluded from a document tree.
+ *
+ * @param exts - A list of file extensions, including leading dot.
+ */
+export function fileExtensions(exts: readonly string[]): TreeBuildStrategy {
+	return (node, metadata) => {
+		if (node.type !== "file") {
+			return { metadata };
+		}
+
+		if (exts.some((ext) => node.name.endsWith(ext))) {
+			return { metadata };
+		}
+
+		return { skip: true };
+	};
+}
+
+/**
+ * Excludes certain files and directories.
+ *
+ * @param f - If this function returned `true`, the file will be excluded from a document tree.
+ */
+export function ignore(
+	f: (fileOrDirectory: FileReader | DirectoryReader) => boolean,
+): TreeBuildStrategy {
+	return (node, metadata) => {
+		if (f(node)) {
+			return { skip: true };
+		}
+
+		return { metadata };
+	};
+}
+
+/**
+ * Excludes dotfiles from a document tree.
+ */
+export function ignoreDotfiles(): TreeBuildStrategy {
+	return ignore((node) => node.name.startsWith("."));
+}
+
+export function langDir(
+	langs: Record<string, string>,
+	topLevelOnly: boolean = false,
+): TreeBuildStrategy {
+	const map = new Map(Object.entries(langs));
+
+	return (node, metadata) => {
+		if (topLevelOnly && node.parent.type !== "root") {
+			return { metadata };
+		}
+
+		if (node.type !== "directory") {
+			return { metadata };
+		}
+
+		const title = map.get(node.name);
+		if (!title) {
+			return { metadata };
+		}
+
+		return {
+			metadata: {
+				...metadata,
+				title,
+				language: node.name,
+			},
+		};
+	};
+}
+
+/**
+ * Do not include file extension in the metadata.
+ * For example, "Bar.md" will be `{ title: "Bar", name: "Bar" }`.
+ */
+export function removeExtFromMetadata(): TreeBuildStrategy {
+	return (node, metadata) => {
+		if (node.type !== "file") {
+			return { metadata };
+		}
+
+		const ext = extname(node.name);
+		const stem = ext ? node.name.slice(0, -ext.length) : node.name;
+
+		return {
+			metadata: {
+				...metadata,
+				title: stem,
+				name: stem,
+			},
+		};
+	};
+}
 
 export interface DefaultTreeBuilderConfig {
 	/**
@@ -18,33 +134,30 @@ export interface DefaultTreeBuilderConfig {
 	defaultLanguage: string;
 
 	/**
-	 * Callback function to be invoked on every file and directory.
-	 * If this function returned true, the file or directory is skipped and does not
-	 * appear on the resulted document tree.
+	 * A list of callback functions that control whether a file or a directory should be
+	 * included in the document tree and override document metadata.
 	 */
-	ignore?(fileOrDirectory: FileReader | DirectoryReader): boolean;
+	strategies?: readonly TreeBuildStrategy[];
 }
 
 export class DefaultTreeBuilder implements TreeBuilder {
 	#defaultLanguage: string;
-	#ignore?: (fileOrDirectory: FileReader | DirectoryReader) => boolean;
+	#strategies: readonly TreeBuildStrategy[];
 
-	constructor({ defaultLanguage, ignore }: DefaultTreeBuilderConfig) {
+	constructor({ defaultLanguage, strategies }: DefaultTreeBuilderConfig) {
 		this.#defaultLanguage = defaultLanguage;
-		this.#ignore = ignore;
+		this.#strategies = strategies || [];
 	}
 
 	async build(
-		{ fileSystemReader, metadataParser, contentParser }: BuildParameters,
+		{ fileSystemReader, contentParser }: BuildParameters,
 	): Promise<DocumentTree> {
 		const root = await fileSystemReader.getRootDirectory();
 
 		const children = await root.read();
 
 		const entries = await Promise.all(
-			children.map((child) =>
-				this.#build(child, { metadataParser, contentParser })
-			),
+			children.map((child) => this.#build(child, { contentParser })),
 		);
 
 		return {
@@ -58,37 +171,40 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 	async #build(
 		node: FileReader | DirectoryReader,
-		{ metadataParser, contentParser }: Omit<
+		{ contentParser }: Omit<
 			BuildParameters,
 			"fileSystemReader"
 		>,
 		parentPath: readonly string[] = [],
 	): Promise<DocumentDirectory | Document | null> {
-		if (this.#ignore && this.#ignore(node)) {
-			// TODO: Debug log
-			return null;
-		}
+		let metadata: DocumentMetadata = {
+			name: node.name,
+			title: node.name,
+		};
 
-		const metadata = await metadataParser.parse(node);
+		for (const strategy of this.#strategies) {
+			const result = await strategy(node, metadata);
+			if (result.skip) {
+				// TODO: Debug log (or this should be in the each strategies?)
+				return null;
+			}
 
-		// This SHOULD have check for `metadata.skip` being `true`. However, a bug
-		// (or "feature") in TypeScript breaks type-narrowing by doing so.
-		if ("skip" in metadata) {
-			// TODO: Debug log
-			return null;
+			metadata = result.metadata;
 		}
 
 		if (node.type === "file") {
-			const content = await contentParser.parse({
+			const result = await contentParser.parse({
 				fileReader: node,
 				documentMetadata: metadata,
 			});
 
 			return {
 				type: "document",
-				metadata,
+				metadata: "documentMetadata" in result
+					? result.documentMetadata
+					: metadata,
 				file: node,
-				content,
+				content: "documentContent" in result ? result.documentContent : result,
 				path: [...parentPath, metadata.name],
 			};
 		}
@@ -97,7 +213,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 		const entries = await Promise.all(
 			children.map((child) =>
-				this.#build(child, { metadataParser, contentParser }, [
+				this.#build(child, { contentParser }, [
 					...parentPath,
 					metadata.name,
 				])

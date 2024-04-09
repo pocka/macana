@@ -7,7 +7,6 @@ import {
 	unreachable,
 } from "../deps/deno.land/std/assert/mod.ts";
 
-import { VaultParser } from "../metadata_parser/vault_parser.ts";
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 
 import type { ContentParser } from "./interface.ts";
@@ -36,8 +35,6 @@ Deno.test("Should combine parsers", async () => {
 		{ path: "bar.md", content: "bar" },
 	]);
 
-	const metadataParser = new VaultParser();
-
 	const parser = oneof(
 		literal("foo"),
 		literal("bar"),
@@ -52,15 +49,11 @@ Deno.test("Should combine parsers", async () => {
 			unreachable("MemoryFS gave a directory where expecting a file");
 		}
 
-		const metadata = await metadataParser.parse(item);
-		if ("skip" in metadata) {
-			unreachable(
-				"Metadata Parser skipped where it expected to return metadata",
-			);
-		}
-
 		const content = await parser.parse({
-			documentMetadata: metadata,
+			documentMetadata: {
+				name: item.name,
+				title: item.name,
+			},
 			fileReader: item,
 		});
 

@@ -4,11 +4,16 @@
 
 import { DenoFsReader } from "../filesystem_reader/deno_fs.ts";
 import { DenoFsWriter } from "../filesystem_writer/deno_fs.ts";
-import { DefaultTreeBuilder } from "../tree_builder/default_tree_builder.ts";
+import {
+	DefaultTreeBuilder,
+	ignore,
+	ignoreDotfiles,
+	langDir,
+	removeExtFromMetadata,
+} from "../tree_builder/default_tree_builder.ts";
 import { ObsidianMarkdownParser } from "../content_parser/obsidian_markdown.ts";
 import { JSONCanvasParser } from "../content_parser/json_canvas.ts";
 import { oneof } from "../content_parser/oneof.ts";
-import { VaultParser } from "../metadata_parser/vault_parser.ts";
 import { DefaultThemeBuilder } from "../page_builder/default_theme/builder.tsx";
 
 const outDir = new URL("./.dist", import.meta.url);
@@ -31,48 +36,25 @@ const fileSystemReader = new DenoFsReader(srcDir);
 const fileSystemWriter = new DenoFsWriter(outDir);
 const treeBuilder = new DefaultTreeBuilder({
 	defaultLanguage: "en",
-	ignore(node) {
-		return node.name.startsWith(".") ||
-			(node.path.length === 1 && node.name.endsWith(".ts"));
-	},
+	strategies: [
+		ignoreDotfiles(),
+		// Remove build related scripts
+		ignore((node) => node.type === "file" && node.name.endsWith(".ts")),
+		removeExtFromMetadata(),
+		langDir({
+			en: "English",
+			ja: "日本語",
+		}, true),
+	],
 });
 const contentParser = oneof(
 	new JSONCanvasParser(),
 	new ObsidianMarkdownParser(),
 );
-const metadataParser = new VaultParser({
-	override(node) {
-		if (
-			node.parent.type !== "root" || node.type !== "directory" ||
-			!(/^[a-z]+(-[a-z]+)*$/.test(node.name))
-		) {
-			return null;
-		}
-
-		switch (node.name) {
-			case "ja":
-				return {
-					title: "日本語",
-					language: node.name,
-				};
-			case "en":
-				return {
-					title: "English",
-					language: node.name,
-				};
-			default: {
-				return {
-					language: node.name,
-				};
-			}
-		}
-	},
-});
 const pageBuilder = new DefaultThemeBuilder("© 2024 Shota FUJI");
 
 const documentTree = await treeBuilder.build({
 	fileSystemReader,
-	metadataParser,
 	contentParser,
 });
 await pageBuilder.build({
