@@ -18,7 +18,7 @@ import { usePathResolver } from "../../contexts/path_resolver.tsx";
 const enum C {
 	Root = "o-dt--root",
 	List = "o-dt--list",
-	Directory = "o-dt--dir",
+	DirectoryHeader = "o-dt--dirh",
 }
 
 export const styles = css`
@@ -31,7 +31,7 @@ export const styles = css`
 		list-style: none;
 	}
 
-	.${C.Directory} {
+	.${C.DirectoryHeader} {
 		cursor: pointer;
 	}
 `;
@@ -82,8 +82,8 @@ function Node({ value, currentPath }: NodeProps) {
 
 	return (
 		<li lang={value.metadata.language ?? undefined}>
-			<details className={C.Directory} open={defaultOpened ? "" : undefined}>
-				<summary>{value.metadata.title}</summary>
+			<details open={defaultOpened ? "" : undefined}>
+				<summary className={C.DirectoryHeader}>{value.metadata.title}</summary>
 
 				<ul className={C.List}>
 					{value.entries.map((entry) => (
