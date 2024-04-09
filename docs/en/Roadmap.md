@@ -27,7 +27,7 @@
 			- [ ] PDF file
 			- [ ] List from another file
 			- [ ] Search results
-		- [ ] ==Highlight==
+		- [x] ==Highlight==
 		- [ ] Callouts
 		- [ ] Comments %% You can check this item once I'm no longer visible %%
 		- [ ] Strip Raw HTML (only `<title>` is troublesome, but align behavior to Obsidian's)
