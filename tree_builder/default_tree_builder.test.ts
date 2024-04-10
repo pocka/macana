@@ -173,6 +173,24 @@ Deno.test("Should accept custom sorter", async () => {
 	});
 });
 
+Deno.test("Should skip empty directories", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "a/b/c/d/e.txt", content: "" },
+		{ path: "a/b/f.txt", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertEquals(tree.nodes.length, 0);
+});
+
 Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", async () => {
 	const fileSystemReader = new MemoryFsReader([
 		{ path: "foo/bar/baz.md", content: "" },

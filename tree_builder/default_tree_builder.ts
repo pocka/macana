@@ -242,13 +242,19 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			),
 		);
 
+		const includingEntries = entries.filter((
+			child,
+		): child is NonNullable<typeof child> => !!child).toSorted(this.#sorter);
+
+		if (!includingEntries.length) {
+			return null;
+		}
+
 		return {
 			type: "directory",
 			metadata,
 			directory: node,
-			entries: entries.filter((child): child is NonNullable<typeof child> =>
-				!!child
-			).toSorted(this.#sorter),
+			entries: includingEntries,
 			path: [...parentPath, metadata.name],
 		};
 	}
