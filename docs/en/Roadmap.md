@@ -50,7 +50,7 @@
 		- [x] Arrow
 		- [x] Colors
 		- [ ] Label
-- [ ] Document sorting
+- [x] Document sorting
 - [ ] Search functionality
 - [ ] Creation / Update date
 - [ ] Tags

@@ -138,15 +138,37 @@ export interface DefaultTreeBuilderConfig {
 	 * included in the document tree and override document metadata.
 	 */
 	strategies?: readonly TreeBuildStrategy[];
+
+	/**
+	 * Sort function for document and document directory.
+	 * This function is directly passed to `Array.prototype.toSorted`.
+	 * @default A function compares `metadata.title` using `String.prototype.localeCompare` with default language as a locale.
+	 */
+	sorter?(
+		a: Document | DocumentDirectory,
+		b: Document | DocumentDirectory,
+	): number;
 }
 
 export class DefaultTreeBuilder implements TreeBuilder {
 	#defaultLanguage: string;
 	#strategies: readonly TreeBuildStrategy[];
+	#sorter: (
+		a: Document | DocumentDirectory,
+		b: Document | DocumentDirectory,
+	) => number;
 
-	constructor({ defaultLanguage, strategies }: DefaultTreeBuilderConfig) {
+	constructor(
+		{ defaultLanguage, strategies, sorter }: DefaultTreeBuilderConfig,
+	) {
 		this.#defaultLanguage = defaultLanguage;
 		this.#strategies = strategies || [];
+		this.#sorter = sorter ||
+			((a, b) =>
+				a.metadata.title.localeCompare(
+					b.metadata.title,
+					this.#defaultLanguage,
+				));
 	}
 
 	async build(
@@ -164,7 +186,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			type: "tree",
 			nodes: entries.filter((entry): entry is NonNullable<typeof entry> =>
 				!!entry
-			),
+			).toSorted(this.#sorter),
 			defaultLanguage: this.#defaultLanguage,
 		};
 	}
@@ -226,7 +248,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			directory: node,
 			entries: entries.filter((child): child is NonNullable<typeof child> =>
 				!!child
-			),
+			).toSorted(this.#sorter),
 			path: [...parentPath, metadata.name],
 		};
 	}

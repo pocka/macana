@@ -102,6 +102,77 @@ Deno.test("Should respect metadata returned by Content Parser", async () => {
 	});
 });
 
+Deno.test("Should sort by default", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "a/b.md", content: "" },
+		{ path: "b.md", content: "" },
+		{ path: "a/a.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({ defaultLanguage: "en" });
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertObjectMatch(tree, {
+		nodes: [
+			{
+				metadata: { title: "a" },
+				entries: [
+					{
+						metadata: { title: "a.md" },
+					},
+					{
+						metadata: { title: "b.md" },
+					},
+				],
+			},
+			{
+				metadata: { title: "b.md" },
+			},
+		],
+	});
+});
+
+Deno.test("Should accept custom sorter", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "a/b.md", content: "" },
+		{ path: "b.md", content: "" },
+		{ path: "a/a.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		sorter(a, b) {
+			return b.metadata.title.localeCompare(a.metadata.title, "en");
+		},
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertObjectMatch(tree, {
+		nodes: [
+			{
+				metadata: { title: "b.md" },
+			},
+			{
+				metadata: { title: "a" },
+				entries: [
+					{
+						metadata: { title: "b.md" },
+					},
+					{
+						metadata: { title: "a.md" },
+					},
+				],
+			},
+		],
+	});
+});
+
 Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", async () => {
 	const fileSystemReader = new MemoryFsReader([
 		{ path: "foo/bar/baz.md", content: "" },
@@ -125,14 +196,6 @@ Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", a
 
 	assertObjectMatch(tree.nodes[0], {
 		metadata: {
-			name: "foo.md",
-			title: "foo.md",
-		},
-		file: { name: "foo.md" },
-	});
-
-	assertObjectMatch(tree.nodes[1], {
-		metadata: {
 			name: "bar",
 			title: "bar",
 		},
@@ -150,6 +213,14 @@ Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", a
 				},
 			},
 		],
+	});
+
+	assertObjectMatch(tree.nodes[1], {
+		metadata: {
+			name: "foo.md",
+			title: "foo.md",
+		},
+		file: { name: "foo.md" },
 	});
 });
 
