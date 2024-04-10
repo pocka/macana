@@ -25,23 +25,6 @@ export function mapTocItem<A, B>(item: TocItem<A>, f: (a: A) => B): TocItem<B> {
 	};
 }
 
-function getParent(level: number, items: readonly TocItem[]): TocItem | null {
-	if (!items.length) {
-		return null;
-	}
-
-	const [head] = items;
-	if (head.level >= level) {
-		return null;
-	}
-
-	if (head.level === level + 1) {
-		return items[items.length - 1];
-	}
-
-	return getParent(level, items[items.length - 1].children);
-}
-
 /**
  * Mutates given Hast by adding ID to headings and Returns table of contents.
  */
@@ -49,6 +32,22 @@ export function tocMut<Node extends Hast.Node>(
 	hast: Node,
 ): readonly TocItem<Hast.ElementContent[]>[] {
 	const items: TocItem[] = [];
+	const stack: TocItem[] = [];
+
+	const pop = () => {
+		const popped = stack.pop();
+		if (!popped) {
+			return;
+		}
+
+		const parent = stack[stack.length - 1];
+		if (!parent) {
+			items.push(popped);
+			return;
+		}
+
+		parent.children.push(popped);
+	};
 
 	visit(hast, (node) => {
 		if (!isElement(node)) {
@@ -89,14 +88,42 @@ export function tocMut<Node extends Hast.Node>(
 			node.properties.id = id;
 		}
 
-		const parent = getParent(level, items)?.children || items;
-		parent.push({
+		const item: TocItem = {
 			id,
 			level,
 			text: node.children,
 			children: [],
-		});
+		};
+
+		if (!stack.length) {
+			stack.push(item);
+			return;
+		}
+
+		for (let i = stack.length; i >= 0; i--) {
+			if (!stack[i]) {
+				continue;
+			}
+
+			if (level < stack[i].level) {
+				pop();
+				continue;
+			}
+
+			if (level === stack[i].level) {
+				pop();
+				stack.push(item);
+				break;
+			}
+
+			stack[i].children.push(item);
+			break;
+		}
 	});
+
+	while (stack.length > 0) {
+		pop();
+	}
 
 	return items;
 }
