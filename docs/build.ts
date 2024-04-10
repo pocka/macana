@@ -50,7 +50,11 @@ const contentParser = oneof(
 	new JSONCanvasParser(),
 	new ObsidianMarkdownParser(),
 );
-const pageBuilder = new DefaultThemeBuilder("© 2024 Shota FUJI");
+const pageBuilder = new DefaultThemeBuilder({
+	copyright: "© 2024 Shota FUJI",
+	faviconSvg: ["Assets", "logo.svg"],
+	faviconPng: ["Assets", "logo-64x64.png"],
+});
 
 const documentTree = await treeBuilder.build({
 	fileSystemReader,

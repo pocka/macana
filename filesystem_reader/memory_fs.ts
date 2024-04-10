@@ -14,6 +14,8 @@ interface FileBuilder {
 	content: string | Uint8Array;
 }
 
+const SEP = "/";
+
 type InternalTree = Map<string, Uint8Array | InternalTree>;
 
 /**
@@ -31,7 +33,7 @@ export class MemoryFsReader implements FileSystemReader {
 
 		for (const file of files) {
 			const path = typeof file.path === "string"
-				? file.path.split("/")
+				? file.path.split(SEP)
 				: file.path;
 			const content = typeof file.content === "string"
 				? encoder.encode(file.content)
@@ -117,6 +119,56 @@ export class MemoryFsReader implements FileSystemReader {
 		return readers;
 	}
 
+	async #getAtRecur(
+		path: readonly string[],
+		parent: DirectoryReader | RootDirectoryReader,
+	): Promise<FileReader | DirectoryReader> {
+		switch (path.length) {
+			case 0:
+				throw new Error("MemoryFsReader: path cannot be empty");
+			case 1: {
+				const [name] = path;
+
+				for (const child of await parent.read()) {
+					if (child.name === name) {
+						return child;
+					}
+				}
+
+				const parentPath = parent.type === "root" ? [] : parent.path;
+
+				throw new Error(
+					`MemoryFsReader: file or directory not found at ${
+						[...parentPath, name].join(SEP)
+					}`,
+				);
+			}
+			default: {
+				const [name, ...rest] = path;
+
+				for (const child of await parent.read()) {
+					if (child.name === name) {
+						if (child.type === "file") {
+							throw new Error(
+								`MemoryFsReader: ${child.path.join(SEP)} is directory`,
+							);
+						}
+
+						return this.#getAtRecur(rest, child);
+					}
+				}
+
+				const parentPath = parent.type === "root" ? [] : parent.path;
+
+				throw new Error(
+					`MemoryFsReader: file or directory not found at ${
+						[...parentPath, name].join(SEP)
+					}`,
+				);
+			}
+		}
+	}
+
 	getRootDirectory(): Promise<RootDirectoryReader> {
 		const root: RootDirectoryReader = {
 			type: "root",
@@ -124,5 +176,14 @@ export class MemoryFsReader implements FileSystemReader {
 		};
 
 		return Promise.resolve(root);
+	}
+
+	async readFile(path: readonly string[]): Promise<Uint8Array> {
+		const file = await this.#getAtRecur(path, await this.getRootDirectory());
+		if (file.type === "directory") {
+			throw new Error(`MemoryFsReader: ${path.join(SEP)} is directory`);
+		}
+
+		return file.read();
 	}
 }

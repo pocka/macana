@@ -39,11 +39,37 @@ interface InnerBuildParameters {
 	buildParameters: Omit<BuildParameters, "documentTree">;
 }
 
+export interface DefaultThemeBuilderConstructorParameters {
+	/**
+	 * Copyright text to display at website footer.
+	 * The page buidler does not add/subtract to the text: do not forget to
+	 * include "Copyright" or "©".
+	 */
+	copyright: string;
+
+	/**
+	 * Path to the SVG file to use as a favicon from the root directory (FileSystem Reader).
+	 */
+	faviconSvg?: readonly string[];
+
+	/**
+	 * Path to the PNG file to use as a favicon from the root directory (FileSystem Reader).
+	 */
+	faviconPng?: readonly string[];
+}
+
 export class DefaultThemeBuilder implements PageBuilder {
 	#copyright: string;
+	#faviconSvg?: readonly string[];
+	#faviconPng?: readonly string[];
 
-	constructor(copyright: string) {
+	constructor(
+		{ copyright, faviconSvg, faviconPng }:
+			DefaultThemeBuilderConstructorParameters,
+	) {
 		this.#copyright = copyright;
+		this.#faviconPng = faviconPng;
+		this.#faviconSvg = faviconSvg;
 	}
 
 	async build(
@@ -57,6 +83,20 @@ export class DefaultThemeBuilder implements PageBuilder {
 			["assets", "global.css"],
 			new TextEncoder().encode(styles),
 		);
+
+		if (this.#faviconSvg) {
+			await fileSystemWriter.write(
+				["favicon.svg"],
+				await (fileSystemReader.readFile(this.#faviconSvg)),
+			);
+		}
+
+		if (this.#faviconPng) {
+			await fileSystemWriter.write(
+				["favicon.png"],
+				await (fileSystemReader.readFile(this.#faviconPng)),
+			);
+		}
 
 		await Promise.all(documentTree.nodes.map((item) =>
 			this.#build({
@@ -86,6 +126,8 @@ export class DefaultThemeBuilder implements PageBuilder {
 								document={item}
 								language={item.metadata.language || parentLanguage}
 								copyright={this.#copyright}
+								hasFaviconSvg={!!this.#faviconSvg}
+								hasFaviconPng={!!this.#faviconPng}
 							/>
 						</PathResolverProvider>
 					),

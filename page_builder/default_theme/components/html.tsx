@@ -139,10 +139,13 @@ export interface ViewProps {
 	language: string;
 
 	copyright: string;
+
+	hasFaviconSvg?: boolean;
+	hasFaviconPng?: boolean;
 }
 
 export function View(
-	props: ViewProps,
+	{ hasFaviconPng, hasFaviconSvg, ...props }: ViewProps,
 ) {
 	const { document, language } = props;
 
@@ -158,6 +161,20 @@ export function View(
 					rel="stylesheet"
 					href={path.resolve(["assets", "global.css"])}
 				/>
+				{hasFaviconSvg && (
+					<link
+						rel="icon"
+						type="image/svg+xml"
+						href={path.resolve(["favicon.svg"])}
+					/>
+				)}
+				{hasFaviconPng && (
+					<link
+						rel="icon"
+						type="image/png"
+						href={path.resolve(["favicon.png"])}
+					/>
+				)}
 			</head>
 			<body>
 				{document.content.kind === "json_canvas"

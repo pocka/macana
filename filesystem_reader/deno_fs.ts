@@ -107,4 +107,8 @@ export class DenoFsReader implements FileSystemReader {
 
 		return root;
 	}
+
+	async readFile(path: readonly string[]): Promise<Uint8Array> {
+		return await Deno.readFile(this.#resolve(path));
+	}
 }

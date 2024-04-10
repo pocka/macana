@@ -9,4 +9,11 @@ export interface FileSystemReader {
 	 * Returns the topmost directory this FileSystem Reader can operate on.
 	 */
 	getRootDirectory(): Promise<RootDirectoryReader>;
+
+	/**
+	 * Directly read file contents at given path.
+	 * Throws if path does not exist or found directory.
+	 * You should traverse from `getRootDirectory()` for most cases.
+	 */
+	readFile(path: readonly string[]): Promise<Uint8Array>;
 }
