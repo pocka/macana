@@ -6,7 +6,7 @@ import { DenoFsReader } from "../filesystem_reader/deno_fs.ts";
 import { DenoFsWriter } from "../filesystem_writer/deno_fs.ts";
 import {
 	DefaultTreeBuilder,
-	ignore,
+	fileExtensions,
 	ignoreDotfiles,
 	langDir,
 	removeExtFromMetadata,
@@ -38,8 +38,7 @@ const treeBuilder = new DefaultTreeBuilder({
 	defaultLanguage: "en",
 	strategies: [
 		ignoreDotfiles(),
-		// Remove build related scripts
-		ignore((node) => node.type === "file" && node.name.endsWith(".ts")),
+		fileExtensions([".md", ".canvas"]),
 		removeExtFromMetadata(),
 		langDir({
 			en: "English",
