@@ -20,7 +20,7 @@
 			- [ ] Heading
 			- [ ] Block reference
 		- [ ] Defining a block
-		- [ ] Image size annotation
+		- [x] Image size annotation
 		- [ ] Embeddings
 			- [ ] Image file
 			- [ ] Audio file

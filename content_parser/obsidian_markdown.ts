@@ -10,6 +10,7 @@ import { gfm } from "../deps/esm.sh/micromark-extension-gfm/mod.ts";
 
 import { ofmHighlightFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_highlight.ts";
 import { ofmHighlight } from "./obsidian_markdown/micromark_extension_ofm_highlight.ts";
+import { ofmImageSize } from "./obsidian_markdown/mdast_util_ofm_image_size.ts";
 
 import type {
 	ContentParser,
@@ -61,10 +62,14 @@ export interface ObsidianMarkdownParserOptions {
 }
 
 function parseMarkdown(markdown: string | Uint8Array) {
-	return fromMarkdown(markdown, {
+	const mdast = fromMarkdown(markdown, {
 		extensions: [gfm(), ofmHighlight()],
 		mdastExtensions: [gfmFromMarkdown(), ofmHighlightFromMarkdown()],
 	});
+
+	ofmImageSize(mdast);
+
+	return mdast;
 }
 
 export class ObsidianMarkdownParser implements ContentParser {
