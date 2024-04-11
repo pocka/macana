@@ -6,7 +6,7 @@ A *document* consists of *document metadata* and *document content*.
 ## Document metadata
 
 Properties describing a *document* or a *document directory* required for generating a website.
-*Document metadata* consists of a *document name*, *document title*, and language of the document or the document directory.
+*Document metadata* consists of a *document name*, *document title*, whether the document is default document, and language of the document or the document directory.
 
 ## Document name
 

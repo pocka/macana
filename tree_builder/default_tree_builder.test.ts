@@ -6,11 +6,13 @@ import {
 	assertEquals,
 	assertNotEquals,
 	assertObjectMatch,
+	assertRejects,
 } from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { noopParser } from "../content_parser/noop.ts";
 import {
+	defaultDocumentAt,
 	DefaultTreeBuilder,
 	fileExtensions,
 	ignore,
@@ -61,6 +63,13 @@ Deno.test("Should read from top-level directory, as-is", async () => {
 		},
 		file: {
 			name: "Foo.md",
+		},
+	});
+
+	assertObjectMatch(tree.defaultDocument, {
+		metadata: {
+			name: "Foo.md",
+			title: "Foo.md",
 		},
 	});
 });
@@ -177,6 +186,7 @@ Deno.test("Should skip empty directories", async () => {
 	const fileSystemReader = new MemoryFsReader([
 		{ path: "a/b/c/d/e.txt", content: "" },
 		{ path: "a/b/f.txt", content: "" },
+		{ path: "g.md", content: "" },
 	]);
 	const builder = new DefaultTreeBuilder({
 		defaultLanguage: "en",
@@ -188,7 +198,34 @@ Deno.test("Should skip empty directories", async () => {
 		contentParser,
 	});
 
-	assertEquals(tree.nodes.length, 0);
+	assertObjectMatch(tree, {
+		nodes: [
+			{
+				metadata: {
+					name: "g.md",
+				},
+			},
+		],
+	});
+	assertEquals(tree.nodes.length, 1);
+});
+
+Deno.test("Should throw an error if tree has no documents", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "a/b/c/d/e.txt", content: "" },
+		{ path: "a/b/f.txt", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+	});
+
+	await assertRejects(() =>
+		builder.build({
+			fileSystemReader,
+			contentParser,
+		})
+	);
 });
 
 Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", async () => {
@@ -384,5 +421,29 @@ Deno.test("removeExtFromMetadata() should remove file extension from document me
 				],
 			},
 		],
+	});
+});
+
+Deno.test("defaultDocumentAt() should set default document at the given path", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Alice/Profile.md", content: "" },
+		{ path: "Welcome.md", content: "" },
+		{ path: "Bob/Admin/Readme.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [defaultDocumentAt(["Bob", "Admin", "Readme.md"])],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertObjectMatch(tree.defaultDocument, {
+		metadata: {
+			name: "Readme.md",
+			title: "Readme.md",
+		},
 	});
 });

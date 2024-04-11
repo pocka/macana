@@ -20,6 +20,7 @@ export const globalStyles = css`
 		--color-fg-sub: #534c37;
 		--color-fg-light: #c5c5c5;
 		--color-border: #b4af9d;
+		--color-subtle-overlay: hsl(0deg 0% 0% / 0.035);
 		color: var(--color-fg);
 
 		--canvas-color-red: #e03131;
@@ -43,6 +44,7 @@ export const globalStyles = css`
 			--color-fg-sub: #f3edd9;
 			--color-fg-light: #c5c5c5;
 			--color-border: #b4af9d;
+			--color-subtle-overlay: hsl(0deg 0% 100% / 0.1);
 
 			--canvas-node-bg-opacity: 0.1;
 		}

@@ -6,6 +6,8 @@
 
 import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
 
+import { type Document } from "../../../../types.ts";
+
 import { usePathResolver } from "../../contexts/path_resolver.tsx";
 
 import { css } from "../../css.ts";
@@ -15,6 +17,7 @@ const enum C {
 	HeaderBg = "t-sl--headbg",
 	Header = "t-sl--head",
 	Logo = "t-sl--lg",
+	LogoLink = "t-sl--ll",
 	Nav = "t-sl--nav",
 	NavInner = "t-sl--nav-i",
 	FooterBg = "t-sl--fbg",
@@ -65,11 +68,18 @@ export const styles = css`
 		top: calc(var(--baseline) * -0.5rem);
 	}
 
-	.${C.Logo} {
-		position: relative;
-		padding: 4px;
+	.${C.LogoLink} {
+		display: flex;
 
 		border-radius: 4px;
+	}
+	.${C.LogoLink}:hover {
+		background-color: var(--color-subtle-overlay);
+	}
+
+	.${C.Logo} {
+		padding: 4px;
+
 		box-shadow: none;
 	}
 
@@ -157,10 +167,13 @@ export interface ViewProps {
 	logoImage?: readonly string[];
 
 	logoSize?: number;
+
+	defaultDocument: Document;
 }
 
 export function View(
-	{ children, nav, aside, footer, logoImage, logoSize = 32 }: ViewProps,
+	{ children, nav, aside, footer, logoImage, logoSize = 32, defaultDocument }:
+		ViewProps,
 ) {
 	const path = usePathResolver();
 
@@ -169,12 +182,19 @@ export function View(
 			<div className={C.HeaderBg} />
 			{logoImage && (
 				<header className={C.Header}>
-					<img
-						className={C.Logo}
-						src={path.resolve(logoImage)}
-						width={logoSize}
-						height={logoSize}
-					/>
+					<a
+						className={C.LogoLink}
+						href={path.resolve([...defaultDocument.path, ""])}
+						title={defaultDocument.metadata.title}
+						lang={defaultDocument.metadata.language}
+					>
+						<img
+							className={C.Logo}
+							src={path.resolve(logoImage)}
+							width={logoSize}
+							height={logoSize}
+						/>
+					</a>
 				</header>
 			)}
 			<nav className={C.Nav}>

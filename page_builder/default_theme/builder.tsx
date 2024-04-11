@@ -132,6 +132,22 @@ export class DefaultThemeBuilder implements PageBuilder {
 			);
 		}
 
+		const defaultPage = [...documentTree.defaultDocument.path, ""].join("/");
+		const redirectHtml = [
+			"<!DOCTYPE html>",
+			"<html><head>",
+			`<meta charset="utf-8">`,
+			`<meta http-equiv="refresh" content="0; URL='${defaultPage}'">`,
+			"</head><body>",
+			// For cases when a user or UA disallows automatic redirection.
+			`<a href="${defaultPage}">TOP</a>`,
+			"</body></html>",
+		].join("");
+		await fileSystemWriter.write(
+			["index.html"],
+			new TextEncoder().encode(redirectHtml),
+		);
+
 		await Promise.all(documentTree.nodes.map((item) =>
 			this.#build({
 				item,

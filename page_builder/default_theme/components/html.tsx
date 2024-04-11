@@ -100,6 +100,7 @@ function ObsidianMarkdownBody(
 			}
 			footer={<Footer.View copyright={copyright} />}
 			logoImage={assets.siteLogo}
+			defaultDocument={tree.defaultDocument}
 		>
 			<h1>{document.metadata.title}</h1>
 			{contentNodes}
@@ -124,6 +125,7 @@ function JSONCanvasBody(
 			}
 			footer={<Footer.View copyright={copyright} />}
 			logoImage={assets.siteLogo}
+			defaultDocument={tree.defaultDocument}
 		>
 			<h1>{document.metadata.title}</h1>
 			<JSONCanvasRenderer.View data={content.content} />

@@ -46,6 +46,13 @@ export interface DocumentMetadata {
 	 * If none of the ancestors have a language, Macana will use a user given default language.
 	 */
 	readonly language?: string;
+
+	/**
+	 * Whether this document is the default document for the entire document tree.
+	 * The behavior of when multiple documents have this property set to true is undefined.
+	 * This property does not take an effect for document tree.
+	 */
+	readonly isDefaultDocument?: boolean;
 }
 
 export interface DocumentContent<
@@ -86,4 +93,9 @@ export interface DocumentTree {
 	readonly nodes: ReadonlyArray<Document | DocumentDirectory>;
 
 	readonly defaultLanguage: string;
+
+	/**
+	 * Representive, facade document.
+	 */
+	readonly defaultDocument: Document;
 }

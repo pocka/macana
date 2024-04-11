@@ -127,6 +127,30 @@ export function removeExtFromMetadata(): TreeBuildStrategy {
 	};
 }
 
+/**
+ * Mark file at specific path to be the default document.
+ *
+ * @param path - Relative path from the root directory (FileSystem Reader).
+ */
+export function defaultDocumentAt(path: readonly string[]): TreeBuildStrategy {
+	return (node, metadata) => {
+		if (node.type !== "file") {
+			return { metadata };
+		}
+
+		if (node.path.every((segment, i) => segment === path[i])) {
+			return {
+				metadata: {
+					...metadata,
+					isDefaultDocument: true,
+				},
+			};
+		}
+
+		return { metadata };
+	};
+}
+
 export interface DefaultTreeBuilderConfig {
 	/**
 	 * Default language tag (BCP 47).
@@ -182,11 +206,21 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			children.map((child) => this.#build(child, { contentParser })),
 		);
 
+		const nodes = entries.filter((entry): entry is NonNullable<typeof entry> =>
+			!!entry
+		).toSorted(this.#sorter);
+
+		const defaultDocument = this.#findDefaultDocument(nodes);
+		if (!defaultDocument) {
+			throw new Error(
+				"No document found. Document tree must have at least one document.",
+			);
+		}
+
 		return {
 			type: "tree",
-			nodes: entries.filter((entry): entry is NonNullable<typeof entry> =>
-				!!entry
-			).toSorted(this.#sorter),
+			nodes,
+			defaultDocument,
 			defaultLanguage: this.#defaultLanguage,
 		};
 	}
@@ -257,5 +291,45 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			entries: includingEntries,
 			path: [...parentPath, metadata.name],
 		};
+	}
+
+	#findDefaultDocument(
+		tree: ReadonlyArray<Document | DocumentDirectory>,
+		depth: number = 0,
+		registry: Map<number, Document> | null = null,
+	): Document | null {
+		const map = registry || new Map<number, Document>();
+
+		for (const item of tree) {
+			if (item.type === "document") {
+				if (item.metadata.isDefaultDocument) {
+					return item;
+				}
+
+				if (!map.has(depth)) {
+					map.set(depth, item);
+				}
+
+				continue;
+			}
+
+			const found = this.#findDefaultDocument(item.entries, depth + 1, map);
+			if (found) {
+				return found;
+			}
+		}
+
+		if (depth === 0) {
+			const topmost = Array.from(map.entries()).toSorted(([a], [b]) =>
+				a - b
+			)[0];
+			if (!topmost) {
+				return null;
+			}
+
+			return topmost[1];
+		}
+
+		return null;
 	}
 }
