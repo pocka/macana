@@ -23,6 +23,7 @@ import * as css from "../css.ts";
 
 import { globalStyles } from "./global_styles.ts";
 import { mapTocItem, tocMut } from "../hast/hast_util_toc_mut.ts";
+import type { Assets } from "../builder.tsx";
 
 import * as DocumentTreeUI from "./organisms/document_tree.tsx";
 import * as Footer from "./organisms/footer.tsx";
@@ -78,7 +79,7 @@ interface ObsidianMarkdownBodyProps extends ViewProps {
 }
 
 function ObsidianMarkdownBody(
-	{ content, document, tree, copyright }: ObsidianMarkdownBodyProps,
+	{ content, document, tree, copyright, assets }: ObsidianMarkdownBodyProps,
 ) {
 	const hast = toHast(content.content);
 
@@ -98,6 +99,7 @@ function ObsidianMarkdownBody(
 				/>
 			}
 			footer={<Footer.View copyright={copyright} />}
+			logoImage={assets.siteLogo}
 		>
 			<h1>{document.metadata.title}</h1>
 			{contentNodes}
@@ -110,7 +112,7 @@ interface JSONCanvasBodyProps extends ViewProps {
 }
 
 function JSONCanvasBody(
-	{ content, document, copyright, tree }: JSONCanvasBodyProps,
+	{ content, document, copyright, tree, assets }: JSONCanvasBodyProps,
 ) {
 	return (
 		<SiteLayout.View
@@ -121,6 +123,7 @@ function JSONCanvasBody(
 				/>
 			}
 			footer={<Footer.View copyright={copyright} />}
+			logoImage={assets.siteLogo}
 		>
 			<h1>{document.metadata.title}</h1>
 			<JSONCanvasRenderer.View data={content.content} />
@@ -140,12 +143,11 @@ export interface ViewProps {
 
 	copyright: string;
 
-	hasFaviconSvg?: boolean;
-	hasFaviconPng?: boolean;
+	assets: Assets;
 }
 
 export function View(
-	{ hasFaviconPng, hasFaviconSvg, ...props }: ViewProps,
+	{ assets, ...props }: ViewProps,
 ) {
 	const { document, language } = props;
 
@@ -161,25 +163,37 @@ export function View(
 					rel="stylesheet"
 					href={path.resolve(["assets", "global.css"])}
 				/>
-				{hasFaviconSvg && (
+				{assets.faviconSvg && (
 					<link
 						rel="icon"
 						type="image/svg+xml"
-						href={path.resolve(["favicon.svg"])}
+						href={path.resolve(assets.faviconSvg)}
 					/>
 				)}
-				{hasFaviconPng && (
+				{assets.faviconPng && (
 					<link
 						rel="icon"
 						type="image/png"
-						href={path.resolve(["favicon.png"])}
+						href={path.resolve(assets.faviconPng)}
 					/>
 				)}
 			</head>
 			<body>
 				{document.content.kind === "json_canvas"
-					? <JSONCanvasBody content={document.content} {...props} />
-					: <ObsidianMarkdownBody content={document.content} {...props} />}
+					? (
+						<JSONCanvasBody
+							content={document.content}
+							assets={assets}
+							{...props}
+						/>
+					)
+					: (
+						<ObsidianMarkdownBody
+							content={document.content}
+							assets={assets}
+							{...props}
+						/>
+					)}
 			</body>
 		</html>
 	);

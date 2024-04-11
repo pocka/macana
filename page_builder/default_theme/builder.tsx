@@ -4,6 +4,7 @@
 
 /** @jsx h */
 
+import { extname } from "../../deps/deno.land/std/path/mod.ts";
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 
 import type { BuildParameters, PageBuilder } from "../interface.ts";
@@ -27,6 +28,13 @@ function isJSONCanvas(x: Document): x is Document<JSONCanvasDocument> {
 	return x.content.kind === "json_canvas";
 }
 
+export interface Assets {
+	globalCss: readonly string[];
+	faviconSvg?: readonly string[];
+	faviconPng?: readonly string[];
+	siteLogo?: readonly string[];
+}
+
 interface InnerBuildParameters {
 	item: DocumentDirectory | Document;
 
@@ -37,6 +45,8 @@ interface InnerBuildParameters {
 	pathPrefix?: readonly string[];
 
 	buildParameters: Omit<BuildParameters, "documentTree">;
+
+	assets: Assets;
 }
 
 export interface DefaultThemeBuilderConstructorParameters {
@@ -56,20 +66,27 @@ export interface DefaultThemeBuilderConstructorParameters {
 	 * Path to the PNG file to use as a favicon from the root directory (FileSystem Reader).
 	 */
 	faviconPng?: readonly string[];
+
+	/**
+	 * Path to the website's logo or icon image from the root directory (FileSystem Reader).
+	 */
+	siteLogo?: readonly string[];
 }
 
 export class DefaultThemeBuilder implements PageBuilder {
 	#copyright: string;
 	#faviconSvg?: readonly string[];
 	#faviconPng?: readonly string[];
+	#siteLogo?: readonly string[];
 
 	constructor(
-		{ copyright, faviconSvg, faviconPng }:
+		{ copyright, faviconSvg, faviconPng, siteLogo }:
 			DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
 		this.#faviconPng = faviconPng;
 		this.#faviconSvg = faviconSvg;
+		this.#siteLogo = siteLogo;
 	}
 
 	async build(
@@ -79,22 +96,39 @@ export class DefaultThemeBuilder implements PageBuilder {
 			Html.styles,
 		);
 
+		const assets: Assets = {
+			globalCss: ["assets", "global.css"],
+		};
+
 		await fileSystemWriter.write(
-			["assets", "global.css"],
+			assets.globalCss,
 			new TextEncoder().encode(styles),
 		);
 
 		if (this.#faviconSvg) {
+			assets.faviconSvg = ["favicon.svg"];
 			await fileSystemWriter.write(
-				["favicon.svg"],
+				assets.faviconSvg,
 				await (fileSystemReader.readFile(this.#faviconSvg)),
 			);
 		}
 
 		if (this.#faviconPng) {
+			assets.faviconPng = ["favicon.png"];
 			await fileSystemWriter.write(
-				["favicon.png"],
+				assets.faviconPng,
 				await (fileSystemReader.readFile(this.#faviconPng)),
+			);
+		}
+
+		if (this.#siteLogo) {
+			const ext = extname(this.#siteLogo[this.#siteLogo.length - 1]);
+
+			assets.siteLogo = ["assets", `logo.${ext}`];
+
+			await fileSystemWriter.write(
+				assets.siteLogo,
+				await (fileSystemReader.readFile(this.#siteLogo)),
 			);
 		}
 
@@ -105,12 +139,13 @@ export class DefaultThemeBuilder implements PageBuilder {
 				parentLanguage: documentTree.defaultLanguage,
 				pathPrefix: [],
 				buildParameters: { fileSystemWriter, fileSystemReader },
+				assets,
 			})
 		));
 	}
 
 	async #build(
-		{ item, tree, parentLanguage, pathPrefix = [], buildParameters }:
+		{ item, tree, parentLanguage, pathPrefix = [], buildParameters, assets }:
 			InnerBuildParameters,
 	): Promise<void> {
 		const { fileSystemWriter } = buildParameters;
@@ -126,8 +161,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 								document={item}
 								language={item.metadata.language || parentLanguage}
 								copyright={this.#copyright}
-								hasFaviconSvg={!!this.#faviconSvg}
-								hasFaviconPng={!!this.#faviconPng}
+								assets={assets}
 							/>
 						</PathResolverProvider>
 					),
@@ -153,6 +187,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 				parentLanguage: item.metadata.language || parentLanguage,
 				pathPrefix: [...pathPrefix, item.metadata.name],
 				buildParameters,
+				assets,
 			})
 		));
 	}

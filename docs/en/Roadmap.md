@@ -54,8 +54,8 @@
 - [ ] Search functionality
 - [ ] Creation / Update date
 - [ ] Tags
-- [ ] Config for site logo
-- [ ] Tool's logo
+- [x] Config for site logo
+- [x] Tool's logo
 - [ ] Proper styling
 - [ ] Switch to drawer menu when side navigation cannot fit
 - [ ] CLI for opinionated build

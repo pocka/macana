@@ -54,6 +54,7 @@ const pageBuilder = new DefaultThemeBuilder({
 	copyright: "© 2024 Shota FUJI",
 	faviconSvg: ["Assets", "logo.svg"],
 	faviconPng: ["Assets", "logo-64x64.png"],
+	siteLogo: ["Assets", "logo.svg"],
 });
 
 const documentTree = await treeBuilder.build({

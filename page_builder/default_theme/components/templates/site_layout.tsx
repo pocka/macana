@@ -6,12 +6,15 @@
 
 import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
 
+import { usePathResolver } from "../../contexts/path_resolver.tsx";
+
 import { css } from "../../css.ts";
 
 const enum C {
 	Layout = "t-sl--root",
-	NavBg = "t-sl--navbg",
+	HeaderBg = "t-sl--headbg",
 	Header = "t-sl--head",
+	Logo = "t-sl--lg",
 	Nav = "t-sl--nav",
 	NavInner = "t-sl--nav-i",
 	FooterBg = "t-sl--fbg",
@@ -23,6 +26,8 @@ const enum C {
 
 export const styles = css`
 	.${C.Layout} {
+		--_ends-shadow-color: hsl(0deg 0% 0% / 0.03);
+
 		display: grid;
 		grid-template-columns: minmax(100vw, 1fr);
 		min-height: 100vh;
@@ -36,10 +41,17 @@ export const styles = css`
     margin-block-start: 0;
   }
 
-	.${C.NavBg} {
+	.${C.HeaderBg}, .${C.Header} {
+		padding: calc(var(--baseline) * 0.5rem) 16px;
+	}
+
+	.${C.HeaderBg} {
+		position: sticky;
+		top: calc(var(--baseline) * -1rem);
 		grid-row: 1;
 		grid-column: 1 / -1;
 		margin-block-end: calc(var(--baseline) * 2rem);
+		border-block-end: 1px solid var(--_ends-shadow-color);
 
 		background-color: var(--color-bg-accent);
 	}
@@ -48,6 +60,17 @@ export const styles = css`
 		grid-row: 1;
 		grid-column: 1;
 		margin-block-end: calc(var(--baseline) * 2rem);
+		display: flex;
+		position: sticky;
+		top: calc(var(--baseline) * -0.5rem);
+	}
+
+	.${C.Logo} {
+		position: relative;
+		padding: 4px;
+
+		border-radius: 4px;
+		box-shadow: none;
 	}
 
 	.${C.Nav} {
@@ -78,6 +101,7 @@ export const styles = css`
 		grid-row: 999;
 		grid-column: 1 / -1;
 		margin-block-start: calc(var(--baseline) * 2rem);
+		border-block-start: 1px solid var(--_ends-shadow-color);
 
 		background-color: var(--color-bg-accent);
 	}
@@ -129,12 +153,30 @@ export interface ViewProps {
 	aside?: JSX.ElementChildrenAttribute["children"];
 
 	footer: JSX.ElementChildrenAttribute["children"];
+
+	logoImage?: readonly string[];
+
+	logoSize?: number;
 }
 
-export function View({ children, nav, aside, footer }: ViewProps) {
+export function View(
+	{ children, nav, aside, footer, logoImage, logoSize = 32 }: ViewProps,
+) {
+	const path = usePathResolver();
+
 	return (
 		<div className={C.Layout}>
-			<div className={C.NavBg} />
+			<div className={C.HeaderBg} />
+			{logoImage && (
+				<header className={C.Header}>
+					<img
+						className={C.Logo}
+						src={path.resolve(logoImage)}
+						width={logoSize}
+						height={logoSize}
+					/>
+				</header>
+			)}
 			<nav className={C.Nav}>
 				<div className={C.NavInner}>{nav}</div>
 			</nav>
