@@ -8,9 +8,18 @@ import {
 } from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
+import type { AssetToken, DocumentToken } from "../types.ts";
 
 import type { ContentParser } from "./interface.ts";
 import { oneof } from "./oneof.ts";
+
+function getAssetToken(path: readonly string[]): AssetToken {
+	return `mxa_${path.join(".")}`;
+}
+
+function getDocumentToken(path: readonly string[]): DocumentToken {
+	return `mxt_${path.join(".")}`;
+}
 
 function literal(x: string): ContentParser {
 	return {
@@ -55,6 +64,8 @@ Deno.test("Should combine parsers", async () => {
 				title: item.name,
 			},
 			fileReader: item,
+			getDocumentToken,
+			getAssetToken,
 		});
 
 		switch (count++) {

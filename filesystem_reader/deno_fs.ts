@@ -103,6 +103,53 @@ export class DenoFsReader implements FileSystemReader {
 
 				return converted;
 			},
+			openFile: (path) => {
+				const resolvedPath = this.#resolve(path);
+
+				const fileInfo = Deno.statSync(resolvedPath);
+				if (!fileInfo.isFile) {
+					throw new Error(`DenoFsReader: ${resolvedPath} is not a file`);
+				}
+
+				if (!path.length) {
+					throw new Error(`DenoFsReader: path cannot be empty`);
+				}
+
+				let parent: DirectoryReader | RootDirectoryReader = root;
+				for (let i = 0, l = path.length - 1; i < l; i++) {
+					const dir: DirectoryReader = {
+						type: "directory",
+						name: path[i],
+						path: parent.type === "root"
+							? [path[i]]
+							: [...parent.path, path[i]],
+						parent,
+						read: async () => {
+							const converted: Array<FileReader | DirectoryReader> = [];
+
+							for await (const entry of Deno.readDir(this.#resolve(path))) {
+								converted.push(this.#fromDirEntry(entry, dir));
+							}
+
+							return converted;
+						},
+					};
+
+					parent = dir;
+				}
+
+				const file = path[path.length - 1];
+
+				return {
+					type: "file",
+					name: file,
+					path,
+					parent,
+					read: async () => {
+						return Deno.readFile(resolvedPath);
+					},
+				};
+			},
 		};
 
 		return root;

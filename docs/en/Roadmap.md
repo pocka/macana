@@ -13,7 +13,7 @@
 	- [ ] Obsidian Extensions
 		- [ ] Internal Link path resolution
 			- [ ] Absolute path in vault
-			- [ ] Relative path to file
+			- [x] Relative path to file
 			- [ ] Shortest path when possible
 		- [ ] Wikilink
 			- [ ] Label

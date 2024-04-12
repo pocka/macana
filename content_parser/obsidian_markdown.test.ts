@@ -6,7 +6,15 @@ import { assertObjectMatch } from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { ObsidianMarkdownParser } from "./obsidian_markdown.ts";
-import type { FileReader } from "../types.ts";
+import type { AssetToken, DocumentToken, FileReader } from "../types.ts";
+
+function getAssetToken(path: readonly string[]): AssetToken {
+	return `mxa_${path.join(".")}`;
+}
+
+function getDocumentToken(path: readonly string[]): DocumentToken {
+	return `mxt_${path.join(".")}`;
+}
 
 Deno.test("Should parse CommonMark syntax", async () => {
 	const fs = new MemoryFsReader([
@@ -33,6 +41,8 @@ Deno.test("Should parse CommonMark syntax", async () => {
 			name: "Test",
 		},
 		fileReader,
+		getAssetToken,
+		getDocumentToken,
 	});
 
 	assertObjectMatch(
@@ -87,6 +97,8 @@ lang: en-US
 			name: "Test",
 		},
 		fileReader,
+		getAssetToken,
+		getDocumentToken,
 	});
 
 	assertObjectMatch(content, {

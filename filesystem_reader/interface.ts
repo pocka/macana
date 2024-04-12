@@ -14,6 +14,7 @@ export interface FileSystemReader {
 	 * Directly read file contents at given path.
 	 * Throws if path does not exist or found directory.
 	 * You should traverse from `getRootDirectory()` for most cases.
+	 * @deprecated Use `RootDirectoryReader.openFile` then `FileReader.read` instead.
 	 */
 	readFile(path: readonly string[]): Promise<Uint8Array>;
 }

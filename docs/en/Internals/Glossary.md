@@ -29,3 +29,19 @@ Tree structured data contains *document metadata* and *document directories*.
 ## Document content
 
 A parsed content of note or canvas.
+
+## Document token
+
+A string starts with `mxt_` that is used for referencing a document.
+
+There are places where *Content Parser* needs a reference to *a document* while parsing another *document*, but unable to hold an object reference for the *document*.
+In such case, *Content Parser* exchanges target *document*'s file path for a *document token*.
+Then, *Page Builder* can exchange the *document token* for an actual *document* object reference later.
+
+## Asset token
+
+A string starts with `mxa_` that is used for referencing an asset.
+
+Because of Macana's file I/O design and multi-phase build process, it's not preferable to pass a reference to an asset file around.
+To avoid keeping references for asset files, *Content Parser* exchanges target asset's file path for an *asset token*.
+Then, *Page Builder* can exchange the *asset token* for an actual asset file reference later.

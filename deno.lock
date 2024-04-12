@@ -248,6 +248,8 @@
     "https://esm.sh/v135/inline-style-parser@0.2.2/denonext/inline-style-parser.mjs": "6b516634a2a716b57fa335bdaf9910c568a01330bfb7686ca534228aff59149e",
     "https://esm.sh/v135/longest-streak@3.1.0/denonext/longest-streak.mjs": "97b1d8c42d407e285971fea218d89a0404270c3b841a26ec62b83f62450ad573",
     "https://esm.sh/v135/markdown-table@3.0.3/denonext/markdown-table.mjs": "1dd9cb2d2d95fc440cc10489ac77bf979c944e76070997d962e05f627f45df0e",
+    "https://esm.sh/v135/mdast-util-definitions@6.0.0": "b335a17ac86505677a62667dd26fecddb8e94a8629c3193220655ccfd6c50081",
+    "https://esm.sh/v135/mdast-util-definitions@6.0.0/denonext/mdast-util-definitions.mjs": "09d288c69212c2b751b5cc3d187cc0f59ae41db94e7a0fefe2561b3b6c83475e",
     "https://esm.sh/v135/mdast-util-find-and-replace@3.0.1/denonext/mdast-util-find-and-replace.mjs": "dd75ab7e2d5060ab738fe5da72eeada37c295d5e506b6f8cae61d56dbd875446",
     "https://esm.sh/v135/mdast-util-from-markdown@2.0.0": "6faa1f66f444b738c9cf8a0e97084ff0ab08008e0236379c1f25c250dd8457f1",
     "https://esm.sh/v135/mdast-util-from-markdown@2.0.0/denonext/mdast-util-from-markdown.bundle.mjs": "df1b3422a8b65ba9b34a1ff13c48f4b4838e31abfe2b959f21d1d72aa9b8c576",

@@ -20,10 +20,20 @@ export interface DirectoryReader {
 	read(): Promise<ReadonlyArray<FileReader | DirectoryReader>>;
 }
 
+export type DocumentToken = `mxt_${string}`;
+
+export type AssetToken = `mxa_${string}`;
+
 export interface RootDirectoryReader {
 	readonly type: "root";
 
 	read(): Promise<ReadonlyArray<FileReader | DirectoryReader>>;
+
+	/**
+	 * Returns a file at the path.
+	 * This function may throw an error if the file not found.
+	 */
+	openFile(path: readonly string[]): Promise<FileReader> | FileReader;
 }
 
 export interface DocumentMetadata {
@@ -98,4 +108,16 @@ export interface DocumentTree {
 	 * Representive, facade document.
 	 */
 	readonly defaultDocument: Document;
+
+	/**
+	 * Get a document in exchange for the token.
+	 * Throws an error if the token is invalid or target document is missing.
+	 */
+	exchangeToken(token: DocumentToken): Document;
+
+	/**
+	 * Get an asset file in exchange for the token.
+	 * Throws an error if the token is invalid or target file is missing.
+	 */
+	exchangeToken(token: AssetToken): FileReader;
 }

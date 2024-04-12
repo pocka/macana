@@ -6,13 +6,18 @@ import { extname } from "../deps/deno.land/std/path/mod.ts";
 
 import type { BuildParameters, TreeBuilder } from "./interface.ts";
 import type {
+	AssetToken,
 	DirectoryReader,
 	Document,
 	DocumentDirectory,
 	DocumentMetadata,
+	DocumentToken,
 	DocumentTree,
 	FileReader,
+	RootDirectoryReader,
 } from "../types.ts";
+
+const INTERNAL_PATH_SEPARATOR = "/";
 
 export type TreeBuildStrategyFunctionReturns = {
 	skip: true;
@@ -151,6 +156,48 @@ export function defaultDocumentAt(path: readonly string[]): TreeBuildStrategy {
 	};
 }
 
+function isAssetToken(token: unknown): token is AssetToken {
+	return typeof token === "string" && token.startsWith("mxa_");
+}
+
+function isDocumentToken(token: unknown): token is DocumentToken {
+	return typeof token === "string" && token.startsWith("mxd_");
+}
+
+function resolveFsrPath(
+	path: readonly string[],
+	base: readonly string[],
+): readonly string[] {
+	let buf: string[] = base.slice(0, -1);
+
+	for (const fragment of path) {
+		switch (fragment) {
+			case ".":
+				break;
+			case "..":
+				buf = buf.slice(0, -1);
+				break;
+			default:
+				buf.push(fragment);
+				break;
+		}
+	}
+
+	return buf;
+}
+
+interface InternalBuildParameters {
+	contentParser: BuildParameters["contentParser"];
+
+	root: RootDirectoryReader;
+
+	parentPath?: readonly string[];
+
+	assetTokensToFiles: Map<AssetToken, FileReader>;
+	documentTokenToPaths: Map<DocumentToken, string>;
+	pathToDocuments: Map<string, Document>;
+}
+
 export interface DefaultTreeBuilderConfig {
 	/**
 	 * Default language tag (BCP 47).
@@ -200,10 +247,22 @@ export class DefaultTreeBuilder implements TreeBuilder {
 	): Promise<DocumentTree> {
 		const root = await fileSystemReader.getRootDirectory();
 
+		const assetTokensToFiles = new Map<AssetToken, FileReader>();
+		const documentTokenToPaths = new Map<DocumentToken, string>();
+		const pathToDocuments = new Map<string, Document>();
+
 		const children = await root.read();
 
 		const entries = await Promise.all(
-			children.map((child) => this.#build(child, { contentParser })),
+			children.map((child) =>
+				this.#build(child, {
+					contentParser,
+					root,
+					assetTokensToFiles,
+					documentTokenToPaths,
+					pathToDocuments,
+				})
+			),
 		);
 
 		const nodes = entries.filter((entry): entry is NonNullable<typeof entry> =>
@@ -222,16 +281,51 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			nodes,
 			defaultDocument,
 			defaultLanguage: this.#defaultLanguage,
+			exchangeToken: ((token) => {
+				if (isAssetToken(token)) {
+					const found = assetTokensToFiles.get(token);
+					if (!found) {
+						throw new Error(
+							`DefaultTreeBuilder: No asset file correspond to Asset Token ${token}`,
+						);
+					}
+
+					return found;
+				}
+
+				if (isDocumentToken(token)) {
+					const path = documentTokenToPaths.get(token);
+					if (!path) {
+						throw new Error(
+							`DefaultTreeBuilder: No document path registered for the Document Token ${token}`,
+						);
+					}
+
+					const doc = pathToDocuments.get(path);
+					if (!doc) {
+						throw new Error(
+							`DefaultTreeBuilder: No document at the path ${path}, referenced by token ${token}`,
+						);
+					}
+
+					return doc;
+				}
+
+				throw new Error(`DefaultTreeBuilder: Invalid token type: ${token}`);
+			}) as DocumentTree["exchangeToken"],
 		};
 	}
 
 	async #build(
 		node: FileReader | DirectoryReader,
-		{ contentParser }: Omit<
-			BuildParameters,
-			"fileSystemReader"
-		>,
-		parentPath: readonly string[] = [],
+		{
+			contentParser,
+			root,
+			assetTokensToFiles,
+			documentTokenToPaths,
+			pathToDocuments,
+			parentPath = [],
+		}: InternalBuildParameters,
 	): Promise<DocumentDirectory | Document | null> {
 		let metadata: DocumentMetadata = {
 			name: node.name,
@@ -252,9 +346,31 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			const result = await contentParser.parse({
 				fileReader: node,
 				documentMetadata: metadata,
+				async getAssetToken(path) {
+					const id = crypto.randomUUID();
+					const token: AssetToken = `mxa_${id}`;
+
+					assetTokensToFiles.set(
+						token,
+						await root.openFile(resolveFsrPath(path, node.path)),
+					);
+
+					return token;
+				},
+				getDocumentToken(path) {
+					const id = crypto.randomUUID();
+					const token: DocumentToken = `mxt_${id}`;
+
+					documentTokenToPaths.set(
+						token,
+						resolveFsrPath(path, node.path).join(INTERNAL_PATH_SEPARATOR),
+					);
+
+					return token;
+				},
 			});
 
-			return {
+			const document: Document = {
 				type: "document",
 				metadata: "documentMetadata" in result
 					? result.documentMetadata
@@ -263,16 +379,27 @@ export class DefaultTreeBuilder implements TreeBuilder {
 				content: "documentContent" in result ? result.documentContent : result,
 				path: [...parentPath, metadata.name],
 			};
+
+			pathToDocuments.set(node.path.join(INTERNAL_PATH_SEPARATOR), document);
+
+			return document;
 		}
 
 		const children = await node.read();
 
 		const entries = await Promise.all(
 			children.map((child) =>
-				this.#build(child, { contentParser }, [
-					...parentPath,
-					metadata.name,
-				])
+				this.#build(child, {
+					contentParser,
+					root,
+					assetTokensToFiles,
+					documentTokenToPaths,
+					pathToDocuments,
+					parentPath: [
+						...parentPath,
+						metadata.name,
+					],
+				})
 			),
 		);
 

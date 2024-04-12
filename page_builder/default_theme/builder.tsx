@@ -8,7 +8,10 @@ import { extname } from "../../deps/deno.land/std/path/mod.ts";
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 
 import type { BuildParameters, PageBuilder } from "../interface.ts";
-import type { ObsidianMarkdownDocument } from "../../content_parser/obsidian_markdown.ts";
+import {
+	macanaReplaceAssetTokens,
+	type ObsidianMarkdownDocument,
+} from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
 import type { Document, DocumentDirectory, DocumentTree } from "../../types.ts";
 
@@ -26,6 +29,14 @@ function isObsidianMarkdown(
 
 function isJSONCanvas(x: Document): x is Document<JSONCanvasDocument> {
 	return x.content.kind === "json_canvas";
+}
+
+function toRelativePath(
+	path: readonly string[],
+	from: readonly string[],
+): string {
+	return Array.from({ length: from.length }, () => "../").join("") +
+		path.join("/");
 }
 
 export interface Assets {
@@ -168,6 +179,25 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		if ("file" in item) {
 			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
+				const assetWrites: Promise<unknown>[] = [];
+
+				if (item.content.kind === "obsidian_markdown") {
+					await macanaReplaceAssetTokens(
+						item.content.content,
+						async (token) => {
+							const file = tree.exchangeToken(token);
+
+							assetWrites.push(fileSystemWriter.write(
+								file.path,
+								await file.read(),
+							));
+
+							// Add trailing slash (empty string)
+							return toRelativePath(file.path, [...item.path, ""]);
+						},
+					);
+				}
+
 				const html = "<!DOCTYPE html>" + renderSSR(
 					() => (
 						// Adds 1 to depth due to	`<name>/index.html` conversion.
@@ -185,11 +215,14 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 				const enc = new TextEncoder();
 
-				await fileSystemWriter.write([
-					...pathPrefix,
-					item.metadata.name,
-					"index.html",
-				], enc.encode(html));
+				await Promise.all([
+					...assetWrites,
+					fileSystemWriter.write([
+						...pathPrefix,
+						item.metadata.name,
+						"index.html",
+					], enc.encode(html)),
+				]);
 				return;
 			}
 
