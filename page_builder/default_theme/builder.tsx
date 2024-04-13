@@ -4,7 +4,6 @@
 
 /** @jsx h */
 
-import { extname } from "../../deps/deno.land/std/path/mod.ts";
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 
 import type { BuildParameters, PageBuilder } from "../interface.ts";
