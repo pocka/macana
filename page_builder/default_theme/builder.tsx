@@ -117,7 +117,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		);
 
 		if (this.#faviconSvg) {
-			assets.faviconSvg = ["favicon.svg"];
+			assets.faviconSvg = this.#faviconSvg;
 			await fileSystemWriter.write(
 				assets.faviconSvg,
 				await (fileSystemReader.readFile(this.#faviconSvg)),
@@ -125,7 +125,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		}
 
 		if (this.#faviconPng) {
-			assets.faviconPng = ["favicon.png"];
+			assets.faviconPng = this.#faviconPng;
 			await fileSystemWriter.write(
 				assets.faviconPng,
 				await (fileSystemReader.readFile(this.#faviconPng)),
@@ -133,10 +133,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		}
 
 		if (this.#siteLogo) {
-			const ext = extname(this.#siteLogo[this.#siteLogo.length - 1]);
-
-			assets.siteLogo = [".assets", `logo${ext}`];
-
+			assets.siteLogo = this.#siteLogo;
 			await fileSystemWriter.write(
 				assets.siteLogo,
 				await (fileSystemReader.readFile(this.#siteLogo)),
