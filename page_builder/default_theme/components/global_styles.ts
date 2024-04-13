@@ -252,7 +252,6 @@ export const globalStyles = css`
 
 	img {
 		max-width: 100%;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 	}
 	img:not(:first-child) {
 		margin-top: calc(var(--baseline) * 1rem);

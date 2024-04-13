@@ -79,8 +79,6 @@ export const styles = css`
 
 	.${C.Logo} {
 		padding: 4px;
-
-		box-shadow: none;
 	}
 
 	.${C.Nav} {
