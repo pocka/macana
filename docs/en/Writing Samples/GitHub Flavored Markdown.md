@@ -1,3 +1,8 @@
+GitHub Flavored Markdown (GFM) is a Markdown dialect based on CommonMark spec.
+This page lists extensions not exist in CommonMark.
+
+- Spec: https://github.github.com/gfm/
+
 ## Strikethrough extension
 
 ```markdown
