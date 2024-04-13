@@ -14,3 +14,18 @@ Users should be aware Macana's OFM parser is not guaranteed to be 100% compatibl
 ```
 
 ==Hello, World!==
+
+## Image size attribute
+
+OFM abuses image `alt` slot for size specifier.
+You can inspect the `<img>` tags below to see how it affects the resulting markup.
+
+```markdown
+![Picture of my dog|64](../../Assets/dog.jpg)
+![Picture of my dog|64x32](../../Assets/dog.jpg)
+![Picture of my dog|128x128](../../Assets/dog.jpg)
+```
+
+![Picture of my dog|64](../../Assets/dog.jpg)
+![Picture of my dog|64x32](../../Assets/dog.jpg)
+![Picture of my dog|128x128](../../Assets/dog.jpg)
