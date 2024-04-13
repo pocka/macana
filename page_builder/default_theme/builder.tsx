@@ -189,8 +189,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 								await file.read(),
 							));
 
-							// Add trailing slash (empty string)
-							return toRelativePath(file.path, [...item.path, ""]);
+							return toRelativePath(file.path, item.path);
 						},
 					);
 				}
