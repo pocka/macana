@@ -163,7 +163,7 @@ export function View(
 				<title>{document.metadata.title}</title>
 				<link
 					rel="stylesheet"
-					href={path.resolve(["assets", "global.css"])}
+					href={path.resolve(assets.globalCss)}
 				/>
 				{assets.faviconSvg && (
 					<link
