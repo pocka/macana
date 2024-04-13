@@ -9,6 +9,7 @@ import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 import type { BuildParameters, PageBuilder } from "../interface.ts";
 import {
 	macanaReplaceAssetTokens,
+	macanaReplaceDocumentToken,
 	type ObsidianMarkdownDocument,
 } from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
@@ -191,6 +192,17 @@ export class DefaultThemeBuilder implements PageBuilder {
 							));
 
 							return toRelativePath(file.path, item.path);
+						},
+					);
+
+					await macanaReplaceDocumentToken(
+						item.content.content,
+						async (token) => {
+							const document = tree.exchangeToken(token);
+
+							return {
+								path: toRelativePath([...document.path, ""], item.path),
+							};
 						},
 					);
 				}

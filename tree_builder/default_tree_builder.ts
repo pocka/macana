@@ -161,7 +161,7 @@ function isAssetToken(token: unknown): token is AssetToken {
 }
 
 function isDocumentToken(token: unknown): token is DocumentToken {
-	return typeof token === "string" && token.startsWith("mxd_");
+	return typeof token === "string" && token.startsWith("mxt_");
 }
 
 function resolveFsrPath(

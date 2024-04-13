@@ -12,6 +12,7 @@ import { ofmHighlightFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_hig
 import { ofmHighlight } from "./obsidian_markdown/micromark_extension_ofm_highlight.ts";
 import { ofmImageSize } from "./obsidian_markdown/mdast_util_ofm_image_size.ts";
 import { macanaMarkAssets } from "./obsidian_markdown/mdast_util_macana_mark_assets.ts";
+import { macanaMarkDocumentToken } from "./obsidian_markdown/mdast_util_macana_mark_document_token.ts";
 
 import type {
 	ContentParser,
@@ -21,6 +22,7 @@ import type {
 import type { DocumentContent } from "../types.ts";
 
 export { macanaReplaceAssetTokens } from "./obsidian_markdown/mdast_util_macana_replace_asset_tokens.ts";
+export { macanaReplaceDocumentToken } from "./obsidian_markdown/mdast_util_macana_replace_document_tokens.ts";
 
 function getFrontMatterValue(
 	frontmatter: Record<string, unknown>,
@@ -66,7 +68,7 @@ export interface ObsidianMarkdownParserOptions {
 
 async function parseMarkdown(
 	markdown: string | Uint8Array,
-	{ getAssetToken }: Pick<
+	{ getAssetToken, getDocumentToken }: Pick<
 		ParseParameters,
 		"getAssetToken" | "getDocumentToken"
 	>,
@@ -79,6 +81,7 @@ async function parseMarkdown(
 	ofmImageSize(mdast);
 
 	await macanaMarkAssets(mdast, getAssetToken);
+	await macanaMarkDocumentToken(mdast, getDocumentToken);
 
 	return mdast;
 }
