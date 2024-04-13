@@ -135,7 +135,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		if (this.#siteLogo) {
 			const ext = extname(this.#siteLogo[this.#siteLogo.length - 1]);
 
-			assets.siteLogo = ["assets", `logo.${ext}`];
+			assets.siteLogo = ["assets", `logo${ext}`];
 
 			await fileSystemWriter.write(
 				assets.siteLogo,
