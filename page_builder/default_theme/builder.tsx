@@ -115,11 +115,13 @@ export class DefaultThemeBuilder implements PageBuilder {
 			new TextEncoder().encode(styles),
 		);
 
+		const root = await fileSystemReader.getRootDirectory();
+
 		if (this.#faviconSvg) {
 			assets.faviconSvg = this.#faviconSvg;
 			await fileSystemWriter.write(
 				assets.faviconSvg,
-				await (fileSystemReader.readFile(this.#faviconSvg)),
+				await (await root.openFile(this.#faviconSvg)).read(),
 			);
 		}
 
@@ -127,7 +129,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 			assets.faviconPng = this.#faviconPng;
 			await fileSystemWriter.write(
 				assets.faviconPng,
-				await (fileSystemReader.readFile(this.#faviconPng)),
+				await (await root.openFile(this.#faviconPng)).read(),
 			);
 		}
 
@@ -135,7 +137,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 			assets.siteLogo = this.#siteLogo;
 			await fileSystemWriter.write(
 				assets.siteLogo,
-				await (fileSystemReader.readFile(this.#siteLogo)),
+				await (await root.openFile(this.#siteLogo)).read(),
 			);
 		}
 

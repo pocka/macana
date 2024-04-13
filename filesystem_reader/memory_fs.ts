@@ -186,13 +186,4 @@ export class MemoryFsReader implements FileSystemReader {
 
 		return Promise.resolve(root);
 	}
-
-	async readFile(path: readonly string[]): Promise<Uint8Array> {
-		const file = await this.#getAtRecur(path, await this.getRootDirectory());
-		if (file.type === "directory") {
-			throw new Error(`MemoryFsReader: ${path.join(SEP)} is directory`);
-		}
-
-		return file.read();
-	}
 }
