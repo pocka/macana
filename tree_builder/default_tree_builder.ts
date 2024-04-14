@@ -370,14 +370,16 @@ export class DefaultTreeBuilder implements TreeBuilder {
 				},
 			});
 
+			const finalMetadata: DocumentMetadata = "documentMetadata" in result
+				? result.documentMetadata
+				: metadata;
+
 			const document: Document = {
 				type: "document",
-				metadata: "documentMetadata" in result
-					? result.documentMetadata
-					: metadata,
+				metadata: finalMetadata,
 				file: node,
 				content: "documentContent" in result ? result.documentContent : result,
-				path: [...parentPath, metadata.name],
+				path: [...parentPath, finalMetadata.name],
 			};
 
 			pathToDocuments.set(node.path.join(INTERNAL_PATH_SEPARATOR), document);

@@ -105,6 +105,7 @@ Deno.test("Should respect metadata returned by Content Parser", async () => {
 			name: "jumps over",
 			language: "lazy-dog",
 		},
+		path: ["jumps over"],
 		file: {
 			name: "Foo.md",
 		},
