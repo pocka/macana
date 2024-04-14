@@ -51,7 +51,7 @@ const contentParser = oneof(
 	new ObsidianMarkdownParser(),
 );
 const pageBuilder = new DefaultThemeBuilder({
-	copyright: "© 2024 Shota FUJI",
+	copyright: "© 2024 Shota FUJI. This document is licensed under CC BY 4.0",
 	faviconSvg: ["Assets", "logo.svg"],
 	faviconPng: ["Assets", "logo-64x64.png"],
 	siteLogo: ["Assets", "logo.svg"],
