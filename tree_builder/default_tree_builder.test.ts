@@ -10,6 +10,7 @@ import {
 } from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
+import type { ContentParser } from "../content_parser/interface.ts";
 import { noopParser } from "../content_parser/noop.ts";
 import {
 	defaultDocumentAt,
@@ -20,8 +21,29 @@ import {
 	langDir,
 	removeExtFromMetadata,
 } from "./default_tree_builder.ts";
+import type { DocumentToken } from "../types.ts";
 
 const contentParser = noopParser;
+
+function linkCheckParser(
+	opts: { fromPath: readonly string[]; toPath: readonly string[] },
+): ContentParser & { token: DocumentToken | null } {
+	const parser: ContentParser & { token: DocumentToken | null } = {
+		token: null,
+		async parse({ fileReader, getDocumentToken }) {
+			if (opts.fromPath.every((s, i) => s === fileReader.path[i])) {
+				parser.token = await getDocumentToken(opts.toPath);
+			}
+
+			return {
+				kind: "testing",
+				content: null,
+			};
+		},
+	};
+
+	return parser;
+}
 
 Deno.test("Should read from top-level directory, as-is", async () => {
 	const fileSystemReader = new MemoryFsReader([
@@ -227,6 +249,126 @@ Deno.test("Should throw an error if tree has no documents", async () => {
 			contentParser,
 		})
 	);
+});
+
+Deno.test("Should resolve relative path link", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Foo", "Bar", "Baz.md"],
+		toPath: ["..", "..", "Qux.md"],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertNotEquals(contentParser.token, null);
+
+	// `as` is required as Deno's assertion function does not return `a is B`.
+	const found = tree.exchangeToken(contentParser.token as DocumentToken);
+
+	assertObjectMatch(found, {
+		path: ["Qux.md"],
+	});
+});
+
+Deno.test("Should resolve relative path link without file extension", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Foo", "Bar", "Baz.md"],
+		toPath: ["..", "..", "Qux"],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertNotEquals(contentParser.token, null);
+
+	// `as` is required as Deno's assertion function does not return `a is B`.
+	const found = tree.exchangeToken(contentParser.token as DocumentToken);
+
+	assertObjectMatch(found, {
+		path: ["Qux.md"],
+	});
+});
+
+Deno.test("Should resolve absolute path link", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Foo", "Bar", "Baz.md"],
+		toPath: ["", "Qux.md"],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertNotEquals(contentParser.token, null);
+
+	// `as` is required as Deno's assertion function does not return `a is B`.
+	const found = tree.exchangeToken(contentParser.token as DocumentToken);
+
+	assertObjectMatch(found, {
+		path: ["Qux.md"],
+	});
+});
+
+Deno.test("Should resolve absolute path link without file extension", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Foo", "Bar", "Baz.md"],
+		toPath: ["", "Qux"],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertNotEquals(contentParser.token, null);
+
+	// `as` is required as Deno's assertion function does not return `a is B`.
+	const found = tree.exchangeToken(contentParser.token as DocumentToken);
+
+	assertObjectMatch(found, {
+		path: ["Qux.md"],
+	});
 });
 
 Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", async () => {

@@ -112,31 +112,10 @@ export class DenoFsReader implements FileSystemReader {
 				}
 
 				if (!path.length) {
-					throw new Error(`DenoFsReader: path cannot be empty`);
+					throw new Error(`DenoFsReader: file path cannot be empty`);
 				}
 
-				let parent: DirectoryReader | RootDirectoryReader = root;
-				for (let i = 0, l = path.length - 1; i < l; i++) {
-					const dir: DirectoryReader = {
-						type: "directory",
-						name: path[i],
-						path: parent.type === "root"
-							? [path[i]]
-							: [...parent.path, path[i]],
-						parent,
-						read: async () => {
-							const converted: Array<FileReader | DirectoryReader> = [];
-
-							for await (const entry of Deno.readDir(this.#resolve(path))) {
-								converted.push(this.#fromDirEntry(entry, dir));
-							}
-
-							return converted;
-						},
-					};
-
-					parent = dir;
-				}
+				const parent = this.#constructParents(path, root);
 
 				const file = path[path.length - 1];
 
@@ -150,8 +129,70 @@ export class DenoFsReader implements FileSystemReader {
 					},
 				};
 			},
+			openDirectory: (path) => {
+				const resolvedPath = this.#resolve(path);
+
+				const stat = Deno.statSync(resolvedPath);
+				if (!stat.isDirectory) {
+					throw new Error(``);
+				}
+
+				if (!path.length) {
+					throw new Error(`DenoFsReader: directory path cannot be empty`);
+				}
+
+				const parent = this.#constructParents(path, root);
+
+				const name = path[path.length - 1];
+
+				const dir: DirectoryReader = {
+					type: "directory",
+					name,
+					path,
+					parent,
+					read: async () => {
+						const converted: Array<FileReader | DirectoryReader> = [];
+
+						for await (const entry of Deno.readDir(this.#resolve(path))) {
+							converted.push(this.#fromDirEntry(entry, dir));
+						}
+
+						return converted;
+					},
+				};
+
+				return dir;
+			},
 		};
 
 		return root;
+	}
+
+	#constructParents(
+		path: readonly string[],
+		root: RootDirectoryReader,
+	): DirectoryReader | RootDirectoryReader {
+		let parent: DirectoryReader | RootDirectoryReader = root;
+		for (let i = 0, l = path.length - 1; i < l; i++) {
+			const dir: DirectoryReader = {
+				type: "directory",
+				name: path[i],
+				path: parent.type === "root" ? [path[i]] : [...parent.path, path[i]],
+				parent,
+				read: async () => {
+					const converted: Array<FileReader | DirectoryReader> = [];
+
+					for await (const entry of Deno.readDir(this.#resolve(path))) {
+						converted.push(this.#fromDirEntry(entry, dir));
+					}
+
+					return converted;
+				},
+			};
+
+			parent = dir;
+		}
+
+		return parent;
 	}
 }

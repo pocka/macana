@@ -168,6 +168,11 @@ function resolveFsrPath(
 	path: readonly string[],
 	base: readonly string[],
 ): readonly string[] {
+	// Absolute path
+	if (path[0] === "") {
+		return path.slice(1);
+	}
+
 	let buf: string[] = base.slice(0, -1);
 
 	for (const fragment of path) {
@@ -184,6 +189,69 @@ function resolveFsrPath(
 	}
 
 	return buf;
+}
+
+/**
+ * @param root - Vault root directory.
+ * @param path - Resolved path.
+ */
+function resolveExtensionLessPath(
+	root: RootDirectoryReader,
+	path: readonly string[],
+): readonly string[] | Promise<readonly string[]> {
+	const [filename, ...dirPathReversed] = path.toReversed();
+	if (!filename || filename.includes(".")) {
+		return path;
+	}
+
+	const findClosestFile = async (
+		dir: DirectoryReader | RootDirectoryReader,
+	): Promise<readonly string[]> => {
+		const entries = await dir.read();
+
+		const match = entries.filter((entry) => {
+			if (entry.type !== "file") {
+				return false;
+			}
+
+			const stem = entry.name.split(".").slice(0, -1).join(".");
+			return stem === filename;
+		});
+
+		if (match.length > 1) {
+			// TODO: Custom error class
+			throw new Error(
+				"DefaultTreeBuilder: cannot resolve extension-less reference, " +
+					"there is several files with same stem but different extensions: " +
+					`requested = ${path.join(INTERNAL_PATH_SEPARATOR)},	` +
+					`found = [${match.map((entry) => entry.name).join(", ")}].`,
+			);
+		}
+
+		if (!match.length) {
+			const dirPath = dirPathReversed.length > 0
+				? dirPathReversed.toReversed().join(
+					INTERNAL_PATH_SEPARATOR,
+				)
+				: "Root directory ";
+
+			throw new Error(
+				"DefaultTreeBuilder: cannot resolve extension-less reference, " +
+					`${dirPath} does not contain any files whose stem is "${filename}".`,
+			);
+		}
+
+		return match[0].path;
+	};
+
+	const dir = !dirPathReversed.length
+		? root
+		: root.openDirectory(dirPathReversed.toReversed());
+	if (dir instanceof Promise) {
+		return dir.then(findClosestFile);
+	}
+
+	return findClosestFile(dir);
 }
 
 interface InternalBuildParameters {
@@ -347,23 +415,49 @@ export class DefaultTreeBuilder implements TreeBuilder {
 				fileReader: node,
 				documentMetadata: metadata,
 				async getAssetToken(path) {
+					if (!path.length) {
+						throw new Error(
+							`Asset link cannot be empty (processing ${
+								node.path.join(INTERNAL_PATH_SEPARATOR)
+							})`,
+						);
+					}
+
 					const id = crypto.randomUUID();
 					const token: AssetToken = `mxa_${id}`;
 
+					const resolvedPath = await resolveExtensionLessPath(
+						root,
+						resolveFsrPath(path, node.path),
+					);
+
 					assetTokensToFiles.set(
 						token,
-						await root.openFile(resolveFsrPath(path, node.path)),
+						await root.openFile(resolvedPath),
 					);
 
 					return token;
 				},
-				getDocumentToken(path) {
+				async getDocumentToken(path) {
+					if (!path.length) {
+						throw new Error(
+							`Document link cannot be empty (processing ${
+								node.path.join(INTERNAL_PATH_SEPARATOR)
+							})`,
+						);
+					}
+
 					const id = crypto.randomUUID();
 					const token: DocumentToken = `mxt_${id}`;
 
+					const resolvedPath = await resolveExtensionLessPath(
+						root,
+						resolveFsrPath(path, node.path),
+					);
+
 					documentTokenToPaths.set(
 						token,
-						resolveFsrPath(path, node.path).join(INTERNAL_PATH_SEPARATOR),
+						resolvedPath.join(INTERNAL_PATH_SEPARATOR),
 					);
 
 					return token;

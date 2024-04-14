@@ -34,6 +34,14 @@ export interface RootDirectoryReader {
 	 * This function may throw an error if the file not found.
 	 */
 	openFile(path: readonly string[]): Promise<FileReader> | FileReader;
+
+	/**
+	 * Returns a directory at the path.
+	 * This function may throw an error if the directory not found.
+	 */
+	openDirectory(
+		path: readonly string[],
+	): Promise<DirectoryReader> | DirectoryReader;
 }
 
 export interface DocumentMetadata {

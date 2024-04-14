@@ -12,8 +12,10 @@
 	- [ ] Syntax Highlighting
 	- [ ] Obsidian Extensions
 		- [ ] Internal Link path resolution
-			- [ ] Absolute path in vault
+			- [x] Absolute path in vault
+			- [x] Absolute path in vault (extension-less)
 			- [x] Relative path to file
+			- [x] Relative path to file (extension-less)
 			- [ ] Shortest path when possible
 		- [ ] Wikilink
 			- [ ] Label
