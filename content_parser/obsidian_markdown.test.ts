@@ -120,3 +120,46 @@ lang: en-US
 		},
 	});
 });
+
+Deno.test("Should not drop metadata when parsing YAML frontmatter", async () => {
+	const fs = new MemoryFsReader([
+		{
+			path: "Test.md",
+			content: `---
+title: "Alice's blog post #1"
+name: alice-blog-01
+lang: en-US
+---
+
+# H1
+			`,
+		},
+	]);
+
+	const fileReader =
+		(await (fs.getRootDirectory().then((dir) => dir.read()).then((entries) =>
+			entries[0]
+		))) as FileReader;
+
+	const parser = new ObsidianMarkdownParser({ frontmatter: true });
+
+	const content = await parser.parse({
+		documentMetadata: {
+			title: "Test",
+			name: "Test",
+			isDefaultDocument: true,
+		},
+		fileReader,
+		getAssetToken,
+		getDocumentToken,
+	});
+
+	assertObjectMatch(content, {
+		documentMetadata: {
+			title: "Alice's blog post #1",
+			name: "alice-blog-01",
+			language: "en-US",
+			isDefaultDocument: true,
+		},
+	});
+});

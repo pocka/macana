@@ -120,6 +120,7 @@ export class ObsidianMarkdownParser implements ContentParser {
 
 		return {
 			documentMetadata: {
+				...documentMetadata,
 				name: name || documentMetadata.name,
 				title: title || documentMetadata.title,
 				language: lang || documentMetadata.language,
