@@ -41,6 +41,17 @@ This affects performance.
 
 [Overview](/en/Overview)
 
+### Shortest path when possible
+
+Macana also supports "Shortest path when possible" links, which is the default value for the newer Obsidian versions.
+When Vault has more than one file having same name, resolution will result in error.
+
+```markdown
+[Overview](Overview)
+```
+
+[Overview](Overview)
+
 ## Limitation
 
 ### Filename confusion on extension-less path

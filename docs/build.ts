@@ -45,6 +45,7 @@ const treeBuilder = new DefaultTreeBuilder({
 			ja: "日本語",
 		}, true),
 	],
+	resolveShortestPathWhenPossible: true,
 });
 const contentParser = oneof(
 	new JSONCanvasParser(),

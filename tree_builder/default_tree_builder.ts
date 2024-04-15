@@ -192,6 +192,16 @@ function resolveFsrPath(
 }
 
 /**
+ * Trim file extension from filename.
+ *
+ * - "foo.png" -> "foo"
+ * - "foo.config.js" -> "foo.config"
+ */
+function getStem(filename: string): string {
+	return filename.split(".").slice(0, -1).join(".");
+}
+
+/**
  * @param root - Vault root directory.
  * @param path - Resolved path.
  */
@@ -214,8 +224,7 @@ function resolveExtensionLessPath(
 				return false;
 			}
 
-			const stem = entry.name.split(".").slice(0, -1).join(".");
-			return stem === filename;
+			return getStem(entry.name) === filename;
 		});
 
 		if (match.length > 1) {
@@ -254,6 +263,67 @@ function resolveExtensionLessPath(
 	return findClosestFile(dir);
 }
 
+async function findFileByName(
+	name: string,
+	dir: DirectoryReader | RootDirectoryReader,
+): Promise<FileReader[]> {
+	const found: FileReader[] = [];
+
+	for (const entry of await dir.read()) {
+		if (entry.type === "directory") {
+			found.push(...(await findFileByName(name, entry)));
+			continue;
+		}
+
+		if (getStem(entry.name) === name) {
+			found.push(entry);
+			continue;
+		}
+	}
+
+	return found;
+}
+
+// Based on: https://forum.obsidian.md/t/settings-new-link-format-what-is-shortest-path-when-possible/6748
+function resolveShortestPath(
+	root: RootDirectoryReader,
+	path: readonly string[],
+	base: readonly string[],
+): readonly string[] | Promise<readonly string[]> {
+	const [name] = path;
+	switch (name) {
+		case "":
+		case ".":
+		case "..":
+			return resolveExtensionLessPath(root, resolveFsrPath(path, base));
+	}
+
+	// Absolute path from Vault root
+	if (path.length > 1) {
+		return resolveExtensionLessPath(root, path);
+	}
+
+	return findFileByName(name, root).then((found) => {
+		if (!found.length) {
+			throw new Error(
+				`DefaultTreeBuilder: no file named "${name}" found,` +
+					` requested by ${base.join(INTERNAL_PATH_SEPARATOR)}.`,
+			);
+		}
+
+		if (found.length > 1) {
+			throw new Error(
+				`DefaultTreeBuilder: Your Vault has more than one files named "${name}": ` +
+					found.map((entry) => entry.path.join(INTERNAL_PATH_SEPARATOR)).join(
+						", ",
+					),
+			);
+		}
+
+		return found[0].path;
+	});
+}
+
 interface InternalBuildParameters {
 	contentParser: BuildParameters["contentParser"];
 
@@ -287,6 +357,13 @@ export interface DefaultTreeBuilderConfig {
 		a: Document | DocumentDirectory,
 		b: Document | DocumentDirectory,
 	): number;
+
+	/**
+	 * Whether to enable "Shortest path when possible" link resolution.
+	 * This impacts performance.
+	 * @default false
+	 */
+	resolveShortestPathWhenPossible?: boolean;
 }
 
 export class DefaultTreeBuilder implements TreeBuilder {
@@ -296,9 +373,11 @@ export class DefaultTreeBuilder implements TreeBuilder {
 		a: Document | DocumentDirectory,
 		b: Document | DocumentDirectory,
 	) => number;
+	#resolveShortestPath: boolean;
 
 	constructor(
-		{ defaultLanguage, strategies, sorter }: DefaultTreeBuilderConfig,
+		{ defaultLanguage, strategies, sorter, resolveShortestPathWhenPossible }:
+			DefaultTreeBuilderConfig,
 	) {
 		this.#defaultLanguage = defaultLanguage;
 		this.#strategies = strategies || [];
@@ -308,6 +387,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					b.metadata.title,
 					this.#defaultLanguage,
 				));
+		this.#resolveShortestPath = resolveShortestPathWhenPossible ?? false;
 	}
 
 	async build(
@@ -414,7 +494,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			const result = await contentParser.parse({
 				fileReader: node,
 				documentMetadata: metadata,
-				async getAssetToken(path) {
+				getAssetToken: async (path) => {
 					if (!path.length) {
 						throw new Error(
 							`Asset link cannot be empty (processing ${
@@ -426,10 +506,12 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					const id = crypto.randomUUID();
 					const token: AssetToken = `mxa_${id}`;
 
-					const resolvedPath = await resolveExtensionLessPath(
-						root,
-						resolveFsrPath(path, node.path),
-					);
+					const resolvedPath = this.#resolveShortestPath
+						? await resolveShortestPath(root, path, node.path)
+						: await resolveExtensionLessPath(
+							root,
+							resolveFsrPath(path, node.path),
+						);
 
 					assetTokensToFiles.set(
 						token,
@@ -438,7 +520,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 					return token;
 				},
-				async getDocumentToken(path) {
+				getDocumentToken: async (path) => {
 					if (!path.length) {
 						throw new Error(
 							`Document link cannot be empty (processing ${
@@ -450,10 +532,12 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					const id = crypto.randomUUID();
 					const token: DocumentToken = `mxt_${id}`;
 
-					const resolvedPath = await resolveExtensionLessPath(
-						root,
-						resolveFsrPath(path, node.path),
-					);
+					const resolvedPath = this.#resolveShortestPath
+						? await resolveShortestPath(root, path, node.path)
+						: await resolveExtensionLessPath(
+							root,
+							resolveFsrPath(path, node.path),
+						);
 
 					documentTokenToPaths.set(
 						token,

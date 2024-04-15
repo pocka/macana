@@ -371,6 +371,93 @@ Deno.test("Should resolve absolute path link without file extension", async () =
 	});
 });
 
+Deno.test(`Should support "Shortest path when possible" resolution`, async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+		resolveShortestPathWhenPossible: true,
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Foo", "Bar", "Baz.md"],
+		toPath: ["Qux"],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertNotEquals(contentParser.token, null);
+
+	// `as` is required as Deno's assertion function does not return `a is B`.
+	const found = tree.exchangeToken(contentParser.token as DocumentToken);
+
+	assertObjectMatch(found, {
+		path: ["Qux.md"],
+	});
+});
+
+Deno.test("Shortest path resolution look down directories as-well", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+		resolveShortestPathWhenPossible: true,
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Qux.md"],
+		toPath: ["Baz"],
+	});
+
+	const tree = await builder.build({
+		fileSystemReader,
+		contentParser,
+	});
+
+	assertNotEquals(contentParser.token, null);
+
+	// `as` is required as Deno's assertion function does not return `a is B`.
+	const found = tree.exchangeToken(contentParser.token as DocumentToken);
+
+	assertObjectMatch(found, {
+		path: ["Foo", "Bar", "Baz.md"],
+	});
+});
+
+Deno.test("Shortest path resolution rejects when there more than one files with same name", async () => {
+	const fileSystemReader = new MemoryFsReader([
+		{ path: "Foo/Bar/Baz.md", content: "" },
+		{ path: "Foo/Baz.md", content: "" },
+		{ path: "Qux.md", content: "" },
+	]);
+	const builder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [fileExtensions([".md"])],
+		resolveShortestPathWhenPossible: true,
+	});
+
+	const contentParser = linkCheckParser({
+		fromPath: ["Qux.md"],
+		toPath: ["Baz"],
+	});
+
+	await assertRejects(() =>
+		builder.build({
+			fileSystemReader,
+			contentParser,
+		})
+	);
+});
+
 Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", async () => {
 	const fileSystemReader = new MemoryFsReader([
 		{ path: "foo/bar/baz.md", content: "" },

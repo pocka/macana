@@ -11,12 +11,12 @@
 		- [ ] MathJax ... No support if it can't generate MathML at build time.
 	- [ ] Syntax Highlighting
 	- [ ] Obsidian Extensions
-		- [ ] Internal Link path resolution
+		- [x] Internal Link path resolution
 			- [x] Absolute path in vault
 			- [x] Absolute path in vault (extension-less)
 			- [x] Relative path to file
 			- [x] Relative path to file (extension-less)
-			- [ ] Shortest path when possible
+			- [x] Shortest path when possible
 		- [ ] Wikilink
 			- [ ] Label
 			- [ ] Heading
