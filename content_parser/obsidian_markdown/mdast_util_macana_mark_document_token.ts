@@ -83,4 +83,8 @@ export async function macanaMarkDocumentToken(
 			}
 		},
 	);
+
+	if (promises.length > 0) {
+		await Promise.all(promises);
+	}
 }
