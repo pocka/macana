@@ -5,7 +5,7 @@
 	},
 	"lint": {
 		"rules": {
-			"exclude": ["require-await", "require-yield"]
+			"exclude": ["require-await", "require-yield", "no-fallthrough"]
 		}
 	},
 	"tasks": {
