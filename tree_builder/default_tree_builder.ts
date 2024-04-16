@@ -4,6 +4,8 @@
 
 import { extname } from "../deps/deno.land/std/path/mod.ts";
 
+import { logger } from "../logger.ts";
+
 import type { BuildParameters, TreeBuilder } from "./interface.ts";
 import type {
 	AssetToken,
@@ -65,6 +67,9 @@ export function ignore(
 ): TreeBuildStrategy {
 	return (node, metadata) => {
 		if (f(node)) {
+			logger().debug(`Ignored: ${node.path.join(INTERNAL_PATH_SEPARATOR)}`, {
+				path: node.path,
+			});
 			return { skip: true };
 		}
 
@@ -98,6 +103,14 @@ export function langDir(
 		if (!title) {
 			return { metadata };
 		}
+
+		logger().debug(
+			`Found language directory at ${node.path.join(INTERNAL_PATH_SEPARATOR)}`,
+			{
+				path: node.path,
+				language: node.name,
+			},
+		);
 
 		return {
 			metadata: {
@@ -393,6 +406,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 	async build(
 		{ fileSystemReader, contentParser }: BuildParameters,
 	): Promise<DocumentTree> {
+		const start = performance.now();
 		const root = await fileSystemReader.getRootDirectory();
 
 		const assetTokensToFiles = new Map<AssetToken, FileReader>();
@@ -423,6 +437,23 @@ export class DefaultTreeBuilder implements TreeBuilder {
 				"No document found. Document tree must have at least one document.",
 			);
 		}
+
+		logger().debug(
+			`Default document at ${
+				defaultDocument.file.path.join(INTERNAL_PATH_SEPARATOR)
+			}`,
+			{
+				path: defaultDocument.file.path,
+				documentPath: defaultDocument.path,
+				title: defaultDocument.metadata.title,
+			},
+		);
+
+		const duration = performance.now() - start;
+		logger().info(`Built document tree in ${duration}ms`, {
+			duration,
+			documents: flattenTree(nodes).length,
+		});
 
 		return {
 			type: "tree",
@@ -483,7 +514,6 @@ export class DefaultTreeBuilder implements TreeBuilder {
 		for (const strategy of this.#strategies) {
 			const result = await strategy(node, metadata);
 			if (result.skip) {
-				// TODO: Debug log (or this should be in the each strategies?)
 				return null;
 			}
 
@@ -639,4 +669,16 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 		return null;
 	}
+}
+
+function flattenTree(
+	tree: ReadonlyArray<Document | DocumentDirectory>,
+): readonly Document[] {
+	return tree.map((node) => {
+		if (node.type === "document") {
+			return [node];
+		}
+
+		return flattenTree(node.entries);
+	}).flat();
 }

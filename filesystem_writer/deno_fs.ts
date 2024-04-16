@@ -4,6 +4,8 @@
 
 import { dirname, SEPARATOR } from "../deps/deno.land/std/path/mod.ts";
 
+import { logger } from "../logger.ts";
+
 import type { FileSystemWriter } from "./interface.ts";
 
 export class DenoFsWriter implements FileSystemWriter {
@@ -47,6 +49,12 @@ export class DenoFsWriter implements FileSystemWriter {
 		content: Uint8Array,
 	) {
 		const resolvedPath = this.#resolve(path);
+
+		logger().debug(`Writing file at ${path.join(SEPARATOR)}`, {
+			path,
+			resolvedPath,
+			bytes: content.byteLength,
+		});
 
 		await Deno.mkdir(dirname(resolvedPath), { recursive: true });
 		await Deno.writeFile(resolvedPath, content);

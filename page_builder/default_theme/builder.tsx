@@ -6,6 +6,8 @@
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 
+import { logger } from "../../logger.ts";
+
 import type { BuildParameters, PageBuilder } from "../interface.ts";
 import {
 	macanaReplaceAssetTokens,
@@ -103,6 +105,8 @@ export class DefaultThemeBuilder implements PageBuilder {
 	async build(
 		{ documentTree, fileSystemReader, fileSystemWriter }: BuildParameters,
 	) {
+		const start = performance.now();
+
 		const styles = css.serialize(
 			Html.styles,
 		);
@@ -168,6 +172,11 @@ export class DefaultThemeBuilder implements PageBuilder {
 				assets,
 			})
 		));
+
+		const duration = performance.now() - start;
+		logger().info(`Built with default theme in ${duration}ms`, {
+			duration,
+		});
 	}
 
 	async #build(

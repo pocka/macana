@@ -4,6 +4,8 @@
 
 import { SEPARATOR } from "../deps/deno.land/std/path/mod.ts";
 
+import { logger } from "../logger.ts";
+
 import type { FileSystemReader } from "./interface.ts";
 import type {
 	DirectoryReader,
@@ -48,14 +50,16 @@ export class DenoFsReader implements FileSystemReader {
 	#fromDirEntry = (
 		dirEntry: Deno.DirEntry,
 		parent: DirectoryReader | RootDirectoryReader,
-	): FileReader | DirectoryReader => {
+	): FileReader | DirectoryReader | null => {
 		const { name, isSymlink, isFile } = dirEntry;
 
 		const path = parent.type === "root" ? [name] : [...parent.path, name];
 
 		if (isSymlink) {
-			// TODO: Log warning and skip.
-			throw new Error("DenoFsReader does not support reading symlinks.");
+			logger().warn(`Found symlink, skipping`, {
+				path,
+			});
+			return null;
 		}
 
 		if (isFile) {
@@ -79,7 +83,10 @@ export class DenoFsReader implements FileSystemReader {
 				const converted: Array<FileReader | DirectoryReader> = [];
 
 				for await (const entry of Deno.readDir(this.#resolve(path))) {
-					converted.push(this.#fromDirEntry(entry, dir));
+					const c = this.#fromDirEntry(entry, dir);
+					if (c) {
+						converted.push(c);
+					}
 				}
 
 				return converted;
@@ -98,7 +105,10 @@ export class DenoFsReader implements FileSystemReader {
 				const converted: Array<FileReader | DirectoryReader> = [];
 
 				for await (const entry of Deno.readDir(this.#root)) {
-					converted.push(this.#fromDirEntry(entry, root));
+					const c = this.#fromDirEntry(entry, root);
+					if (c) {
+						converted.push(c);
+					}
 				}
 
 				return converted;
@@ -154,7 +164,10 @@ export class DenoFsReader implements FileSystemReader {
 						const converted: Array<FileReader | DirectoryReader> = [];
 
 						for await (const entry of Deno.readDir(this.#resolve(path))) {
-							converted.push(this.#fromDirEntry(entry, dir));
+							const c = this.#fromDirEntry(entry, dir);
+							if (c) {
+								converted.push(c);
+							}
 						}
 
 						return converted;
@@ -183,7 +196,10 @@ export class DenoFsReader implements FileSystemReader {
 					const converted: Array<FileReader | DirectoryReader> = [];
 
 					for await (const entry of Deno.readDir(this.#resolve(path))) {
-						converted.push(this.#fromDirEntry(entry, dir));
+						const c = this.#fromDirEntry(entry, dir);
+						if (c) {
+							converted.push(c);
+						}
 					}
 
 					return converted;

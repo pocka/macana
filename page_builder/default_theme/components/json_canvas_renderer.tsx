@@ -6,6 +6,8 @@
 
 import { h } from "../../../deps/deno.land/x/nano_jsx/mod.ts";
 
+import { logger } from "../../../logger.ts";
+
 import { css } from "../css.ts";
 
 import type {
@@ -346,18 +348,24 @@ export function JSONCanvasRenderer(
 
 				const fromNode = nodes.get(edge.fromNode);
 				if (!fromNode) {
-					// TODO: Proper logging
-					console.warn(
-						`JSONCanvas Renderer: Edge(id=${edge.id}) points to non-existing fromNode(id=${edge.fromNode})`,
+					logger().warn(
+						"Malformed JSONCanvas: " +
+							`Edge(id=${edge.id}) points to non-existing fromNode(id=${edge.fromNode})`,
+						{
+							edge,
+						},
 					);
 					return;
 				}
 
 				const toNode = nodes.get(edge.toNode);
 				if (!toNode) {
-					// TODO: Proper logging
-					console.warn(
-						`JSONCanvas Renderer: Edge(id=${edge.id}) points to non-existing toNode(id=${edge.toNode})`,
+					logger().warn(
+						"Malformed JSONCanvas: " +
+							`Edge(id=${edge.id}) points to non-existing toNode(id=${edge.toNode})`,
+						{
+							edge,
+						},
 					);
 					return;
 				}

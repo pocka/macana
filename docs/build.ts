@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import * as log from "../deps/deno.land/std/log/mod.ts";
+import * as cli from "../deps/deno.land/std/cli/mod.ts";
+
 import { DenoFsReader } from "../filesystem_reader/deno_fs.ts";
 import { DenoFsWriter } from "../filesystem_writer/deno_fs.ts";
 import {
@@ -16,54 +19,95 @@ import { JSONCanvasParser } from "../content_parser/json_canvas.ts";
 import { oneof } from "../content_parser/oneof.ts";
 import { DefaultThemeBuilder } from "../page_builder/default_theme/builder.tsx";
 
-const outDir = new URL("./.dist", import.meta.url);
+export async function build() {
+	const outDir = new URL("./.dist", import.meta.url);
 
-await Deno.permissions.request({
-	name: "write",
-	path: outDir,
-});
+	await Deno.permissions.request({
+		name: "write",
+		path: outDir,
+	});
 
-const srcDir = new URL(".", import.meta.url);
+	const srcDir = new URL(".", import.meta.url);
 
-await Deno.permissions.request({
-	name: "read",
-	path: srcDir,
-});
+	await Deno.permissions.request({
+		name: "read",
+		path: srcDir,
+	});
 
-await Deno.mkdir(outDir, { recursive: true });
+	await Deno.mkdir(outDir, { recursive: true });
 
-const fileSystemReader = new DenoFsReader(srcDir);
-const fileSystemWriter = new DenoFsWriter(outDir);
-const treeBuilder = new DefaultTreeBuilder({
-	defaultLanguage: "en",
-	strategies: [
-		ignoreDotfiles(),
-		fileExtensions([".md", ".canvas"]),
-		removeExtFromMetadata(),
-		langDir({
-			en: "English",
-			ja: "日本語",
-		}, true),
-	],
-	resolveShortestPathWhenPossible: true,
-});
-const contentParser = oneof(
-	new JSONCanvasParser(),
-	new ObsidianMarkdownParser(),
-);
-const pageBuilder = new DefaultThemeBuilder({
-	copyright: "© 2024 Shota FUJI. This document is licensed under CC BY 4.0",
-	faviconSvg: ["Assets", "logo.svg"],
-	faviconPng: ["Assets", "logo-64x64.png"],
-	siteLogo: ["Assets", "logo.svg"],
-});
+	const fileSystemReader = new DenoFsReader(srcDir);
+	const fileSystemWriter = new DenoFsWriter(outDir);
+	const treeBuilder = new DefaultTreeBuilder({
+		defaultLanguage: "en",
+		strategies: [
+			ignoreDotfiles(),
+			fileExtensions([".md", ".canvas"]),
+			removeExtFromMetadata(),
+			langDir({
+				en: "English",
+				ja: "日本語",
+			}, true),
+		],
+		resolveShortestPathWhenPossible: true,
+	});
+	const contentParser = oneof(
+		new JSONCanvasParser(),
+		new ObsidianMarkdownParser(),
+	);
+	const pageBuilder = new DefaultThemeBuilder({
+		copyright: "© 2024 Shota FUJI. This document is licensed under CC BY 4.0",
+		faviconSvg: ["Assets", "logo.svg"],
+		faviconPng: ["Assets", "logo-64x64.png"],
+		siteLogo: ["Assets", "logo.svg"],
+	});
 
-const documentTree = await treeBuilder.build({
-	fileSystemReader,
-	contentParser,
-});
-await pageBuilder.build({
-	documentTree,
-	fileSystemReader,
-	fileSystemWriter,
-});
+	const documentTree = await treeBuilder.build({
+		fileSystemReader,
+		contentParser,
+	});
+	await pageBuilder.build({
+		documentTree,
+		fileSystemReader,
+		fileSystemWriter,
+	});
+}
+
+if (import.meta.main) {
+	const args = cli.parseArgs(Deno.args, {
+		boolean: ["json"],
+	});
+
+	log.setup({
+		handlers: {
+			default: new log.ConsoleHandler("DEBUG", {
+				formatter: args.json ? log.jsonFormatter : undefined,
+				useColors: args.json ? false : undefined,
+			}),
+		},
+		loggers: {
+			macana: {
+				level: "DEBUG",
+				handlers: ["default"],
+			},
+		},
+	});
+
+	try {
+		const start = performance.now();
+
+		await build();
+
+		const duration = performance.now() - start;
+
+		log.info(`Complete docs build, elapsed ${duration}ms`, {
+			duration,
+		});
+	} catch (error) {
+		log.critical(`Build aborted due to an error: ${error}`, {
+			error,
+		});
+
+		Deno.exit(1);
+	}
+}

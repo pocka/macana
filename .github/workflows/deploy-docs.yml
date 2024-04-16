@@ -42,7 +42,7 @@ jobs:
         with:
           deno-version: v1.41.x
       - name: Build documentation website
-        run: "deno task build-docs"
+        run: "deno task build-docs --json"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
