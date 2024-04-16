@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Check code vailidity and correctness
+
+on:
+  push:
+    # Run on every push to a branch
+    branches:
+      - "**"
+
+env:
+  # Overwrite to control where to store cache files
+  DENO_DIR: .deno
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.41.x
+      - name: Cache third party modules
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: ${{ hashFiles('deno.lock') }}
+      - name: Run unit tests
+        run: "deno test --allow-read=. --allow-write=./filesystem_writer/.test"
+      - name: Lint
+        run: "deno lint"
+      - name: Perform type-check
+        run: "deno check docs/build.ts"
