@@ -26,6 +26,10 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  # Overwrite to control where to store cache files
+  DENO_DIR: .deno
+
 jobs:
   deploy:
     environment:
@@ -41,6 +45,11 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.41.x
+      - name: Cache third party modules
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: ${{ hashFiles('deno.lock') }}
       - name: Build documentation website
         run: "deno task build-docs --json"
       - name: Upload artifact
