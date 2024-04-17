@@ -70,7 +70,7 @@ Deno.test("Should support absolute path", async () => {
 	});
 });
 
-Deno.test("Should skip full image URL", async () => {
+Deno.test("Should skip full URL", async () => {
 	const mdast = toMdast("[Foo](https://example.com/foo.md)");
 
 	await macanaMarkDocumentToken(mdast, getDocumentToken);
