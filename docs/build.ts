@@ -40,8 +40,8 @@ export async function build() {
 	const fileSystemWriter = new DenoFsWriter(outDir);
 	const treeBuilder = new DefaultTreeBuilder({
 		defaultLanguage: "en",
+		ignore: [ignoreDotfiles],
 		strategies: [
-			ignoreDotfiles(),
 			fileExtensions([".md", ".canvas"]),
 			removeExtFromMetadata(),
 			langDir({

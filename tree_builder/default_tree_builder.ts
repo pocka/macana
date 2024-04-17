@@ -21,6 +21,18 @@ import type {
 
 const INTERNAL_PATH_SEPARATOR = "/";
 
+/**
+ * Function to decide whether the file or directory should be completely removed
+ * from file operations. This is different than returning `{ skip: true }` in
+ * strategies: this even disallows the load of asset files matching to this.
+ */
+export interface IgnoreFunction {
+	(
+		fileOrDirectory: FileReader | DirectoryReader,
+		metadata?: DocumentMetadata,
+	): boolean;
+}
+
 export type TreeBuildStrategyFunctionReturns = {
 	skip: true;
 } | {
@@ -57,32 +69,9 @@ export function fileExtensions(exts: readonly string[]): TreeBuildStrategy {
 	};
 }
 
-/**
- * Excludes certain files and directories.
- *
- * @param f - If this function returned `true`, the file will be excluded from a document tree.
- */
-export function ignore(
-	f: (fileOrDirectory: FileReader | DirectoryReader) => boolean,
-): TreeBuildStrategy {
-	return (node, metadata) => {
-		if (f(node)) {
-			logger().debug(`Ignored: ${node.path.join(INTERNAL_PATH_SEPARATOR)}`, {
-				path: node.path,
-			});
-			return { skip: true };
-		}
-
-		return { metadata };
-	};
-}
-
-/**
- * Excludes dotfiles from a document tree.
- */
-export function ignoreDotfiles(): TreeBuildStrategy {
-	return ignore((node) => node.name.startsWith("."));
-}
+export const ignoreDotfiles: IgnoreFunction = (node) => {
+	return node.name.startsWith(".");
+};
 
 export function langDir(
 	langs: Record<string, string>,
@@ -279,12 +268,17 @@ function resolveExtensionLessPath(
 async function findFileByName(
 	name: string,
 	dir: DirectoryReader | RootDirectoryReader,
+	ignore: readonly IgnoreFunction[],
 ): Promise<FileReader[]> {
 	const found: FileReader[] = [];
 
 	for (const entry of await dir.read()) {
+		if (ignore.some((f) => f(entry))) {
+			continue;
+		}
+
 		if (entry.type === "directory") {
-			found.push(...(await findFileByName(name, entry)));
+			found.push(...(await findFileByName(name, entry, ignore)));
 			continue;
 		}
 
@@ -302,6 +296,7 @@ function resolveShortestPath(
 	root: RootDirectoryReader,
 	path: readonly string[],
 	base: readonly string[],
+	ignore: readonly IgnoreFunction[],
 ): readonly string[] | Promise<readonly string[]> {
 	const [name] = path;
 	switch (name) {
@@ -316,7 +311,7 @@ function resolveShortestPath(
 		return resolveExtensionLessPath(root, path);
 	}
 
-	return findFileByName(name, root).then((found) => {
+	return findFileByName(name, root, ignore).then((found) => {
 		if (!found.length) {
 			throw new Error(
 				`DefaultTreeBuilder: no file named "${name}" found,` +
@@ -356,6 +351,12 @@ export interface DefaultTreeBuilderConfig {
 	defaultLanguage: string;
 
 	/**
+	 * A function or a list of functions that controls whether the file or directory
+	 * should be removed from file operations completely.
+	 */
+	ignore?: IgnoreFunction | readonly IgnoreFunction[];
+
+	/**
 	 * A list of callback functions that control whether a file or a directory should be
 	 * included in the document tree and override document metadata.
 	 */
@@ -387,10 +388,16 @@ export class DefaultTreeBuilder implements TreeBuilder {
 		b: Document | DocumentDirectory,
 	) => number;
 	#resolveShortestPath: boolean;
+	#ignore: readonly IgnoreFunction[];
 
 	constructor(
-		{ defaultLanguage, strategies, sorter, resolveShortestPathWhenPossible }:
-			DefaultTreeBuilderConfig,
+		{
+			defaultLanguage,
+			strategies,
+			sorter,
+			resolveShortestPathWhenPossible,
+			ignore,
+		}: DefaultTreeBuilderConfig,
 	) {
 		this.#defaultLanguage = defaultLanguage;
 		this.#strategies = strategies || [];
@@ -401,6 +408,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					this.#defaultLanguage,
 				));
 		this.#resolveShortestPath = resolveShortestPathWhenPossible ?? false;
+		this.#ignore = Array.isArray(ignore) ? ignore : ignore ? [ignore] : [];
 	}
 
 	async build(
@@ -511,6 +519,15 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			title: node.name,
 		};
 
+		for (const ignore of this.#ignore) {
+			if (ignore(node, metadata)) {
+				logger().debug(`Ignored ${node.path.join(INTERNAL_PATH_SEPARATOR)}`, {
+					path: node.path,
+				});
+				return null;
+			}
+		}
+
 		for (const strategy of this.#strategies) {
 			const result = await strategy(node, metadata);
 			if (result.skip) {
@@ -537,11 +554,23 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					const token: AssetToken = `mxa_${id}`;
 
 					const resolvedPath = this.#resolveShortestPath
-						? await resolveShortestPath(root, path, node.path)
+						? await resolveShortestPath(root, path, node.path, this.#ignore)
 						: await resolveExtensionLessPath(
 							root,
 							resolveFsrPath(path, node.path),
 						);
+
+					const file = await root.openFile(resolvedPath);
+					for (const f of this.#ignore) {
+						if (f(file)) {
+							throw new Error(
+								`Requested asset ${
+									resolvedPath.join(INTERNAL_PATH_SEPARATOR)
+								} exists,` +
+									` but the file is ignored.`,
+							);
+						}
+					}
 
 					assetTokensToFiles.set(
 						token,
@@ -563,7 +592,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					const token: DocumentToken = `mxt_${id}`;
 
 					const resolvedPath = this.#resolveShortestPath
-						? await resolveShortestPath(root, path, node.path)
+						? await resolveShortestPath(root, path, node.path, this.#ignore)
 						: await resolveExtensionLessPath(
 							root,
 							resolveFsrPath(path, node.path),

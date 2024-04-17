@@ -16,7 +16,6 @@ import {
 	defaultDocumentAt,
 	DefaultTreeBuilder,
 	fileExtensions,
-	ignore,
 	ignoreDotfiles,
 	langDir,
 	removeExtFromMetadata,
@@ -458,18 +457,18 @@ Deno.test("Shortest path resolution rejects when there more than one files with 
 	);
 });
 
-Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", async () => {
+Deno.test("ignoreDotfiles() should ignore dotfiles", async () => {
 	const fileSystemReader = new MemoryFsReader([
-		{ path: "foo/bar/baz.md", content: "" },
-		{ path: "foo/bar.md", content: "" },
-		{ path: "foo.md", content: "" },
+		{ path: ".foo/bar/baz.md", content: "" },
+		{ path: ".foo/bar.md", content: "" },
+		{ path: ".foo.md", content: "" },
 		{ path: "bar/foo.md", content: "" },
 		{ path: "bar/foo/baz.md", content: "" },
 		{ path: ".baz.md", content: "" },
 	]);
 	const builder = new DefaultTreeBuilder({
 		defaultLanguage: "en",
-		strategies: [ignore((node) => node.name === "foo"), ignoreDotfiles()],
+		ignore: [ignoreDotfiles],
 	});
 
 	const tree = await builder.build({
@@ -477,7 +476,7 @@ Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", a
 		contentParser,
 	});
 
-	assertEquals(tree.nodes.length, 2);
+	assertEquals(tree.nodes.length, 1);
 
 	assertObjectMatch(tree.nodes[0], {
 		metadata: {
@@ -490,6 +489,12 @@ Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", a
 		entries: [
 			{
 				metadata: {
+					name: "foo",
+					title: "foo",
+				},
+			},
+			{
+				metadata: {
 					name: "foo.md",
 					title: "foo.md",
 				},
@@ -498,14 +503,6 @@ Deno.test("ignore() and ignoreDotfiles() should ignore files and directories", a
 				},
 			},
 		],
-	});
-
-	assertObjectMatch(tree.nodes[1], {
-		metadata: {
-			name: "foo.md",
-			title: "foo.md",
-		},
-		file: { name: "foo.md" },
 	});
 });
 
