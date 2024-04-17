@@ -24,8 +24,10 @@ You can inspect the `<img>` tags below to see how it affects the resulting marku
 ![Picture of my dog|64](../../Assets/dog.jpg)
 ![Picture of my dog|64x32](../../Assets/dog.jpg)
 ![Picture of my dog|128x128](../../Assets/dog.jpg)
+![[dog.jpg|64]]
 ```
 
 ![Picture of my dog|64](../../Assets/dog.jpg)
 ![Picture of my dog|64x32](../../Assets/dog.jpg)
 ![Picture of my dog|128x128](../../Assets/dog.jpg)
+![[dog.jpg|64]]

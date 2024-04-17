@@ -282,7 +282,7 @@ async function findFileByName(
 			continue;
 		}
 
-		if (getStem(entry.name) === name) {
+		if (entry.name === name || getStem(entry.name) === name) {
 			found.push(entry);
 			continue;
 		}
