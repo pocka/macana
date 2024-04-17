@@ -7,6 +7,18 @@ This page lists extensions not exists in both CommonMark and GFM.
 Unfortunately, Obsidian does not publish a formal spec for the OFM.
 Users should be aware Macana's OFM parser is not guaranteed to be 100% compatible with Obsidian's one, as the spec is not defined and even Obsidian behave inconsistent in some area.
 
+## Wikilink extension
+
+```markdown
+- [[GitHub Flavored Markdown|GFM]]
+- [[Overview]]
+```
+
+- [[GitHub Flavored Markdown|GFM]]
+- [[Overview]]
+
+Document embedding is not supported yet.
+
 ## Highlight extension
 
 ```markdown

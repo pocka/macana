@@ -17,16 +17,16 @@
 			- [x] Relative path to file
 			- [x] Relative path to file (extension-less)
 			- [x] Shortest path when possible
-		- [ ] Wikilink
-			- [ ] Label
+		- [x] Wikilink
+			- [x] Label
 			- [ ] Heading
 			- [ ] Block reference
 		- [ ] Defining a block
 		- [x] Image size annotation
 		- [ ] Embeddings
-			- [ ] Image file
-			- [ ] Audio file
-			- [ ] PDF file
+			- [x] Image file
+			- [x] Audio file
+			- [x] PDF file
 			- [ ] List from another file
 			- [ ] Search results
 		- [x] ==Highlight==
