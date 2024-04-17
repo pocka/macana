@@ -27,6 +27,16 @@ Document embedding is not supported yet.
 
 ==Hello, World!==
 
+## Callout extension
+
+```markdown
+> [!info]+ Title, [[GitHub Flavored Markdown]]
+> Both title and body can contain Markdown.
+```
+
+> [!info]+ Title, [[GitHub Flavored Markdown]]
+> Both title and body can contain Markdown.
+
 ## Image size attribute
 
 OFM abuses image `alt` slot for size specifier.

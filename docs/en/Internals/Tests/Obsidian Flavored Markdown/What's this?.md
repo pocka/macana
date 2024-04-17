@@ -6,3 +6,4 @@ However, as neither of format spec nor test cases exist, we need to *see* how it
 Most of the unit tests are picked up from this folder.
 
 - [[Highlight extension]]
+- [[Callout extension]]

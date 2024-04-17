@@ -15,6 +15,7 @@ import { ofmWikilink } from "./obsidian_markdown/micromark_extension_ofm_wikilin
 import { ofmWikilinkFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_wikilink.ts";
 import { macanaMarkAssets } from "./obsidian_markdown/mdast_util_macana_mark_assets.ts";
 import { macanaMarkDocumentToken } from "./obsidian_markdown/mdast_util_macana_mark_document_token.ts";
+import { ofmCalloutFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
 
 import type {
 	ContentParser,
@@ -82,6 +83,7 @@ async function parseMarkdown(
 			gfmFromMarkdown(),
 			ofmHighlightFromMarkdown(),
 			ofmWikilinkFromMarkdown(),
+			ofmCalloutFromMarkdown(),
 		],
 	});
 
