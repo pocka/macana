@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.DENO_DIR }}
-          key: ${{ hashFiles('deno.lock') }}
+          key: check-${{ hashFiles('deno.lock') }}
       - name: Run unit tests
         run: "deno test --allow-read=. --allow-write=./filesystem_writer/.test"
       - name: Lint
