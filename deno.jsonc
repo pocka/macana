@@ -1,4 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+//
+// SPDX-License-Identifier: CC0-1.0
 {
+	// Local $DENO_DIR on CI
+	"exclude": [".deno"],
 	"fmt": {
 		"useTabs": true,
 		"include": ["**/*.ts", "**/*.tsx"]
