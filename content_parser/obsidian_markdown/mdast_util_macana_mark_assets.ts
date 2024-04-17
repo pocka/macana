@@ -6,28 +6,51 @@ import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
 import { SKIP, visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
 import { definitions } from "../../deps/esm.sh/mdast-util-definitions/mod.ts";
 
+import type { AssetToken } from "../../types.ts";
+
+import type { OfmWikilinkEmbed } from "./mdast_util_ofm_wikilink.ts";
 import type { ParseParameters } from "../interface.ts";
 
 const SEPARATOR = "/";
 const URL_REGEXP_PATTERN = /^[a-z0-9]+:\/\//i;
+
+function setToken(node: Mdast.Node) {
+	return (token: AssetToken) => {
+		node.data = {
+			...node.data,
+			macanaAssetToken: token,
+		};
+	};
+}
 
 /**
  * Searches asset references mark those node by setting `macanaAssetToken` with Asset Token.
  * This function modifies the Mdast tree in place.
  */
 export async function macanaMarkAssets(
-	tree: Mdast.Nodes,
+	tree: Mdast.Nodes | OfmWikilinkEmbed,
 	getAssetToken: ParseParameters["getAssetToken"],
 ): Promise<void> {
 	const promises: Promise<unknown>[] = [];
 
-	const defs = definitions(tree);
+	const defs = definitions(tree as Mdast.Nodes);
 
 	visit(
 		tree,
-		(node) => node.type === "image" || node.type === "imageReference",
+		(node) =>
+			node.type === "image" || node.type === "imageReference" ||
+			node.type === "ofmWikilinkEmbed",
 		(node) => {
 			switch (node.type) {
+				case "ofmWikilinkEmbed": {
+					const path = node.target.split(SEPARATOR);
+
+					promises.push(
+						Promise.resolve(getAssetToken(path)).then(setToken(node)),
+					);
+
+					return SKIP;
+				}
 				case "image": {
 					// Full URL
 					if (URL_REGEXP_PATTERN.test(node.url)) {
@@ -37,11 +60,7 @@ export async function macanaMarkAssets(
 					const path = node.url.split(SEPARATOR);
 
 					promises.push(
-						Promise.resolve(getAssetToken(path)).then((token) => {
-							node.data ??= {};
-							// @ts-expect-error: incorrect library type definition.
-							node.data.macanaAssetToken = token;
-						}),
+						Promise.resolve(getAssetToken(path)).then(setToken(node)),
 					);
 					return SKIP;
 				}
@@ -59,11 +78,7 @@ export async function macanaMarkAssets(
 					const path = def.url.split(SEPARATOR);
 
 					promises.push(
-						Promise.resolve(getAssetToken(path)).then((token) => {
-							def.data ??= {};
-							// @ts-expect-error: incorrect library type definition.
-							def.data.macanaAssetToken = token;
-						}),
+						Promise.resolve(getAssetToken(path)).then(setToken(node)),
 					);
 					return SKIP;
 				}

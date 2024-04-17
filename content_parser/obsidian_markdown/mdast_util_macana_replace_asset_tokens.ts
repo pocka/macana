@@ -8,6 +8,8 @@ import { visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
 
 import type { AssetToken } from "../../types.ts";
 
+import type { OfmWikilinkEmbed } from "./mdast_util_ofm_wikilink.ts";
+
 function extractToken(node: Mdast.Node): AssetToken {
 	if (
 		!node.data || !("macanaAssetToken" in node.data) ||
@@ -20,8 +22,15 @@ function extractToken(node: Mdast.Node): AssetToken {
 	return node.data.macanaAssetToken as AssetToken;
 }
 
-function replace(node: Mdast.Nodes, replacedPath: string): void {
+function replace(
+	node: Mdast.Nodes | OfmWikilinkEmbed,
+	replacedPath: string,
+): void {
 	switch (node.type) {
+		case "ofmWikilinkEmbed": {
+			node.target = replacedPath;
+			return;
+		}
 		case "image": {
 			node.url = replacedPath;
 			return;

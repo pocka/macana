@@ -8,6 +8,8 @@ import { visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
 
 import type { DocumentToken } from "../../types.ts";
 
+import type { OfmWikilink } from "./mdast_util_ofm_wikilink.ts";
+
 function hasDocumentToken(
 	node: Mdast.Node,
 ): node is typeof node & { data: { macanaDocumentToken: DocumentToken } } {
@@ -23,8 +25,18 @@ export interface ExchangeResult {
 	path: string;
 }
 
-function replace(node: Mdast.Nodes, { path }: ExchangeResult): void {
+function replace(
+	node: Mdast.Nodes | OfmWikilink,
+	{ path }: ExchangeResult,
+): void {
 	switch (node.type) {
+		case "ofmWikilink": {
+			// Do not use resolved path as a fallback label
+			node.label ??= node.target;
+
+			node.target = path;
+			return;
+		}
 		case "link": {
 			node.url = path;
 			return;

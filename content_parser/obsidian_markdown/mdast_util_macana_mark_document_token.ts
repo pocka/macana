@@ -9,6 +9,8 @@ import { definitions } from "../../deps/esm.sh/mdast-util-definitions/mod.ts";
 import type { ParseParameters } from "../interface.ts";
 import type { DocumentToken } from "../../types.ts";
 
+import type { OfmWikilink } from "./mdast_util_ofm_wikilink.ts";
+
 const SEPARATOR = "/";
 const IGNORE_REGEXP_PATTERN = /^([a-z0-9]+:\/\/|#)/i;
 
@@ -25,18 +27,35 @@ function setDocumentToken(node: Mdast.Node, token: DocumentToken): void {
  * This function mutates the Mdast tree in place.
  */
 export async function macanaMarkDocumentToken(
-	tree: Mdast.Nodes,
+	tree: Mdast.Nodes | OfmWikilink,
 	getDocumentToken: ParseParameters["getDocumentToken"],
 ): Promise<void> {
 	const promises: Promise<unknown>[] = [];
 
-	const defs = definitions(tree);
+	const defs = definitions(tree as Mdast.Nodes);
 
 	visit(
 		tree,
-		(node) => node.type === "link" || node.type === "linkReference",
+		(node) =>
+			node.type === "link" || node.type === "linkReference" ||
+			node.type === "ofmWikilink",
 		(node) => {
 			switch (node.type) {
+				case "ofmWikilink": {
+					const path = node.target.split(SEPARATOR);
+
+					const token = getDocumentToken(path);
+
+					if (token instanceof Promise) {
+						promises.push(token.then((t) => {
+							setDocumentToken(node, t);
+						}));
+						return SKIP;
+					}
+
+					setDocumentToken(node, token);
+					return SKIP;
+				}
 				case "link": {
 					if (IGNORE_REGEXP_PATTERN.test(node.url)) {
 						return SKIP;

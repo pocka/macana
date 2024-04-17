@@ -15,7 +15,10 @@ import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.
 import * as HastToJSXRuntime from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
 import type { Document, DocumentTree } from "../../../types.ts";
-import type { ObsidianMarkdownDocument } from "../../../content_parser/obsidian_markdown.ts";
+import {
+	type ObsidianMarkdownDocument,
+	ofmWikilinkToHastHandlers,
+} from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
 
 import { usePathResolver } from "../contexts/path_resolver.tsx";
@@ -81,7 +84,13 @@ interface ObsidianMarkdownBodyProps extends ViewProps {
 function ObsidianMarkdownBody(
 	{ content, document, tree, copyright, assets }: ObsidianMarkdownBodyProps,
 ) {
-	const hast = toHast(content.content);
+	const hast = toHast(content.content, {
+		// @ts-expect-error: unist-related libraries heavily relies on ambiend module declarations,
+		//                   which Deno does not support. APIs also don't accept type parameters.
+		handlers: {
+			...ofmWikilinkToHastHandlers,
+		},
+	});
 
 	const toc = tocMut(hast).map((item) =>
 		mapTocItem(item, (item) => toNode({ type: "root", children: item }))
