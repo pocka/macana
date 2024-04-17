@@ -88,6 +88,19 @@ export function ofmWikilinkFromMarkdown(): Extension {
 	};
 }
 
+function sizeProperties(node: Mdast.Node): { width?: number; height?: number } {
+	return {
+		width:
+			node.data && "width" in node.data && typeof node.data.width === "number"
+				? node.data.width
+				: undefined,
+		height:
+			node.data && "height" in node.data && typeof node.data.height === "number"
+				? node.data.height
+				: undefined,
+	};
+}
+
 export const ofmWikilinkToHastHandlers = {
 	ofmWikilink(_state: State, node: OfmWikilink): Hast.Nodes {
 		return {
@@ -112,6 +125,7 @@ export const ofmWikilinkToHastHandlers = {
 					type: "element",
 					tagName: "img",
 					properties: {
+						...sizeProperties(node),
 						src: node.target,
 						alt: node.label ?? undefined,
 					},
@@ -143,6 +157,7 @@ export const ofmWikilinkToHastHandlers = {
 					type: "element",
 					tagName: "video",
 					properties: {
+						...sizeProperties(node),
 						src: node.target,
 						title: node.label ?? undefined,
 					},
@@ -154,6 +169,7 @@ export const ofmWikilinkToHastHandlers = {
 					type: "element",
 					tagName: "iframe",
 					properties: {
+						...sizeProperties(node),
 						src: node.target,
 						title: node.label ?? undefined,
 					},

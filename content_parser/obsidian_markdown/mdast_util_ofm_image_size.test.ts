@@ -6,6 +6,10 @@ import { assertObjectMatch } from "../../deps/deno.land/std/assert/mod.ts";
 
 import { fromMarkdown } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 import { toHast } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+
+import { ofmWikilink } from "./micromark_extension_ofm_wikilink.ts";
+import { ofmWikilinkFromMarkdown } from "./mdast_util_ofm_wikilink.ts";
+
 import { ofmImageSize } from "./mdast_util_ofm_image_size.ts";
 
 Deno.test("Should parse full size attribute", () => {
@@ -25,6 +29,33 @@ Deno.test("Should parse full size attribute", () => {
 						data: {
 							width: 100,
 							height: 200,
+						},
+					},
+				],
+			},
+		],
+	});
+});
+
+Deno.test("Should parse for wikilink embeds", () => {
+	const mdast = fromMarkdown("![[Foo|999x9]]", {
+		extensions: [ofmWikilink()],
+		mdastExtensions: [ofmWikilinkFromMarkdown()],
+	});
+
+	ofmImageSize(mdast);
+
+	assertObjectMatch(mdast, {
+		type: "root",
+		children: [
+			{
+				type: "paragraph",
+				children: [
+					{
+						type: "ofmWikilinkEmbed",
+						data: {
+							width: 999,
+							height: 9,
 						},
 					},
 				],
