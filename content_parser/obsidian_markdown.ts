@@ -27,6 +27,8 @@ import type { DocumentContent } from "../types.ts";
 export { macanaReplaceAssetTokens } from "./obsidian_markdown/mdast_util_macana_replace_asset_tokens.ts";
 export { macanaReplaceDocumentToken } from "./obsidian_markdown/mdast_util_macana_replace_document_tokens.ts";
 export { ofmWikilinkToHastHandlers } from "./obsidian_markdown/mdast_util_ofm_wikilink.ts";
+export { ofmCalloutToHastHandlers } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
+export type { CalloutType } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
 
 function getFrontMatterValue(
 	frontmatter: Record<string, unknown>,

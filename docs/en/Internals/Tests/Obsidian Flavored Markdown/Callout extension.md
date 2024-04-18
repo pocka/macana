@@ -11,6 +11,22 @@ Macana does not do the same parsing as it's quite unintuitive and AST-unfriendly
 > [!info]+ Title
 > Body
 
+```markdown
+> [!danger]
+> Danger!
+```
+
+> [!danger]
+> Danger!
+
+```markdown
+> [!warning]-
+> Yay
+```
+
+> [!warning]-
+> Yay
+
 ## Escapes
 
 ```markdown

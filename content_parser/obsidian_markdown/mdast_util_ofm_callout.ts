@@ -5,6 +5,8 @@
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
 import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 import { SKIP, visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
+import type { State } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Hast from "../../deps/esm.sh/hast/types.ts";
 
 export interface OfmCallout extends Mdast.Node {
 	type: "ofmCallout";
@@ -185,5 +187,162 @@ export function ofmCalloutFromMarkdown(): Extension {
 				);
 			},
 		],
+	};
+}
+
+function normalizeType(typeIdent: string) {
+	switch (typeIdent.toLowerCase()) {
+		case "abstract":
+		case "summary":
+		case "tldr":
+			return "abstract";
+		case "info":
+			return "info";
+		case "todo":
+			return "todo";
+		case "tip":
+		case "hint":
+		case "important":
+			return "tip";
+		case "success":
+		case "check":
+		case "done":
+			return "success";
+		case "question":
+		case "help":
+		case "faq":
+			return "question";
+		case "warning":
+		case "caution":
+		case "attention":
+			return "warning";
+		case "failure":
+		case "fail":
+		case "missing":
+			return "failure";
+		case "danger":
+		case "error":
+			return "danger";
+		case "bug":
+			return "bug";
+		case "example":
+			return "example";
+		case "quote":
+		case "cite":
+			return "quote";
+		default:
+			return "note";
+	}
+}
+
+export type CalloutType = ReturnType<typeof normalizeType>;
+
+export interface OfmCalloutToHastHandlersOptions {
+	generateTitleId?(count: number): string;
+
+	generateIcon?(type: CalloutType): Hast.ElementContent | null;
+}
+
+function defaultTitleId(count: number): string {
+	return `_ofm_callout__${count}`;
+}
+
+export function ofmCalloutToHastHandlers(
+	{ generateTitleId = defaultTitleId, generateIcon }:
+		OfmCalloutToHastHandlersOptions = {},
+) {
+	let counter = 0;
+
+	return {
+		ofmCallout(state: State, node: OfmCallout): Hast.Nodes {
+			const titleTextTitleCased = node.calloutType.slice(0, 1).toUpperCase() +
+				node.calloutType.slice(1).toLowerCase();
+			const type = normalizeType(node.calloutType);
+
+			const titleId = generateTitleId(counter++);
+
+			const icon = generateIcon?.(type);
+
+			const title: Hast.ElementContent[] = node.title.length > 0
+				? state.all({
+					type: "paragraph",
+					children: node.title,
+				})
+				: [{
+					type: "text",
+					value: titleTextTitleCased,
+				}];
+
+			if (node.isFoldable) {
+				return {
+					type: "element",
+					tagName: "aside",
+					properties: {
+						"data-ofm-callout-type": type,
+						"aria-labelledby": titleId,
+					},
+					children: [
+						{
+							type: "element",
+							tagName: "details",
+							properties: {
+								open: node.defaultExpanded ? "" : undefined,
+							},
+							children: [
+								{
+									type: "element",
+									tagName: "summary",
+									properties: {
+										id: titleId,
+									},
+									children: [
+										...(icon ? [icon] : []),
+										...title,
+									],
+								},
+								{
+									type: "element",
+									tagName: "div",
+									properties: {},
+									// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
+									//                   which Deno does not support. APIs also don't accept type parameters.
+									children: state.all(node),
+								},
+							],
+						},
+					],
+				};
+			}
+
+			return {
+				type: "element",
+				tagName: "aside",
+				properties: {
+					"data-ofm-callout-type": type,
+					"aria-labelledby": titleId,
+				},
+				children: [
+					{
+						type: "element",
+						tagName: "p",
+						properties: {
+							id: titleId,
+						},
+						children: [
+							...(icon ? [icon] : []),
+							...title,
+						],
+					},
+					{
+						type: "element",
+						tagName: "div",
+						properties: {},
+						// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
+						//                   which Deno does not support. APIs also don't accept type parameters.
+						children: state.all(node),
+					},
+				],
+			};
+		},
 	};
 }

@@ -30,7 +30,7 @@
 			- [ ] List from another file
 			- [ ] Search results
 		- [x] ==Highlight==
-		- [ ] Callouts
+		- [x] Callouts
 		- [ ] Comments %% You can check this item once I'm no longer visible %%
 		- [ ] Strip Raw HTML (only `<title>` is troublesome, but align behavior to Obsidian's)
 			- [ ] `<script>` <script>console.log("This tag should be eliminated: escaping is not suffice")</script>

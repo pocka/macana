@@ -25,3 +25,5 @@ Here is the summary:
 - Application source code is licensed under [Apache-2.0](./LICENSES/Apache-2.0.txt).
 - Documentation files are licensed under [CC-BY-4.0](./LICENSES/CC-BY-4.0.txt).
 - Tool config files (e.g. `.gitignore`) are licensed under [CC0-1.0](./LICENSES/CC0-1.0.txt).
+
+This project bundles third-party source code. See [NOTICE](./NOTICE) file for more details.

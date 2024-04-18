@@ -16,7 +16,9 @@ import * as HastToJSXRuntime from "../../../deps/esm.sh/hast-util-to-jsx-runtime
 
 import type { Document, DocumentTree } from "../../../types.ts";
 import {
+	type CalloutType,
 	type ObsidianMarkdownDocument,
+	ofmCalloutToHastHandlers,
 	ofmWikilinkToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
@@ -27,6 +29,8 @@ import * as css from "../css.ts";
 import { globalStyles } from "./global_styles.ts";
 import { mapTocItem, tocMut } from "../hast/hast_util_toc_mut.ts";
 import type { Assets } from "../builder.tsx";
+
+import * as LucideIcons from "./lucide_icons.tsx";
 
 import * as DocumentTreeUI from "./organisms/document_tree.tsx";
 import * as Footer from "./organisms/footer.tsx";
@@ -58,6 +62,50 @@ function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 
 function toNode(hast: ReturnType<typeof toHast>) {
 	return toJsxRuntime(hast, {
+		components: {
+			MacanaOfmCalloutIcon({ type }: { type: CalloutType }) {
+				switch (type) {
+					case "abstract":
+						return (
+							<LucideIcons.ClipboardList
+								role="img"
+								aria-label="Clipboard icon"
+							/>
+						);
+					case "info":
+						return <LucideIcons.Info role="img" aria-label="Info icon" />;
+					case "todo":
+						return (
+							<LucideIcons.CircleCheck role="img" aria-label="Check icon" />
+						);
+					case "tip":
+						return <LucideIcons.Flame role="img" aria-label="Flame icon" />;
+					case "success":
+						return <LucideIcons.Check role="img" aria-label="Check icon" />;
+					case "question":
+						return (
+							<LucideIcons.CircleHelp role="img" aria-label="Question icon" />
+						);
+					case "warning":
+						return (
+							<LucideIcons.TriangleAlert role="img" aria-label="Warning icon" />
+						);
+					case "failure":
+						return <LucideIcons.X role="img" aria-label="Cross icon" />;
+					case "danger":
+						return <LucideIcons.Zap role="img" aria-label="Lightning icon" />;
+					case "bug":
+						return <LucideIcons.Bug role="img" aria-label="Bug icon" />;
+					case "example":
+						return <LucideIcons.List role="img" aria-label="List icon" />;
+					case "quote":
+						return <LucideIcons.Quote role="img" aria-label="Quote icon" />;
+					case "note":
+					default:
+						return <LucideIcons.Pencil role="img" aria-label="Pencil icon" />;
+				}
+			},
+		},
 		Fragment,
 		jsx(type, props, key) {
 			return jsx(type, nanoifyProps(props), key || "");
@@ -70,6 +118,7 @@ function toNode(hast: ReturnType<typeof toHast>) {
 
 export const styles = css.join(
 	globalStyles,
+	LucideIcons.styles,
 	DocumentTreeUI.styles,
 	Footer.styles,
 	SiteLayout.styles,
@@ -88,6 +137,18 @@ function ObsidianMarkdownBody(
 		// @ts-expect-error: unist-related libraries heavily relies on ambiend module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		handlers: {
+			...ofmCalloutToHastHandlers({
+				generateIcon(type) {
+					return {
+						type: "element",
+						tagName: "MacanaOfmCalloutIcon",
+						properties: {
+							type,
+						},
+						children: [],
+					};
+				},
+			}),
 			...ofmWikilinkToHastHandlers,
 		},
 	});

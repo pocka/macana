@@ -261,4 +261,20 @@ export const globalStyles = css`
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
+
+	aside[data-ofm-callout-type] {
+		margin: 0;
+		margin-top: calc(var(--baseline) * 1rem);
+		padding: calc(var(--baseline) * 0.5rem) 1em;
+		line-height: calc(var(--baseline) * 1rem);
+		max-width: 100%;
+		font-size: 1rem;
+		border: 1px solid var(--color-fg-light);
+
+		border-radius: 4px;
+	}
+	aside[data-ofm-callout-type] > p:first-child, aside[data-ofm-callout-type] > details > summary {
+		margin-top: 0;
+		font-weight: 700;
+	}
 `;
