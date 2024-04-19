@@ -113,11 +113,7 @@ export const globalStyles = css`
 		background-color: var(--color-bg-accent);
 		color: var(--color-fg-sub);
 		border-radius: calc(1rem / 4);
-		/* NOTE: Prism.js's theme css automatically set annoying props */
-		font-family: "Ubuntu Mono", monospace !important;
-		text-shadow: none !important;
-		line-height: 1 !important;
-		tab-size: unset !important;
+		font-family: "Ubuntu Mono", monospace;
 	}
 
 	pre > code .token.comment {
@@ -276,5 +272,19 @@ export const globalStyles = css`
 	aside[data-ofm-callout-type] > p:first-child, aside[data-ofm-callout-type] > details > summary {
 		margin-top: 0;
 		font-weight: 700;
+	}
+
+	/* Syntax highlight */
+	.macana--highlight [data-hl-node~="token"][data-hl-node~="content"] {
+		color: var(--color-bg);
+	}
+	.macana--highlight [data-hl-node~="token"][data-hl-node~="punctuation"] {
+		color: #ccc;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.macana--highlight [data-hl-node~="token"][data-hl-node~="punctuation"] {
+			color: #888;
+		}
 	}
 `;

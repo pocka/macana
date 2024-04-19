@@ -29,6 +29,7 @@ import * as css from "../css.ts";
 
 import { globalStyles } from "./global_styles.ts";
 import { mapTocItem, tocMut } from "../hast/hast_util_toc_mut.ts";
+import { syntaxHighlightingHandlers } from "../mdast/syntax_highlighting_handlers.ts";
 import type { Assets } from "../builder.tsx";
 
 import * as LucideIcons from "./lucide_icons.tsx";
@@ -196,6 +197,7 @@ function ObsidianMarkdownBody(
 				},
 			}),
 			...ofmWikilinkToHastHandlers,
+			...syntaxHighlightingHandlers(),
 		},
 	});
 

@@ -14,7 +14,7 @@ updatedAt: 2024-04-20T01:00:00+09:00
 		- [x] Tables
 		- [ ] Diagrams (Mermaid) ... Maybe no support, as Mermaid's overall quality is questionable.
 		- [ ] MathJax ... No support if it can't generate MathML at build time.
-	- [ ] Syntax Highlighting
+	- [x] Syntax Highlighting
 	- [ ] Obsidian Extensions
 		- [x] Internal Link path resolution
 			- [x] Absolute path in vault
