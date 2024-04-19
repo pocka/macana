@@ -3,18 +3,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /** @jsx h */
+/** @jsxFrag Fragment */
 
-import { h } from "../../../deps/deno.land/x/nano_jsx/mod.ts";
-import {
-	Fragment,
-	jsx,
-	jsxs,
-} from "../../../deps/deno.land/x/nano_jsx/jsx-runtime/index.ts";
+import { Fragment, h } from "../../../deps/deno.land/x/nano_jsx/mod.ts";
+import * as jsxRuntime from "../../../deps/deno.land/x/nano_jsx/jsx-runtime/index.ts";
 import { toHast } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 import * as HastToJSXRuntime from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
-import type { Document, DocumentTree } from "../../../types.ts";
+import type {
+	Document,
+	DocumentMetadata,
+	DocumentTree,
+} from "../../../types.ts";
 import {
 	type CalloutType,
 	type ObsidianMarkdownDocument,
@@ -106,12 +107,12 @@ function toNode(hast: ReturnType<typeof toHast>) {
 				}
 			},
 		},
-		Fragment,
+		Fragment: jsxRuntime.Fragment,
 		jsx(type, props, key) {
-			return jsx(type, nanoifyProps(props), key || "");
+			return jsxRuntime.jsx(type, nanoifyProps(props), key || "");
 		},
 		jsxs(type, props, key) {
-			return jsxs(type, nanoifyProps(props), key || "");
+			return jsxRuntime.jsxs(type, nanoifyProps(props), key || "");
 		},
 	});
 }
@@ -125,6 +126,51 @@ export const styles = css.join(
 	Toc.styles,
 	JSONCanvasRenderer.styles,
 );
+
+interface DatetimeTextProps {
+	datetime: Date;
+}
+
+function DatetimeText({ datetime }: DatetimeTextProps) {
+	const z = datetime.toISOString();
+
+	// Showing Z time for noscript env, because the timezone of the machine that build
+	// this document and the timezone of viewers can be different.
+	return (
+		<>
+			<noscript>
+				<time datetime={z}>{z}</time>
+			</noscript>
+			{/* Initially hidden in order to avoid duplication on noscript env */}
+			<time style="display:none;" datetime={z} data-macana-datetime={z} />
+		</>
+	);
+}
+
+interface MetadataDatesProps {
+	metadata: DocumentMetadata;
+}
+
+function MetadataDates({ metadata }: MetadataDatesProps) {
+	return (metadata.updatedAt || metadata.createdAt) && (
+		<>
+			{metadata.createdAt && (
+				<div>
+					<small>
+						Created at <DatetimeText datetime={metadata.createdAt} />
+					</small>
+				</div>
+			)}
+			{metadata.updatedAt && (
+				<div>
+					<small>
+						Updated at <DatetimeText datetime={metadata.updatedAt} />
+					</small>
+				</div>
+			)}
+		</>
+	);
+}
 
 interface ObsidianMarkdownBodyProps extends ViewProps {
 	content: ObsidianMarkdownDocument;
@@ -173,6 +219,7 @@ function ObsidianMarkdownBody(
 			defaultDocument={tree.defaultDocument}
 		>
 			<h1>{document.metadata.title}</h1>
+			<MetadataDates metadata={document.metadata} />
 			{contentNodes}
 		</SiteLayout.View>
 	);
@@ -198,6 +245,7 @@ function JSONCanvasBody(
 			defaultDocument={tree.defaultDocument}
 		>
 			<h1>{document.metadata.title}</h1>
+			<MetadataDates metadata={document.metadata} />
 			<JSONCanvasRenderer.View data={content.content} />
 		</SiteLayout.View>
 	);
@@ -266,6 +314,13 @@ export function View(
 							{...props}
 						/>
 					)}
+				<script>
+					{`document.querySelectorAll("[data-macana-datetime]").forEach(el => {
+	const datetime = new Date(el.dataset.macanaDatetime);
+	el.textContent = datetime.toLocaleString();
+	el.style.display = "";
+});`}
+				</script>
 			</body>
 		</html>
 	);

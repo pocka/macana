@@ -1,3 +1,8 @@
+---
+createdAt: 2024-04-07T18:00:00+09:00
+updatedAt: 2024-04-19T20:00:00+09:00
+---
+
 ## Document
 
 A parsed note or canvas in a Vault.
@@ -6,7 +11,14 @@ A *document* consists of *document metadata* and *document content*.
 ## Document metadata
 
 Properties describing a *document* or a *document directory* required for generating a website.
-*Document metadata* consists of a *document name*, *document title*, whether the document is default document, and language of the document or the document directory.
+*Document metadata* contains those properties:
+
+- *Document name*
+- *Document title*
+- Whether the document is the default document of Vault
+- Language (optional)
+- Creation date-time (optional)
+- Update date-time (optional)
 
 ## Document name
 

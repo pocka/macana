@@ -2,6 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+export interface FileSystemStats {
+	contentUpdatedAt?: Date;
+	createdAt?: Date;
+}
+
 export interface FileReader {
 	readonly type: "file";
 	readonly name: string;
@@ -9,6 +14,8 @@ export interface FileReader {
 	readonly parent: DirectoryReader | RootDirectoryReader;
 
 	read(): Promise<Uint8Array>;
+
+	stat(): FileSystemStats | Promise<FileSystemStats>;
 }
 
 export interface DirectoryReader {
@@ -18,6 +25,8 @@ export interface DirectoryReader {
 	readonly parent: DirectoryReader | RootDirectoryReader;
 
 	read(): Promise<ReadonlyArray<FileReader | DirectoryReader>>;
+
+	stat(): FileSystemStats | Promise<FileSystemStats>;
 }
 
 export type DocumentToken = `mxt_${string}`;
@@ -71,6 +80,16 @@ export interface DocumentMetadata {
 	 * This property does not take an effect for document tree.
 	 */
 	readonly isDefaultDocument?: boolean;
+
+	/**
+	 * Datetime when the document or the document directory created at.
+	 */
+	readonly createdAt?: Date;
+
+	/**
+	 * Datetime when the document or the document directory last updated at.
+	 */
+	readonly updatedAt?: Date;
 }
 
 export interface DocumentContent<

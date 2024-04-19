@@ -71,6 +71,14 @@ export class DenoFsReader implements FileSystemReader {
 				read: () => {
 					return Deno.readFile(this.#resolve(path));
 				},
+				stat: async () => {
+					const stat = await Deno.stat(this.#resolve(path));
+
+					return {
+						contentUpdatedAt: stat.mtime ?? undefined,
+						createdAt: stat.birthtime ?? undefined,
+					};
+				},
 			};
 		}
 
@@ -90,6 +98,14 @@ export class DenoFsReader implements FileSystemReader {
 				}
 
 				return converted;
+			},
+			stat: async () => {
+				const stat = await Deno.stat(this.#resolve(path));
+
+				return {
+					contentUpdatedAt: stat.mtime ?? undefined,
+					createdAt: stat.birthtime ?? undefined,
+				};
 			},
 		};
 
@@ -137,6 +153,14 @@ export class DenoFsReader implements FileSystemReader {
 					read: async () => {
 						return Deno.readFile(resolvedPath);
 					},
+					stat: async () => {
+						const stat = await Deno.stat(this.#resolve(path));
+
+						return {
+							contentUpdatedAt: stat.mtime ?? undefined,
+							createdAt: stat.birthtime ?? undefined,
+						};
+					},
 				};
 			},
 			openDirectory: (path) => {
@@ -172,6 +196,14 @@ export class DenoFsReader implements FileSystemReader {
 
 						return converted;
 					},
+					stat: async () => {
+						const stat = await Deno.stat(this.#resolve(path));
+
+						return {
+							contentUpdatedAt: stat.mtime ?? undefined,
+							createdAt: stat.birthtime ?? undefined,
+						};
+					},
 				};
 
 				return dir;
@@ -203,6 +235,14 @@ export class DenoFsReader implements FileSystemReader {
 					}
 
 					return converted;
+				},
+				stat: async () => {
+					const stat = await Deno.stat(this.#resolve(path));
+
+					return {
+						contentUpdatedAt: stat.mtime ?? undefined,
+						createdAt: stat.birthtime ?? undefined,
+					};
 				},
 			};
 

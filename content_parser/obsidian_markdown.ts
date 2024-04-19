@@ -46,6 +46,23 @@ function getFrontMatterValue(
 	return value;
 }
 
+function getFrontMatterDate(
+	frontmatter: Record<string, unknown>,
+	key: string,
+): Date | undefined {
+	const str = getFrontMatterValue(frontmatter, key);
+	if (typeof str !== "string") {
+		return str;
+	}
+
+	const timestamp = Date.parse(str);
+	if (isNaN(timestamp)) {
+		return undefined;
+	}
+
+	return new Date(timestamp);
+}
+
 export type ObsidianMarkdownDocument = DocumentContent<
 	"obsidian_markdown",
 	Mdast.Nodes
@@ -66,6 +83,10 @@ export interface ObsidianMarkdownParserOptions {
 	 * ## `lang` / `language`
 	 *
 	 * Use property value as a document language.
+	 *
+	 * ## `createdAt` / `updatedAt`
+	 *
+	 * Use property values as corresponding metadata dates.
 	 *
 	 * @default false
 	 */
@@ -128,6 +149,8 @@ export class ObsidianMarkdownParser implements ContentParser {
 		const title = getFrontMatterValue(frontmatter.attrs, "title");
 		const lang = getFrontMatterValue(frontmatter.attrs, "lang") ||
 			getFrontMatterValue(frontmatter.attrs, "language");
+		const createdAt = getFrontMatterDate(frontmatter.attrs, "createdAt");
+		const updatedAt = getFrontMatterDate(frontmatter.attrs, "updatedAt");
 
 		return {
 			documentMetadata: {
@@ -135,6 +158,8 @@ export class ObsidianMarkdownParser implements ContentParser {
 				name: name || documentMetadata.name,
 				title: title || documentMetadata.title,
 				language: lang || documentMetadata.language,
+				createdAt: createdAt || documentMetadata.createdAt,
+				updatedAt: updatedAt || documentMetadata.updatedAt,
 			},
 			documentContent: {
 				kind: "obsidian_markdown",

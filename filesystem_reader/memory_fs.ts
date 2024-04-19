@@ -9,14 +9,23 @@ import type {
 	RootDirectoryReader,
 } from "../types.ts";
 
+interface InternalMetadata {
+	updatedAt?: Date;
+	createdAt?: Date;
+}
+
 interface FileBuilder {
 	path: string | readonly string[];
 	content: string | Uint8Array;
+	metadata?: InternalMetadata;
 }
 
 const SEP = "/";
 
-type InternalTree = Map<string, Uint8Array | InternalTree>;
+type InternalTree = Map<
+	string,
+	(readonly [Uint8Array, InternalMetadata]) | InternalTree
+>;
 
 /**
  * In-memory readonly filesystem.
@@ -39,13 +48,14 @@ export class MemoryFsReader implements FileSystemReader {
 				? encoder.encode(file.content)
 				: file.content;
 
-			this.#createRecur(path, content);
+			this.#createRecur(path, content, file.metadata ?? {});
 		}
 	}
 
 	#createRecur(
 		path: readonly string[],
 		content: Uint8Array,
+		metadata: InternalMetadata,
 		parent: InternalTree = this.#tree,
 	): void {
 		switch (path.length) {
@@ -61,14 +71,14 @@ export class MemoryFsReader implements FileSystemReader {
 					);
 				}
 
-				parent.set(name, content);
+				parent.set(name, [content, metadata]);
 				return;
 			}
 			default: {
 				const [name, ...rest] = path;
 
 				let dir = parent.get(name);
-				if (dir && dir instanceof Uint8Array) {
+				if (dir && dir instanceof Array) {
 					throw new Error(
 						`Trying to create a directory named "${name}", but file with same name already exists.`,
 					);
@@ -79,7 +89,7 @@ export class MemoryFsReader implements FileSystemReader {
 					parent.set(name, dir);
 				}
 
-				this.#createRecur(rest, content, dir);
+				this.#createRecur(rest, content, metadata, dir);
 				return;
 			}
 		}
@@ -102,6 +112,7 @@ export class MemoryFsReader implements FileSystemReader {
 					parent,
 					read: () =>
 						Promise.resolve(this.#mapToReaders(contentOrSubTree, dir)),
+					stat: () => ({}),
 				};
 				readers.push(dir);
 				continue;
@@ -112,7 +123,13 @@ export class MemoryFsReader implements FileSystemReader {
 				name,
 				path,
 				parent,
-				read: () => Promise.resolve(contentOrSubTree),
+				read: () => Promise.resolve(contentOrSubTree[0]),
+				stat: () => {
+					return {
+						createdAt: contentOrSubTree[1].createdAt,
+						contentUpdatedAt: contentOrSubTree[1].updatedAt,
+					};
+				},
 			});
 		}
 

@@ -54,7 +54,7 @@
 		- [ ] Label
 - [x] Document sorting
 - [ ] Search functionality
-- [ ] Creation / Update date
+- [x] Creation / Update date
 - [ ] Tags
 - [x] Config for site logo
 - [x] Tool's logo

@@ -158,6 +158,29 @@ export function defaultDocumentAt(path: readonly string[]): TreeBuildStrategy {
 	};
 }
 
+/**
+ * Use creation/update timestamps as metadata timestamps.
+ * This strategy does not overwrite if those are already set.
+ */
+export function useFileSystemTimestamps(): TreeBuildStrategy {
+	return async (node, metadata) => {
+		// If other strategy already sets them, skip the process for performance.
+		if (metadata.createdAt && metadata.updatedAt) {
+			return { metadata };
+		}
+
+		const stats = await node.stat();
+
+		return {
+			metadata: {
+				...metadata,
+				createdAt: metadata.createdAt ?? stats.createdAt,
+				updatedAt: metadata.updatedAt ?? stats.contentUpdatedAt,
+			},
+		};
+	};
+}
+
 function isAssetToken(token: unknown): token is AssetToken {
 	return typeof token === "string" && token.startsWith("mxa_");
 }
