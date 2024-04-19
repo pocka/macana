@@ -20,7 +20,6 @@ Deno.test("Should parse callout", () => {
 				type: "ofmCallout",
 				calloutType: "info",
 				isFoldable: false,
-				title: [],
 				children: [
 					{
 						type: "paragraph",
@@ -59,7 +58,6 @@ Deno.test("Should parse foldable callout", () => {
 				calloutType: "danger",
 				isFoldable: true,
 				defaultExpanded: false,
-				title: [],
 				children: [
 					{
 						type: "paragraph",
@@ -89,7 +87,6 @@ Deno.test("Should parse default expanded callout", () => {
 				calloutType: "oops",
 				isFoldable: true,
 				defaultExpanded: true,
-				title: [],
 				children: [
 					{
 						type: "paragraph",
@@ -119,19 +116,22 @@ Deno.test("Should parse title", () => {
 				calloutType: "todo",
 				isFoldable: true,
 				defaultExpanded: false,
-				title: [
+				children: [
 					{
-						type: "link",
-						url: "https://example.com",
+						type: "ofmCalloutTitle",
 						children: [
 							{
-								type: "text",
-								value: "Foo",
+								type: "link",
+								url: "https://example.com",
+								children: [
+									{
+										type: "text",
+										value: "Foo",
+									},
+								],
 							},
 						],
 					},
-				],
-				children: [
 					{
 						type: "paragraph",
 						children: [

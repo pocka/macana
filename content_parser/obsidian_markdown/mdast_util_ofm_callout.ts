@@ -17,9 +17,13 @@ export interface OfmCallout extends Mdast.Node {
 
 	defaultExpanded?: boolean;
 
-	title: Mdast.PhrasingContent[];
+	children: (OfmCalloutTitle | Mdast.BlockContent | Mdast.DefinitionContent)[];
+}
 
-	children: (Mdast.BlockContent | Mdast.DefinitionContent)[];
+export interface OfmCalloutTitle extends Mdast.Node {
+	type: "ofmCalloutTitle";
+
+	children: Mdast.PhrasingContent[];
 }
 
 const PATTERN_REGEXP = /\[!(\S+)]([-+]?)(\s(.*))?$/;
@@ -126,6 +130,16 @@ function replace(node: Mdast.Blockquote): OfmCallout | null {
 
 	const [, type, expandSymbol, , titleTextRest] = match;
 
+	const titleChildren: Mdast.PhrasingContent[] = [
+		titleTextRest
+			? {
+				type: "text",
+				value: (titleTextRest || ""),
+			} satisfies Mdast.Text
+			: null,
+		...titleRest,
+	].filter((t): t is NonNullable<typeof t> => !!t);
+
 	return {
 		type: "ofmCallout",
 		calloutType: type || "",
@@ -133,16 +147,13 @@ function replace(node: Mdast.Blockquote): OfmCallout | null {
 		defaultExpanded: typeof expandSymbol === "string"
 			? expandSymbol === "+"
 			: undefined,
-		title: [
-			titleTextRest
-				? {
-					type: "text",
-					value: (titleTextRest || ""),
-				} satisfies Mdast.Text
-				: null,
-			...titleRest,
-		].filter((t): t is NonNullable<typeof t> => !!t),
 		children: [
+			...(titleChildren.length > 0
+				? [{
+					type: "ofmCalloutTitle",
+					children: titleChildren,
+				}] as const
+				: []),
 			...(splitted[1] ? [splitted[1]] : []),
 			...rest,
 		],
@@ -263,10 +274,20 @@ export function ofmCalloutToHastHandlers(
 
 			const icon = generateIcon?.(type);
 
-			const title: Hast.ElementContent[] = node.title.length > 0
+			let mdastTitle: OfmCalloutTitle | null = null;
+			const mdastBody: (Mdast.BlockContent | Mdast.DefinitionContent)[] = [];
+			for (const child of node.children) {
+				if (child.type === "ofmCalloutTitle") {
+					mdastTitle = child;
+				} else {
+					mdastBody.push(child);
+				}
+			}
+
+			const title: Hast.ElementContent[] = mdastTitle
 				? state.all({
 					type: "paragraph",
-					children: node.title,
+					children: mdastTitle.children,
 				})
 				: [{
 					type: "text",
@@ -304,9 +325,11 @@ export function ofmCalloutToHastHandlers(
 									type: "element",
 									tagName: "div",
 									properties: {},
-									// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
-									//                   which Deno does not support. APIs also don't accept type parameters.
-									children: state.all(node),
+									children: state.all(
+										// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
+										//                   which Deno does not support. APIs also don't accept type parameters.
+										{ ...node, children: mdastBody } as OfmCallout,
+									),
 								},
 							],
 						},
