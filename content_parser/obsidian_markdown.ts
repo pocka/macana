@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { test as testFrontmatter } from "../deps/deno.land/std/front_matter/test.ts";
 import * as yamlFrontmatter from "../deps/deno.land/std/front_matter/yaml.ts";
 import type * as Mdast from "../deps/esm.sh/mdast/types.ts";
 import { fromMarkdown } from "../deps/esm.sh/mdast-util-from-markdown/mod.ts";
@@ -50,17 +51,16 @@ function getFrontMatterDate(
 	frontmatter: Record<string, unknown>,
 	key: string,
 ): Date | undefined {
-	const str = getFrontMatterValue(frontmatter, key);
-	if (typeof str !== "string") {
-		return str;
-	}
-
-	const timestamp = Date.parse(str);
-	if (isNaN(timestamp)) {
+	if (!(key in frontmatter)) {
 		return undefined;
 	}
 
-	return new Date(timestamp);
+	const value = frontmatter[key];
+	if (!(value instanceof Date) || isNaN(+value)) {
+		return undefined;
+	}
+
+	return value;
 }
 
 export type ObsidianMarkdownDocument = DocumentContent<
@@ -141,9 +141,18 @@ export class ObsidianMarkdownParser implements ContentParser {
 			};
 		}
 
-		const frontmatter = yamlFrontmatter.extract(
-			new TextDecoder().decode(bytes),
-		);
+		const decoded = new TextDecoder().decode(bytes);
+		if (!testFrontmatter(decoded)) {
+			return {
+				kind: "obsidian_markdown",
+				content: await parseMarkdown(bytes, {
+					getDocumentToken,
+					getAssetToken,
+				}),
+			};
+		}
+
+		const frontmatter = yamlFrontmatter.extract(decoded);
 
 		const name = getFrontMatterValue(frontmatter.attrs, "name");
 		const title = getFrontMatterValue(frontmatter.attrs, "title");

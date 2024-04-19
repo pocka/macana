@@ -121,6 +121,46 @@ lang: en-US
 	});
 });
 
+Deno.test("Should not throw when document has no frontmatter but frontmatter option is enabled", async () => {
+	const fs = new MemoryFsReader([
+		{
+			path: "Test.md",
+			content: `
+## H2
+`,
+		},
+	]);
+
+	const fileReader =
+		(await (fs.getRootDirectory().then((dir) => dir.read()).then((entries) =>
+			entries[0]
+		))) as FileReader;
+
+	const parser = new ObsidianMarkdownParser({ frontmatter: true });
+
+	const content = await parser.parse({
+		documentMetadata: {
+			title: "Test",
+			name: "Test",
+		},
+		fileReader,
+		getAssetToken,
+		getDocumentToken,
+	});
+
+	assertObjectMatch(content, {
+		content: {
+			type: "root",
+			children: [
+				{
+					type: "heading",
+					depth: 2,
+				},
+			],
+		},
+	});
+});
+
 Deno.test("Should not drop metadata when parsing YAML frontmatter", async () => {
 	const fs = new MemoryFsReader([
 		{

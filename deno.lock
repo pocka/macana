@@ -162,6 +162,8 @@
     "https://deno.land/std@0.223.0/cli/spinner.ts": "cf873605771270b4324cc063b5031ab250d8efee8799e45e1a3bfdd333ff721d",
     "https://deno.land/std@0.223.0/cli/unicode_width.ts": "656dd4271ecc90684b6bf23a5fb8c1cf833da625ef2906b61273ad617038072f",
     "https://deno.land/std@0.223.0/fmt/colors.ts": "d239d84620b921ea520125d778947881f62c50e78deef2657073840b8af9559a",
+    "https://deno.land/std@0.223.0/front_matter/_formats.ts": "9a8ac1524f93b3ae093bd66864a49fc0088037920c6d60863da136d10f92e04d",
+    "https://deno.land/std@0.223.0/front_matter/test.ts": "6a72a690ef9bd606411e3e78dfd44f382fce58f722ed6e56ce57d65140368822",
     "https://deno.land/std@0.223.0/fs/exists.ts": "3d38cb7dcbca3cf313be343a7b8af18a87bddb4b5ca1bd2314be12d06533b50f",
     "https://deno.land/std@0.223.0/io/types.ts": "acecb3074c730b5ff487ba4fe9ce51e67bd982aa07c95e5f5679b7b2f24ad129",
     "https://deno.land/std@0.223.0/io/write_all.ts": "24aac2312bb21096ae3ae0b102b22c26164d3249dff96dbac130958aa736f038",

@@ -55,7 +55,7 @@ export async function build() {
 	});
 	const contentParser = oneof(
 		new JSONCanvasParser(),
-		new ObsidianMarkdownParser(),
+		new ObsidianMarkdownParser({ frontmatter: true }),
 	);
 	const pageBuilder = new DefaultThemeBuilder({
 		copyright: "© 2024 Shota FUJI. This document is licensed under CC BY 4.0",
