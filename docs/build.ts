@@ -13,7 +13,6 @@ import {
 	ignoreDotfiles,
 	langDir,
 	removeExtFromMetadata,
-	useFileSystemTimestamps,
 } from "../tree_builder/default_tree_builder.ts";
 import { ObsidianMarkdownParser } from "../content_parser/obsidian_markdown.ts";
 import { JSONCanvasParser } from "../content_parser/json_canvas.ts";
@@ -45,7 +44,6 @@ export async function build() {
 		strategies: [
 			fileExtensions([".md", ".canvas"]),
 			removeExtFromMetadata(),
-			useFileSystemTimestamps(),
 			langDir({
 				en: "English",
 				ja: "日本語",

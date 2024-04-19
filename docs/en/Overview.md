@@ -1,3 +1,8 @@
+---
+createdAt: 2024-04-07T18:00:00+09:00
+updatedAt: 2024-04-14T13:00:00+09:00
+---
+
 Macana is a tool to generate a static website from an Obsidian Vault.
 
 ![Logo|64](../Assets/logo.svg)

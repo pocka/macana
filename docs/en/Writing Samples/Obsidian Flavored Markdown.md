@@ -1,3 +1,8 @@
+---
+createdAt: 2024-04-09T21:00:00+09:00
+updatedAt: 2024-04-18T07:35:00+09:00
+---
+
 Obsidian Flavored Markdown (OFM) is an authoring format used in Obsidian, based on CommonMark and [[GitHub Flavored Markdown]] (GFM).
 This page lists extensions not exists in both CommonMark and GFM.
 

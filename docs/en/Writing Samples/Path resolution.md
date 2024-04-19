@@ -1,3 +1,8 @@
+---
+createdAt: 2024-04-15T23:00:00+09:00
+updatedAt: 2024-04-15T23:00:00+09:00
+---
+
 ## Supported path resolutions
 ### Relative
 

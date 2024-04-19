@@ -1,3 +1,8 @@
+---
+createdAt: 2024-04-07T18:00:00+09:00
+updatedAt: 2024-04-11T09:00:00+09:00
+---
+
 This document describes guides for developers editing or testing Macana codebase.
 
 ## Required tools
