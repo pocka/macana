@@ -7,3 +7,4 @@ Most of the unit tests are picked up from this folder.
 
 - [[Highlight extension]]
 - [[Callout extension]]
+- [[Comment extension]]

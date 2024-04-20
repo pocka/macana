@@ -14,6 +14,8 @@ import { ofmHighlight } from "./obsidian_markdown/micromark_extension_ofm_highli
 import { ofmImageSize } from "./obsidian_markdown/mdast_util_ofm_image_size.ts";
 import { ofmWikilink } from "./obsidian_markdown/micromark_extension_ofm_wikilink.ts";
 import { ofmWikilinkFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_wikilink.ts";
+import { ofmComment } from "./obsidian_markdown/micromark_extension_ofm_comment.ts";
+import { ofmCommentFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_comment.ts";
 import { macanaMarkAssets } from "./obsidian_markdown/mdast_util_macana_mark_assets.ts";
 import { macanaMarkDocumentToken } from "./obsidian_markdown/mdast_util_macana_mark_document_token.ts";
 import { ofmCalloutFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
@@ -29,6 +31,7 @@ export { macanaReplaceAssetTokens } from "./obsidian_markdown/mdast_util_macana_
 export { macanaReplaceDocumentToken } from "./obsidian_markdown/mdast_util_macana_replace_document_tokens.ts";
 export { ofmWikilinkToHastHandlers } from "./obsidian_markdown/mdast_util_ofm_wikilink.ts";
 export { ofmCalloutToHastHandlers } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
+export { ofmCommentToHastHandlers } from "./obsidian_markdown/mdast_util_ofm_comment.ts";
 export type { CalloutType } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
 
 function getFrontMatterValue(
@@ -101,8 +104,9 @@ async function parseMarkdown(
 	>,
 ): Promise<Mdast.Root> {
 	const mdast = fromMarkdown(markdown, {
-		extensions: [gfm(), ofmHighlight(), ofmWikilink()],
+		extensions: [gfm(), ofmHighlight(), ofmWikilink(), ofmComment()],
 		mdastExtensions: [
+			ofmCommentFromMarkdown(),
 			gfmFromMarkdown(),
 			ofmHighlightFromMarkdown(),
 			ofmWikilinkFromMarkdown(),

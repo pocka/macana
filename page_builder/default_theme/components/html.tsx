@@ -20,6 +20,7 @@ import {
 	type CalloutType,
 	type ObsidianMarkdownDocument,
 	ofmCalloutToHastHandlers,
+	ofmCommentToHastHandlers,
 	ofmWikilinkToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
@@ -196,6 +197,7 @@ function ObsidianMarkdownBody(
 					};
 				},
 			}),
+			...ofmCommentToHastHandlers(),
 			...ofmWikilinkToHastHandlers,
 			...syntaxHighlightingHandlers(),
 		},

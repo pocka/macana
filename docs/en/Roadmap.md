@@ -36,7 +36,7 @@ updatedAt: 2024-04-20T01:00:00+09:00
 			- [ ] Search results
 		- [x] ==Highlight==
 		- [x] Callouts
-		- [ ] Comments %% You can check this item once I'm no longer visible %%
+		- [x] Comments %% You can check this item once I'm no longer visible %%
 		- [ ] Strip Raw HTML (only `<title>` is troublesome, but align behavior to Obsidian's)
 			- [ ] `<script>` <script>console.log("This tag should be eliminated: escaping is not suffice")</script>
 			- [ ] `<title>` <title>Foo</title>

@@ -281,6 +281,8 @@
     "https://esm.sh/v135/micromark-factory-title@2.0.0/denonext/micromark-factory-title.mjs": "1b202816c09c57894c8e254962ffbd8ad559439b0eb90ff0eca743f0dbfff470",
     "https://esm.sh/v135/micromark-factory-whitespace@2.0.0/denonext/micromark-factory-whitespace.mjs": "f85efacaec053453a9445b4147d2fb7ce02c1d083f0b0da9a730a112ff934d9e",
     "https://esm.sh/v135/micromark-util-character@2.0.1/denonext/micromark-util-character.mjs": "18b451d148e1ccc3a9b18e5c4061d44a0485e8ec65ad805d20b2950a51c7213b",
+    "https://esm.sh/v135/micromark-util-character@2.1.0": "dab3a3101833f22c1e8c7f90eef3d03d9a6658b72204a004abaec47d9f238465",
+    "https://esm.sh/v135/micromark-util-character@2.1.0/denonext/micromark-util-character.mjs": "9d6a0ba08282a3a306b38d255e77d4636ac1447de61008f7213f725c07f6b029",
     "https://esm.sh/v135/micromark-util-chunked@2.0.0": "6137fb50257da8a18125ac21ac885bd56f79e6ead241b0b004b0416c7906eaa2",
     "https://esm.sh/v135/micromark-util-chunked@2.0.0/denonext/micromark-util-chunked.mjs": "531cf323ba53649fdc30cd39ebba54253dfd847a4b23f806058ecc6cf67bca69",
     "https://esm.sh/v135/micromark-util-classify-character@2.0.0": "c92c93be5f8370abbd73783460c6e183f2b31fe74085175389e1c86d96aeef9b",
