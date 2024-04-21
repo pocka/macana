@@ -191,7 +191,7 @@ export function ofmCalloutFromMarkdown(): Extension {
 							return SKIP;
 						}
 
-						// @ts-expect-error: unist-related libraries heavily relies on ambiend module declarations,
+						// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 						//                   which Deno does not support. APIs also don't accept type parameters.
 						parent.children[index] = replaced;
 					},

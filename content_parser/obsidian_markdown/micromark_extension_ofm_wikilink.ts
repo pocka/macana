@@ -27,24 +27,24 @@ const enum TokenTypeMap {
 export function ofmWikilinkHtml(): HtmlExtension {
 	return {
 		enter: {
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			[TokenTypeMap.wikilink](this: CompileContext) {
 				this.tag(`<a href="`);
 			},
 			[TokenTypeMap.embed](this: CompileContext) {
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				this.setData("wikilinkEmbed", true);
 			},
 			[TokenTypeMap.target](this: CompileContext, token: Token) {
 				const target = this.sliceSerialize(token);
 
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				this.setData("wikilinkTarget", target);
 
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				const isEmbed = this.getData("wikilinkEmbed");
 				if (isEmbed) {
@@ -56,11 +56,11 @@ export function ofmWikilinkHtml(): HtmlExtension {
 			[TokenTypeMap.label](this: CompileContext, token: Token) {
 				const label = this.sliceSerialize(token);
 
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				this.setData("wikilinkLabel", label);
 
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				const isEmbed = this.getData("wikilinkEmbed");
 				if (isEmbed) {
@@ -71,10 +71,10 @@ export function ofmWikilinkHtml(): HtmlExtension {
 			},
 		},
 		exit: {
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			[TokenTypeMap.wikilink](this: CompileContext) {
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				const target: string | undefined = this.getData("wikilinkTarget");
 				if (!target) {
@@ -82,7 +82,7 @@ export function ofmWikilinkHtml(): HtmlExtension {
 				}
 
 				const label = this.getData(
-					// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+					// @ts-expect-error: micromark heavily relies on ambient module declarations,
 					//                   which Deno does not support. APIs also don't accept type parameters.
 					"wikilinkLabel",
 				) as string | undefined;
@@ -93,7 +93,7 @@ export function ofmWikilinkHtml(): HtmlExtension {
 				this.tag(`</a>`);
 			},
 			[TokenTypeMap.embed](this: CompileContext) {
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				const target: string | undefined = this.getData("wikilinkTarget");
 				if (!target) {
@@ -101,7 +101,7 @@ export function ofmWikilinkHtml(): HtmlExtension {
 				}
 
 				const label = this.getData(
-					// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+					// @ts-expect-error: micromark heavily relies on ambient module declarations,
 					//                   which Deno does not support. APIs also don't accept type parameters.
 					"wikilinkLabel",
 				) as string | undefined;
@@ -185,10 +185,10 @@ const tokenize: Tokenizer = function (effects, ok, nok) {
 	const start: State = function (code) {
 		if (code === codes.exclamationMark && previous !== codes.backslash) {
 			type = TokenTypeMap.embed;
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			effects.enter(type);
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			effects.enter(TokenTypeMap.start);
 			effects.consume(code);
@@ -201,10 +201,10 @@ const tokenize: Tokenizer = function (effects, ok, nok) {
 		}
 
 		if (type === TokenTypeMap.wikilink) {
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			effects.enter(type);
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			effects.enter(TokenTypeMap.start);
 		}
@@ -227,10 +227,10 @@ const tokenize: Tokenizer = function (effects, ok, nok) {
 
 		effects.consume(code);
 
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		effects.exit(TokenTypeMap.start);
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		effects.enter(TokenTypeMap.target);
 
@@ -251,21 +251,21 @@ const tokenize: Tokenizer = function (effects, ok, nok) {
 			case codes.eof:
 				return nok(code);
 			case codes.verticalBar:
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				effects.exit(TokenTypeMap.target);
 				effects.consume(code);
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				effects.enter(TokenTypeMap.label);
 				return label;
 			// Empty wikilink is not allowed.
 			case codes.rightSquareBracket:
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				effects.exit(TokenTypeMap.target);
 
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				effects.enter(TokenTypeMap.end);
 				effects.consume(code);
@@ -290,12 +290,12 @@ const tokenize: Tokenizer = function (effects, ok, nok) {
 				return nok(code);
 			// Empty wikilink is not allowed.
 			case codes.rightSquareBracket:
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				effects.exit(TokenTypeMap.label);
 				effects.consume(code);
 
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				effects.enter(TokenTypeMap.end);
 
@@ -313,11 +313,11 @@ const tokenize: Tokenizer = function (effects, ok, nok) {
 
 		effects.consume(code);
 
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		effects.exit(TokenTypeMap.end);
 
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		effects.exit(type);
 

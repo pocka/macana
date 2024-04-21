@@ -32,14 +32,14 @@ const enum TokenTypeMap {
 export function ofmHighlightHtml(): HtmlExtension {
 	return {
 		enter: {
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			[TokenTypeMap.highlight](this: CompileContext) {
 				this.tag("<mark>");
 			},
 		},
 		exit: {
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			[TokenTypeMap.highlight](this: CompileContext) {
 				this.tag("</mark>");
@@ -70,7 +70,7 @@ const tokenizer: Tokenizer = function (effects, ok, nok) {
 			return nok(code);
 		}
 
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		effects.enter(TokenTypeMap.sequenceTemporary);
 		return more(code);
@@ -91,7 +91,7 @@ const tokenizer: Tokenizer = function (effects, ok, nok) {
 
 		// Since the character we are looking right now is no longer an equal sign,
 		// we can exit temporary state and start consuming next phrasing-something-idk.
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		const token = effects.exit(TokenTypeMap.sequenceTemporary);
 
@@ -115,7 +115,7 @@ const resolver: Resolver = function (events, context) {
 		// If the event is not an end of temporary sequence we set on the tokenizer, skip.
 		if (
 			events[i][0] !== "enter" ||
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			events[i][1].type !== TokenTypeMap.sequenceTemporary ||
 			!events[i][1]._close
@@ -128,7 +128,7 @@ const resolver: Resolver = function (events, context) {
 			// If the event is not a start of temporary sequence we set on the tokenizer, skip.
 			if (
 				events[j][0] !== "exit" ||
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				events[j][1].type !== TokenTypeMap.sequenceTemporary ||
 				!events[j][1]._open
@@ -136,16 +136,16 @@ const resolver: Resolver = function (events, context) {
 				continue;
 			}
 
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			events[i][1].type = TokenTypeMap.sequence;
-			// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+			// @ts-expect-error: micromark heavily relies on ambient module declarations,
 			//                   which Deno does not support. APIs also don't accept type parameters.
 			events[j][1].type = TokenTypeMap.sequence;
 
 			// The whole highlight section, including sequences.
 			const highlight: Token = {
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				type: TokenTypeMap.highlight,
 				start: { ...events[j][1].start },
@@ -154,7 +154,7 @@ const resolver: Resolver = function (events, context) {
 
 			// Text between highlight sequences.
 			const text: Token = {
-				// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+				// @ts-expect-error: micromark heavily relies on ambient module declarations,
 				//                   which Deno does not support. APIs also don't accept type parameters.
 				type: TokenTypeMap.highlightText,
 				// text starts at the end of opening sequence, and
@@ -206,7 +206,7 @@ const resolver: Resolver = function (events, context) {
 	for (const event of events) {
 		// If there are temporary sequences left, alter them to `data` type.
 		// (effectively making them invisible?, idk)
-		// @ts-expect-error: micromark heavily relies on ambiend module declarations,
+		// @ts-expect-error: micromark heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		if (event[1].type === TokenTypeMap.sequenceTemporary) {
 			event[1].type = types.data;

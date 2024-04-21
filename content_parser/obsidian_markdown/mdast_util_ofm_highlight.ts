@@ -9,7 +9,7 @@ export function ofmHighlightFromMarkdown(): Extension {
 		enter: {
 			ofmHighlight(token) {
 				this.enter({
-					// @ts-expect-error: unist-related libraries heavily relies on ambiend module declarations,
+					// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 					//                   which Deno does not support. APIs also don't accept type parameters.
 					type: "ofmHighlight",
 					children: [],
