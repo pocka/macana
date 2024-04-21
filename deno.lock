@@ -287,6 +287,7 @@
     "https://esm.sh/v135/micromark-util-chunked@2.0.0/denonext/micromark-util-chunked.mjs": "531cf323ba53649fdc30cd39ebba54253dfd847a4b23f806058ecc6cf67bca69",
     "https://esm.sh/v135/micromark-util-classify-character@2.0.0": "c92c93be5f8370abbd73783460c6e183f2b31fe74085175389e1c86d96aeef9b",
     "https://esm.sh/v135/micromark-util-classify-character@2.0.0/denonext/micromark-util-classify-character.mjs": "7e78c1341df2227c29cf5125c17f29bec3887bf8a3178476e129740271bdbd96",
+    "https://esm.sh/v135/micromark-util-combine-extensions@2.0.0": "c3546a7cc7de06b854d0e18531189576903384d8af607acce2c121b639dd5fa9",
     "https://esm.sh/v135/micromark-util-combine-extensions@2.0.0/denonext/micromark-util-combine-extensions.mjs": "68268c6cb6119bc8b0865156e81a360a3b94cd73bddbb9a2a33eda627e51573a",
     "https://esm.sh/v135/micromark-util-decode-numeric-character-reference@2.0.1/denonext/micromark-util-decode-numeric-character-reference.mjs": "284addb1c2303e02ca074d6a5e529c8c9c3cdb58b6815669e2ec65a2f717cf28",
     "https://esm.sh/v135/micromark-util-decode-string@2.0.0/denonext/micromark-util-decode-string.mjs": "c9abaf0b645a2ca8dd0a8d988a7a25173f4bc5e46154d2875890507c0d2e5a51",
