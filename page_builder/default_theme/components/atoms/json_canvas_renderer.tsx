@@ -81,11 +81,36 @@ function canvasColorToCssColor(color: CanvasColor): string {
 	}
 }
 
+interface StyleConstructor {
+	[key: string]: string | number | undefined | null;
+}
+
+function constructStyle(c: StyleConstructor): string {
+	return Object.entries(c).map(([key, value]) => {
+		if (!value) {
+			return null;
+		}
+
+		return key + ":" + (typeof value === "number" ? value + "px" : value);
+	}).filter((s): s is string => !!s).join(";");
+}
+
 interface TextNodeRendererProps {
 	node: TextNode<unknown>;
 }
 
 function TextNodeRenderer({ node }: TextNodeRendererProps) {
+	const containerStyle: StyleConstructor = {
+		width: node.width,
+		height: node.height,
+	};
+
+	// NOTE: Safari can't render `<foreignObject>` correctly.
+	// In this case, Safari renders an overflowing element at completely incorrect
+	// position and size, which makes the element invisible (outside viewport).
+	// https://github.com/mdn/content/issues/1319
+	// https://bugs.webkit.org/show_bug.cgi?id=90738
+	// https://bugs.webkit.org/show_bug.cgi?id=23113
 	return (
 		<foreignObject
 			x={node.x}
@@ -95,7 +120,7 @@ function TextNodeRenderer({ node }: TextNodeRendererProps) {
 		>
 			<div
 				xmlns="http://www.w3.org/1999/xhtml"
-				style={`width: ${node.width}px;height: ${node.height}px;`}
+				style={constructStyle(containerStyle)}
 				className={C.Embed}
 			>
 				{node.text}
@@ -109,6 +134,17 @@ interface LinkNodeRendererProps {
 }
 
 function LinkNodeRenderer({ node }: LinkNodeRendererProps) {
+	const iframeStyles: StyleConstructor = {
+		width: node.width,
+		height: node.height,
+	};
+
+	// NOTE: Safari can't render `<foreignObject>` correctly.
+	// In this case, Safari renders an overflowing element at completely incorrect
+	// position and size, which makes the element invisible (outside viewport).
+	// https://github.com/mdn/content/issues/1319
+	// https://bugs.webkit.org/show_bug.cgi?id=90738
+	// https://bugs.webkit.org/show_bug.cgi?id=23113
 	return (
 		<foreignObject
 			x={node.x}
@@ -118,7 +154,7 @@ function LinkNodeRenderer({ node }: LinkNodeRendererProps) {
 		>
 			<iframe
 				xmlns="http://www.w3.org/1999/xhtml"
-				style={`width: ${node.width}px;height: ${node.height}px;`}
+				style={constructStyle(iframeStyles)}
 				src={node.url}
 			/>
 		</foreignObject>
@@ -144,20 +180,6 @@ function FileNodeRenderer({ node }: FileNodeRendererProps) {
 			/>
 		</foreignObject>
 	);
-}
-
-interface StyleConstructor {
-	[key: string]: string | number | undefined | null;
-}
-
-function constructStyle(c: StyleConstructor): string {
-	return Object.entries(c).map(([key, value]) => {
-		if (!value) {
-			return null;
-		}
-
-		return key + ":" + (typeof value === "number" ? value + "px" : value);
-	}).filter((s): s is string => !!s).join(";");
 }
 
 type VerticalAlign = "top" | "center" | "bottom";
