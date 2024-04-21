@@ -49,14 +49,14 @@ updatedAt: 2024-04-20T01:00:00+09:00
 		- [x] Basic shapes
 		- [x] Colors
 		- [x] Text node
-		- [ ] Group node
-		- [ ] Link node
+		- [x] Group node
+		- [x] Link node
 		- [ ] File node
-	- [ ] Edge rendering
+	- [x] Edge rendering
 		- [x] Basic shape
 		- [x] Arrow
 		- [x] Colors
-		- [ ] Label
+		- [x] Label
 - [x] Document sorting
 - [ ] Search functionality
 - [x] Creation / Update date

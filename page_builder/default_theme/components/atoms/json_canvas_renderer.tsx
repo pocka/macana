@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /** @jsx h */
+/** @jsxFrag Fragment */
 
-import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
+import { Fragment, h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
 
 import { logger } from "../../../../logger.ts";
 
@@ -12,9 +13,13 @@ import { css } from "../../css.ts";
 
 import type {
 	CanvasColor,
+	FileNode,
+	GroupNode,
 	JSONCanvas,
+	LinkNode,
 	Node,
 	NodeSide,
+	TextNode,
 } from "../../../../content_parser/json_canvas/types.ts";
 
 import {
@@ -73,6 +78,248 @@ function canvasColorToCssColor(color: CanvasColor): string {
 			return "var(--canvas-color-purple)";
 		default:
 			return color;
+	}
+}
+
+interface TextNodeRendererProps {
+	node: TextNode<unknown>;
+}
+
+function TextNodeRenderer({ node }: TextNodeRendererProps) {
+	return (
+		<foreignObject
+			x={node.x}
+			y={node.y}
+			width={node.width}
+			height={node.height}
+		>
+			<div
+				xmlns="http://www.w3.org/1999/xhtml"
+				style={`width: ${node.width}px;height: ${node.height}px;`}
+				className={C.Embed}
+			>
+				{node.text}
+			</div>
+		</foreignObject>
+	);
+}
+
+interface LinkNodeRendererProps {
+	node: LinkNode;
+}
+
+function LinkNodeRenderer({ node }: LinkNodeRendererProps) {
+	return (
+		<foreignObject
+			x={node.x}
+			y={node.y}
+			width={node.width}
+			height={node.height}
+		>
+			<iframe
+				xmlns="http://www.w3.org/1999/xhtml"
+				style={`width: ${node.width}px;height: ${node.height}px;`}
+				src={node.url}
+			/>
+		</foreignObject>
+	);
+}
+
+interface FileNodeRendererProps {
+	node: FileNode;
+}
+
+function FileNodeRenderer({ node }: FileNodeRendererProps) {
+	return (
+		<foreignObject
+			x={node.x}
+			y={node.y}
+			width={node.width}
+			height={node.height}
+		>
+			<iframe
+				xmlns="http://www.w3.org/1999/xhtml"
+				style={`width: ${node.width}px;height: ${node.height}px;`}
+				src={node.file}
+			/>
+		</foreignObject>
+	);
+}
+
+interface StyleConstructor {
+	[key: string]: string | number | undefined | null;
+}
+
+function constructStyle(c: StyleConstructor): string {
+	return Object.entries(c).map(([key, value]) => {
+		if (!value) {
+			return null;
+		}
+
+		return key + ":" + (typeof value === "number" ? value + "px" : value);
+	}).filter((s): s is string => !!s).join(";");
+}
+
+type VerticalAlign = "top" | "center" | "bottom";
+type HorizontalAlign = "left" | "center" | "right";
+
+interface BoxTextProps {
+	label: string;
+
+	x?: number;
+	y?: number;
+
+	fontSize?: number;
+
+	color?: string;
+	background?: string;
+	radius?: number;
+	padding?: number;
+
+	vAlign?: VerticalAlign;
+	hAlign?: HorizontalAlign;
+}
+
+/**
+ * Renders text with background and padding.
+ * SVG does not have this functionality, so we need to roll our own...
+ */
+function BoxText(
+	{
+		label,
+		x = 0,
+		y = 0,
+		fontSize = 16,
+		color,
+		background,
+		radius = 0,
+		padding = 0,
+		vAlign = "center",
+		hAlign = "center",
+	}: BoxTextProps,
+) {
+	const safeWidth = label.length * fontSize * 10;
+	const safeHeight = label.split("\n").length * fontSize * 10;
+
+	const spanStyles: StyleConstructor = {
+		"font-size": fontSize + "px",
+		color,
+		"background-color": background,
+		padding,
+		"border-radius": radius,
+		// Make text selectable
+		"pointer-events": "auto",
+	};
+	let containerX: number;
+	switch (hAlign) {
+		case "left":
+			containerX = x;
+			break;
+		case "center":
+			containerX = x - safeWidth * 0.5;
+			break;
+		case "right":
+			containerX = x - safeWidth;
+			break;
+	}
+
+	let containerY: number;
+	switch (vAlign) {
+		case "top":
+			containerY = y;
+			break;
+		case "center":
+			containerY = y - safeHeight * 0.5;
+			break;
+		case "bottom":
+			containerY = y - safeHeight;
+			break;
+	}
+
+	const layoutStyles: StyleConstructor = {
+		width: "100%",
+		height: "100%",
+		display: "flex",
+		"justify-content": hAlign === "center"
+			? "center"
+			: hAlign === "right"
+			? "end"
+			: "start",
+		"align-items": vAlign === "center"
+			? "center"
+			: vAlign === "bottom"
+			? "end"
+			: "start",
+		// Prevent blank area from stealing user clicks
+		"pointer-events": "none",
+	};
+
+	return (
+		<foreignObject
+			x={containerX}
+			y={containerY}
+			width={safeWidth}
+			height={safeHeight}
+			style="pointer-events:none;"
+		>
+			<div
+				xmlns="http://www.w3.org/1999/xhtml"
+				style={constructStyle(layoutStyles)}
+			>
+				<span
+					style={constructStyle(spanStyles)}
+				>
+					{label}
+				</span>
+			</div>
+		</foreignObject>
+	);
+}
+
+interface GroupNodeRendererProps {
+	node: GroupNode;
+}
+
+function GroupNodeRenderer({ node }: GroupNodeRendererProps) {
+	if (!node.label) {
+		return <></>;
+	}
+
+	const color = node.color
+		? canvasColorToCssColor(node.color)
+		: "var(--canvas-color-fallback)";
+
+	// TODO: Make fg color configurable
+	return (
+		<BoxText
+			x={node.x}
+			y={node.y - 6}
+			background={color}
+			color="var(--color-bg)"
+			padding={4}
+			radius={3}
+			fontSize={20}
+			label={node.label}
+			hAlign="left"
+			vAlign="bottom"
+		/>
+	);
+}
+
+interface NodeRendererProps {
+	node: Node<unknown>;
+}
+
+function NodeRenderer({ node }: NodeRendererProps) {
+	switch (node.type) {
+		case "text":
+			return <TextNodeRenderer node={node} />;
+		case "link":
+			return <LinkNodeRenderer node={node} />;
+		case "file":
+			return <FileNodeRenderer node={node} />;
+		case "group":
+			return <GroupNodeRenderer node={node} />;
 	}
 }
 
@@ -195,22 +442,7 @@ export function JSONCanvasRenderer(
 							rx={radius}
 							ry={radius}
 						/>
-						{node.type === "text" && (
-							<foreignObject
-								x={node.x}
-								y={node.y}
-								width={node.width}
-								height={node.height}
-							>
-								<div
-									xmlns="http://www.w3.org/1999/xhtml"
-									style={`width: ${node.width}px;height: ${node.height}px;`}
-									className={C.Embed}
-								>
-									{node.text}
-								</div>
-							</foreignObject>
-						)}
+						<NodeRenderer node={node} />
 					</g>
 				);
 			})}
@@ -280,6 +512,7 @@ export function JSONCanvasRenderer(
 					(toStart[1] + fromStart[1]) / 2,
 				];
 
+				// Bezier control points.
 				// TODO: Improve Bezier control points: Most of curves looks nearly perfect,
 				//       but Obsidian seems to employ special handling when a connector
 				//       overlaps with a node.
@@ -325,6 +558,18 @@ export function JSONCanvasRenderer(
 								pointTo={toSide}
 								fill={color}
 								size={arrowSize}
+							/>
+						)}
+						{edge.label && (
+							<BoxText
+								label={edge.label}
+								x={(p1[0] + p2[0]) * 0.5}
+								y={(p1[1] + p2[1]) * 0.5}
+								background="var(--color-bg)"
+								color="var(--color-fg)"
+								fontSize={18}
+								padding={4}
+								radius={2}
 							/>
 						)}
 					</g>
