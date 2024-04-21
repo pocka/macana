@@ -96,7 +96,7 @@ export interface ObsidianMarkdownParserOptions {
 	frontmatter?: boolean;
 }
 
-async function parseMarkdown(
+export async function parseMarkdown(
 	markdown: string | Uint8Array,
 	{ getAssetToken, getDocumentToken }: Pick<
 		ParseParameters,
@@ -122,7 +122,8 @@ async function parseMarkdown(
 	return mdast;
 }
 
-export class ObsidianMarkdownParser implements ContentParser {
+export class ObsidianMarkdownParser
+	implements ContentParser<ObsidianMarkdownDocument> {
 	#frontmatter: boolean;
 
 	constructor({ frontmatter = false }: ObsidianMarkdownParserOptions = {}) {

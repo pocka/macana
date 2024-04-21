@@ -137,7 +137,11 @@ export function isGenericNode(x: unknown): x is GenericNode {
 	return true;
 }
 
-export interface TextNode extends GenericNode {
+/**
+ * You can change `Markdown` type parameter to other types.
+ * For example, AST if it needs to be displayed as HTML.
+ */
+export interface TextNode<Markdown = string> extends GenericNode {
 	type: "text";
 
 	/**
@@ -146,7 +150,7 @@ export interface TextNode extends GenericNode {
 	 *       using/parsing their Obsidian Flavored Markdown. Parsing and displaying
 	 *       of this property is UB.
 	 */
-	text: string;
+	text: Markdown;
 }
 
 export function isTextNode(x: GenericNode): x is TextNode {
@@ -269,7 +273,11 @@ export function isGroupNode(x: GenericNode): x is GroupNode {
 	return true;
 }
 
-export type Node = TextNode | FileNode | LinkNode | GroupNode;
+export type Node<Markdown = string> =
+	| TextNode<Markdown>
+	| FileNode
+	| LinkNode
+	| GroupNode;
 
 export function isNode(x: unknown): x is Node {
 	if (!isGenericNode(x)) {
@@ -398,8 +406,8 @@ export function isEdge(x: unknown): x is Edge {
 	return true;
 }
 
-export interface JSONCanvas {
-	nodes?: Node[];
+export interface JSONCanvas<Markdown = string> {
+	nodes?: Node<Markdown>[];
 	edges?: Edge[];
 }
 

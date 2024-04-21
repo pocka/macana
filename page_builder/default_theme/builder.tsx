@@ -5,6 +5,7 @@
 /** @jsx h */
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
+import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
 
 import { logger } from "../../logger.ts";
 
@@ -15,6 +16,7 @@ import {
 	type ObsidianMarkdownDocument,
 } from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
+import * as jsonCanvas from "../../content_parser/json_canvas/utils.ts";
 import type { Document, DocumentDirectory, DocumentTree } from "../../types.ts";
 
 import * as css from "./css.ts";
@@ -29,7 +31,9 @@ function isObsidianMarkdown(
 	return x.content.kind === "obsidian_markdown";
 }
 
-function isJSONCanvas(x: Document): x is Document<JSONCanvasDocument> {
+function isJSONCanvas(
+	x: Document,
+): x is Document<JSONCanvasDocument<Mdast.Nodes>> {
 	return x.content.kind === "json_canvas";
 }
 
@@ -188,6 +192,35 @@ export class DefaultThemeBuilder implements PageBuilder {
 		if ("file" in item) {
 			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
 				const assetWrites: Promise<unknown>[] = [];
+
+				if (item.content.kind === "json_canvas") {
+					await jsonCanvas.mapText(item.content.content, async (node) => {
+						await macanaReplaceAssetTokens(
+							node.text,
+							async (token) => {
+								const file = tree.exchangeToken(token);
+
+								assetWrites.push(fileSystemWriter.write(
+									file.path,
+									await file.read(),
+								));
+
+								return toRelativePath(file.path, item.path);
+							},
+						);
+
+						await macanaReplaceDocumentToken(
+							node.text,
+							async (token) => {
+								const document = tree.exchangeToken(token);
+
+								return {
+									path: toRelativePath([...document.path, ""], item.path),
+								};
+							},
+						);
+					});
+				}
 
 				if (item.content.kind === "obsidian_markdown") {
 					await macanaReplaceAssetTokens(

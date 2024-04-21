@@ -8,6 +8,7 @@
 import { Fragment, h } from "../../../deps/deno.land/x/nano_jsx/mod.ts";
 import * as jsxRuntime from "../../../deps/deno.land/x/nano_jsx/jsx-runtime/index.ts";
 import { toHast } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Mdast from "../../../deps/esm.sh/mdast/types.ts";
 import { toJsxRuntime } from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 import * as HastToJSXRuntime from "../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
@@ -24,6 +25,7 @@ import {
 	ofmWikilinkToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
+import * as jsonCanvas from "../../../content_parser/json_canvas/utils.ts";
 
 import { usePathResolver } from "../contexts/path_resolver.tsx";
 import * as css from "../css.ts";
@@ -174,14 +176,8 @@ function MetadataDates({ metadata }: MetadataDatesProps) {
 	);
 }
 
-interface ObsidianMarkdownBodyProps extends ViewProps {
-	content: ObsidianMarkdownDocument;
-}
-
-function ObsidianMarkdownBody(
-	{ content, document, tree, copyright, assets }: ObsidianMarkdownBodyProps,
-) {
-	const hast = toHast(content.content, {
+function mdastToHast(input: Mdast.Nodes) {
+	return toHast(input, {
 		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		handlers: {
@@ -202,6 +198,16 @@ function ObsidianMarkdownBody(
 			...syntaxHighlightingHandlers(),
 		},
 	});
+}
+
+interface ObsidianMarkdownBodyProps extends ViewProps {
+	content: ObsidianMarkdownDocument;
+}
+
+function ObsidianMarkdownBody(
+	{ content, document, tree, copyright, assets }: ObsidianMarkdownBodyProps,
+) {
+	const hast = mdastToHast(content.content);
 
 	const toc = tocMut(hast).map((item) =>
 		mapTocItem(item, (item) => toNode({ type: "root", children: item }))
@@ -230,12 +236,16 @@ function ObsidianMarkdownBody(
 }
 
 interface JSONCanvasBodyProps extends ViewProps {
-	content: JSONCanvasDocument;
+	content: JSONCanvasDocument<Mdast.Nodes>;
 }
 
 function JSONCanvasBody(
 	{ content, document, copyright, tree, assets }: JSONCanvasBodyProps,
 ) {
+	const canvas = jsonCanvas.mapTextSync(content.content, (node) => {
+		return toNode(mdastToHast(node.text));
+	});
+
 	return (
 		<SiteLayout.View
 			nav={
@@ -250,13 +260,15 @@ function JSONCanvasBody(
 		>
 			<h1>{document.metadata.title}</h1>
 			<MetadataDates metadata={document.metadata} />
-			<JSONCanvasRenderer.View data={content.content} />
+			<JSONCanvasRenderer.View data={canvas} />
 		</SiteLayout.View>
 	);
 }
 
 export interface ViewProps {
-	document: Document<ObsidianMarkdownDocument | JSONCanvasDocument>;
+	document: Document<
+		ObsidianMarkdownDocument | JSONCanvasDocument<Mdast.Nodes>
+	>;
 
 	/**
 	 * Root document tree, for navigations and links.

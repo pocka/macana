@@ -48,7 +48,7 @@ updatedAt: 2024-04-20T01:00:00+09:00
 	- [ ] Node rendering
 		- [x] Basic shapes
 		- [x] Colors
-		- [ ] Text node
+		- [x] Text node
 		- [ ] Group node
 		- [ ] Link node
 		- [ ] File node

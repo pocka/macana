@@ -27,6 +27,8 @@ export interface ParseParameters {
 	): DocumentToken | Promise<DocumentToken>;
 }
 
-export interface ContentParser {
-	parse(params: ParseParameters): Promise<ContentParseResult>;
+export interface ContentParser<
+	Content extends DocumentContent = DocumentContent,
+> {
+	parse(params: ParseParameters): Promise<ContentParseResult<Content>>;
 }

@@ -19,6 +19,7 @@ import type {
 
 const enum C {
 	Wrapper = "jcr--wr",
+	Embed = "jcr--em",
 }
 
 export const styles = css`
@@ -32,6 +33,17 @@ export const styles = css`
 		border-radius: calc(1rem / 4);
 		padding: 4px;
 	}
+
+	.${C.Embed} {
+		padding: 4px 8px;
+		overflow: auto;
+	}
+	.${C.Embed} > p {
+		margin-block-start: calc(var(--baseline) * 0.5rem);
+	}
+	.${C.Embed} > :first-child {
+		margin-block-start: 0;
+	}
 `;
 
 interface Rect {
@@ -42,7 +54,10 @@ interface Rect {
 }
 
 // TODO: Automatically calculate padding based on stroke-width, edges and shadows.
-function getBoundingBox(canvas: JSONCanvas, padding: number = 20): Rect {
+function getBoundingBox(
+	canvas: JSONCanvas<unknown>,
+	padding: number = 20,
+): Rect {
 	let minX: number = 0;
 	let minY: number = 0;
 	let maxX: number = 0;
@@ -65,7 +80,7 @@ function getBoundingBox(canvas: JSONCanvas, padding: number = 20): Rect {
 
 type Point2D = readonly [number, number];
 
-function getConnectionPoint(node: Node, side: NodeSide): Point2D {
+function getConnectionPoint(node: Node<unknown>, side: NodeSide): Point2D {
 	switch (side) {
 		case "top":
 			return [node.x + node.width * 0.5, node.y];
@@ -93,7 +108,7 @@ function magnitude(v: Vec2D): number {
  * We need this function because `fromSide` and `toSide` property is optional...
  * but Obsidian does not render Canvas if either of one is missing. wtf
  */
-function getNearestSideToPoint(node: Node, p: Point2D): NodeSide {
+function getNearestSideToPoint(node: Node<unknown>, p: Point2D): NodeSide {
 	const center: Point2D = [
 		node.x + node.width * 0.5,
 		node.y + node.height * 0.5,
@@ -142,9 +157,9 @@ function getNearestSideToPoint(node: Node, p: Point2D): NodeSide {
 }
 
 function getClosestSides(
-	a: Node,
+	a: Node<unknown>,
 	aSide: NodeSide | undefined,
-	b: Node,
+	b: Node<unknown>,
 	bSide: NodeSide | undefined,
 ): readonly [NodeSide, NodeSide] {
 	if (aSide && bSide) {
@@ -252,7 +267,8 @@ function EdgeArrow({ target, pointTo, size = 15, ...rest }: EdgeArrowProps) {
 }
 
 export interface JSONCanvasRendererProps {
-	data: JSONCanvas;
+	// nano-jsx does not ship working typings, thus "unknown" (no JSX.Element).
+	data: JSONCanvas<unknown>;
 
 	radius?: number;
 
@@ -275,7 +291,7 @@ export function JSONCanvasRenderer(
 	 * Edges refer nodes by ID. This map helps and optimizes its retrieving operation.
 	 * Without using `Map`, lookup takes `O(N)`.
 	 */
-	const nodes = new Map<string, Node>(
+	const nodes = new Map<string, Node<unknown>>(
 		data.nodes?.map((node) => [node.id, node]),
 	);
 
@@ -332,7 +348,8 @@ export function JSONCanvasRenderer(
 							>
 								<div
 									xmlns="http://www.w3.org/1999/xhtml"
-									style="padding: 1em;white-space: pre-wrap;"
+									style={`width: ${node.width}px;height: ${node.height}px;`}
+									className={C.Embed}
 								>
 									{node.text}
 								</div>
