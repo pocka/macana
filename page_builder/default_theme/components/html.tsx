@@ -37,11 +37,11 @@ import type { Assets } from "../builder.tsx";
 
 import * as LucideIcons from "./lucide_icons.tsx";
 
+import * as JSONCanvasRenderer from "./atoms/json_canvas_renderer.tsx";
 import * as DocumentTreeUI from "./organisms/document_tree.tsx";
 import * as Footer from "./organisms/footer.tsx";
 import * as Toc from "./organisms/toc.tsx";
 import * as SiteLayout from "./templates/site_layout.tsx";
-import * as JSONCanvasRenderer from "./json_canvas_renderer.tsx";
 
 function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 	const ret: HastToJSXRuntime.Props = {};
