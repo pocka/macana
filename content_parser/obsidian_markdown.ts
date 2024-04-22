@@ -108,10 +108,9 @@ export async function parseMarkdown(
 			ofmHighlightFromMarkdown(),
 			ofmWikilinkFromMarkdown(),
 			ofmCalloutFromMarkdown(),
+			ofmImageSize(),
 		],
 	});
-
-	ofmImageSize(mdast);
 
 	await macanaMarkAssets(mdast, getAssetToken);
 	await macanaMarkDocumentToken(mdast, getDocumentToken);

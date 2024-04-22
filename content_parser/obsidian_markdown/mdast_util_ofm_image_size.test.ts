@@ -13,9 +13,9 @@ import { ofmWikilinkFromMarkdown } from "./mdast_util_ofm_wikilink.ts";
 import { ofmImageSize } from "./mdast_util_ofm_image_size.ts";
 
 Deno.test("Should parse full size attribute", () => {
-	const mdast = fromMarkdown("![Foo|100x200](./foo.png)");
-
-	ofmImageSize(mdast);
+	const mdast = fromMarkdown("![Foo|100x200](./foo.png)", {
+		mdastExtensions: [ofmImageSize()],
+	});
 
 	assertObjectMatch(mdast, {
 		type: "root",
@@ -40,10 +40,8 @@ Deno.test("Should parse full size attribute", () => {
 Deno.test("Should parse for wikilink embeds", () => {
 	const mdast = fromMarkdown("![[Foo|999x9]]", {
 		extensions: [ofmWikilink()],
-		mdastExtensions: [ofmWikilinkFromMarkdown()],
+		mdastExtensions: [ofmWikilinkFromMarkdown(), ofmImageSize()],
 	});
-
-	ofmImageSize(mdast);
 
 	assertObjectMatch(mdast, {
 		type: "root",
@@ -65,9 +63,9 @@ Deno.test("Should parse for wikilink embeds", () => {
 });
 
 Deno.test("Should ignore negative sizes", () => {
-	const mdast = fromMarkdown("![Foo|-5x-3](./foo.png)");
-
-	ofmImageSize(mdast);
+	const mdast = fromMarkdown("![Foo|-5x-3](./foo.png)", {
+		mdastExtensions: [ofmImageSize()],
+	});
 
 	assertObjectMatch(mdast, {
 		type: "root",
@@ -86,9 +84,9 @@ Deno.test("Should ignore negative sizes", () => {
 });
 
 Deno.test("Should ignore zero as a size", () => {
-	const mdast = fromMarkdown("![Foo|100x0](./foo.png)");
-
-	ofmImageSize(mdast);
+	const mdast = fromMarkdown("![Foo|100x0](./foo.png)", {
+		mdastExtensions: [ofmImageSize()],
+	});
 
 	assertObjectMatch(mdast, {
 		type: "root",
@@ -107,9 +105,9 @@ Deno.test("Should ignore zero as a size", () => {
 });
 
 Deno.test("Should parse width-only attribute", () => {
-	const mdast = fromMarkdown("![Foo|123](./foo.png)");
-
-	ofmImageSize(mdast);
+	const mdast = fromMarkdown("![Foo|123](./foo.png)", {
+		mdastExtensions: [ofmImageSize()],
+	});
 
 	assertObjectMatch(mdast, {
 		type: "root",
@@ -131,9 +129,9 @@ Deno.test("Should parse width-only attribute", () => {
 });
 
 Deno.test("Should work for image reference too", () => {
-	const mdast = fromMarkdown("![Foo|999x888][foo]\n\n[foo]: ./foo.png");
-
-	ofmImageSize(mdast);
+	const mdast = fromMarkdown("![Foo|999x888][foo]\n\n[foo]: ./foo.png", {
+		mdastExtensions: [ofmImageSize()],
+	});
 
 	assertObjectMatch(mdast, {
 		type: "root",
@@ -156,9 +154,9 @@ Deno.test("Should work for image reference too", () => {
 });
 
 Deno.test("Should set HTML attributes", () => {
-	const mdast = fromMarkdown("![Foo|123x456](./foo.png)");
-
-	ofmImageSize(mdast);
+	const mdast = fromMarkdown("![Foo|123x456](./foo.png)", {
+		mdastExtensions: [ofmImageSize()],
+	});
 
 	const hast = toHast(mdast);
 
