@@ -5,10 +5,21 @@
 import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 import { gfmFromMarkdown } from "../../deps/esm.sh/mdast-util-gfm/mod.ts";
 
-import { ofmCommentFromMarkdown } from "./mdast_util_ofm_comment.ts";
+import {
+	ofmCommentFromMarkdown,
+	ofmCommentToHastHandlers,
+	type OfmCommentToHastHandlersOptions,
+} from "./mdast_util_ofm_comment.ts";
 import { ofmHighlightFromMarkdown } from "./mdast_util_ofm_highlight.ts";
-import { ofmWikilinkFromMarkdown } from "./mdast_util_ofm_wikilink.ts";
-import { ofmCalloutFromMarkdown } from "./mdast_util_ofm_callout.ts";
+import {
+	ofmWikilinkFromMarkdown,
+	ofmWikilinkToHastHandlers,
+} from "./mdast_util_ofm_wikilink.ts";
+import {
+	ofmCalloutFromMarkdown,
+	ofmCalloutToHastHandlers,
+	type OfmCalloutToHastHandlersOptions,
+} from "./mdast_util_ofm_callout.ts";
 import { ofmImageSize } from "./mdast_util_ofm_image_size.ts";
 
 export function ofmFromMarkdown(): Extension[] {
@@ -20,4 +31,19 @@ export function ofmFromMarkdown(): Extension[] {
 		ofmCalloutFromMarkdown(),
 		ofmImageSize(),
 	];
+}
+
+export interface OfmToHastHandlersOptions {
+	comment?: OfmCommentToHastHandlersOptions;
+	callout?: OfmCalloutToHastHandlersOptions;
+}
+
+export function ofmToHastHandlers(
+	{ comment, callout }: OfmToHastHandlersOptions = {},
+) {
+	return {
+		...ofmCalloutToHastHandlers(callout),
+		...ofmWikilinkToHastHandlers,
+		...ofmCommentToHastHandlers(comment),
+	};
 }

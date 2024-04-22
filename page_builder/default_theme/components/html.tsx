@@ -20,9 +20,7 @@ import type {
 import {
 	type CalloutType,
 	type ObsidianMarkdownDocument,
-	ofmCalloutToHastHandlers,
-	ofmCommentToHastHandlers,
-	ofmWikilinkToHastHandlers,
+	ofmToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
 import * as jsonCanvas from "../../../content_parser/json_canvas/utils.ts";
@@ -181,20 +179,20 @@ function mdastToHast(input: Mdast.Nodes) {
 		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		handlers: {
-			...ofmCalloutToHastHandlers({
-				generateIcon(type) {
-					return {
-						type: "element",
-						tagName: "MacanaOfmCalloutIcon",
-						properties: {
-							type,
-						},
-						children: [],
-					};
+			...ofmToHastHandlers({
+				callout: {
+					generateIcon(type) {
+						return {
+							type: "element",
+							tagName: "MacanaOfmCalloutIcon",
+							properties: {
+								type,
+							},
+							children: [],
+						};
+					},
 				},
 			}),
-			...ofmCommentToHastHandlers(),
-			...ofmWikilinkToHastHandlers,
 			...syntaxHighlightingHandlers(),
 		},
 	});
