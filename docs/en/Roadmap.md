@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-04-20T01:00:00+09:00
+updatedAt: 2024-04-23T23:00:00+09:00
 ---
 
 - [x] Using Vault as a site structure
@@ -37,13 +37,12 @@ updatedAt: 2024-04-20T01:00:00+09:00
 		- [x] ==Highlight==
 		- [x] Callouts
 		- [x] Comments %% You can check this item once I'm no longer visible %%
-		- [ ] Strip Raw HTML (only `<title>` is troublesome, but align behavior to Obsidian's)
-			- [ ] `<script>` <script>console.log("This tag should be eliminated: escaping is not suffice")</script>
-			- [ ] `<title>` <title>Foo</title>
-			- [ ] `<style>` <style>* { display: none; }</style>
-		- [ ] Keep Raw HTML (Unified libraries tends to ignore spec by default, needs to opt-out)
-			- [ ] <span style="color: red; background-color: yellow;">Colored text</span>
-			- [ ] Strip attributes not exist in whitelist
+		- [x] Strip Raw HTML (only `<title>` is troublesome, but align behavior to Obsidian's)
+			- [x] `<script>` <script>console.log("This tag should be eliminated: escaping is not suffice")</script>
+			- [x] `<title>` <title>Foo</title>
+			- [x] `<style>` <style>* { display: none; }</style>
+		- [x] Keep Raw HTML (Unified libraries tends to ignore spec by default, needs to opt-out)
+			- [x] <span style="color: red; background-color: yellow;">Colored text</span>
 - [ ] JSONCanvas
 	- [ ] Node rendering
 		- [x] Basic shapes

@@ -20,6 +20,7 @@ import type {
 import {
 	type CalloutType,
 	type ObsidianMarkdownDocument,
+	ofmHtml,
 	ofmToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../../content_parser/json_canvas.ts";
@@ -175,7 +176,7 @@ function MetadataDates({ metadata }: MetadataDatesProps) {
 }
 
 function mdastToHast(input: Mdast.Nodes) {
-	return toHast(input, {
+	return ofmHtml(toHast(input, {
 		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		handlers: {
@@ -195,7 +196,8 @@ function mdastToHast(input: Mdast.Nodes) {
 			}),
 			...syntaxHighlightingHandlers(),
 		},
-	});
+		allowDangerousHtml: true,
+	}));
 }
 
 interface ObsidianMarkdownBodyProps extends ViewProps {
