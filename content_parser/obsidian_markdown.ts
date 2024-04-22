@@ -6,16 +6,11 @@ import { test as testFrontmatter } from "../deps/deno.land/std/front_matter/test
 import * as yamlFrontmatter from "../deps/deno.land/std/front_matter/yaml.ts";
 import type * as Mdast from "../deps/esm.sh/mdast/types.ts";
 import { fromMarkdown } from "../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { gfmFromMarkdown } from "../deps/esm.sh/mdast-util-gfm/mod.ts";
 
 import { ofm } from "./obsidian_markdown/micromark_extension_ofm.ts";
-import { ofmHighlightFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_highlight.ts";
-import { ofmImageSize } from "./obsidian_markdown/mdast_util_ofm_image_size.ts";
-import { ofmWikilinkFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_wikilink.ts";
-import { ofmCommentFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_comment.ts";
+import { ofmFromMarkdown } from "./obsidian_markdown/mdast_util_ofm.ts";
 import { macanaMarkAssets } from "./obsidian_markdown/mdast_util_macana_mark_assets.ts";
 import { macanaMarkDocumentToken } from "./obsidian_markdown/mdast_util_macana_mark_document_token.ts";
-import { ofmCalloutFromMarkdown } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
 
 import type {
 	ContentParser,
@@ -102,14 +97,7 @@ export async function parseMarkdown(
 ): Promise<Mdast.Root> {
 	const mdast = fromMarkdown(markdown, {
 		extensions: [ofm()],
-		mdastExtensions: [
-			ofmCommentFromMarkdown(),
-			gfmFromMarkdown(),
-			ofmHighlightFromMarkdown(),
-			ofmWikilinkFromMarkdown(),
-			ofmCalloutFromMarkdown(),
-			ofmImageSize(),
-		],
+		mdastExtensions: [ofmFromMarkdown()],
 	});
 
 	await macanaMarkAssets(mdast, getAssetToken);
