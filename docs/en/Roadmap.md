@@ -43,14 +43,14 @@ updatedAt: 2024-04-23T23:00:00+09:00
 			- [x] `<style>` <style>* { display: none; }</style>
 		- [x] Keep Raw HTML (Unified libraries tends to ignore spec by default, needs to opt-out)
 			- [x] <span style="color: red; background-color: yellow;">Colored text</span>
-- [ ] JSONCanvas
-	- [ ] Node rendering
+- [x] JSONCanvas
+	- [x] Node rendering
 		- [x] Basic shapes
 		- [x] Colors
 		- [x] Text node
 		- [x] Group node
 		- [x] Link node
-		- [ ] File node
+		- [x] File node
 	- [x] Edge rendering
 		- [x] Basic shape
 		- [x] Arrow

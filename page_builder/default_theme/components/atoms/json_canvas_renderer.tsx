@@ -5,6 +5,7 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
 
+import { extname } from "../../../../deps/deno.land/std/path/mod.ts";
 import { Fragment, h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
 
 import { logger } from "../../../../logger.ts";
@@ -166,20 +167,90 @@ interface FileNodeRendererProps {
 }
 
 function FileNodeRenderer({ node }: FileNodeRendererProps) {
-	return (
-		<foreignObject
-			x={node.x}
-			y={node.y}
-			width={node.width}
-			height={node.height}
-		>
-			<iframe
-				xmlns="http://www.w3.org/1999/xhtml"
-				style={`width: ${node.width}px;height: ${node.height}px;`}
-				src={node.file}
-			/>
-		</foreignObject>
-	);
+	const ext = extname(node.file);
+
+	switch (ext) {
+		case ".jpg":
+		case ".jpeg":
+		case ".avif":
+		case ".bmp":
+		case ".png":
+		case ".svg":
+		case ".webp": {
+			return (
+				<foreignObject
+					x={node.x}
+					y={node.y}
+					width={node.width}
+					height={node.height}
+				>
+					<img
+						xmlns="http://www.w3.org/1999/xhtml"
+						style="max-width:100%;max-height:100%;object-fit:contain;"
+						src={node.file}
+					/>
+				</foreignObject>
+			);
+		}
+		case ".mkv":
+		case ".mov":
+		case ".mp4":
+		case ".ogv":
+		case ".webm": {
+			return (
+				<foreignObject
+					x={node.x}
+					y={node.y}
+					width={node.width}
+					height={node.height}
+				>
+					<video
+						xmlns="http://www.w3.org/1999/xhtml"
+						style="max-width:100%;max-height:100%;object-fit:contain;"
+						src={node.file}
+					/>
+				</foreignObject>
+			);
+		}
+		case ".flac":
+		case ".m4a":
+		case ".mp3":
+		case ".ogg":
+		case ".wav":
+		case ".3gp": {
+			return (
+				<foreignObject
+					x={node.x}
+					y={node.y}
+					width={node.width}
+					height={node.height}
+				>
+					<div
+						xmlns="http://www.w3.org/1999/xhtml"
+						style="width:100%;height:100%;display:grid;place-items:center;"
+					>
+						<audio src={node.file} />
+					</div>
+				</foreignObject>
+			);
+		}
+		default: {
+			return (
+				<foreignObject
+					x={node.x}
+					y={node.y}
+					width={node.width}
+					height={node.height}
+				>
+					<iframe
+						xmlns="http://www.w3.org/1999/xhtml"
+						style={`width: ${node.width}px;height: ${node.height}px;`}
+						src={node.file}
+					/>
+				</foreignObject>
+			);
+		}
+	}
 }
 
 type VerticalAlign = "top" | "center" | "bottom";

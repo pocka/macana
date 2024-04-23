@@ -6,6 +6,7 @@
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
+import { toHast } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 
 import { logger } from "../../logger.ts";
 
@@ -14,16 +15,37 @@ import {
 	macanaReplaceAssetTokens,
 	macanaReplaceDocumentToken,
 	type ObsidianMarkdownDocument,
+	ofmHtml,
+	ofmToHastHandlers,
 } from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
 import * as jsonCanvas from "../../content_parser/json_canvas/utils.ts";
-import type { Document, DocumentDirectory, DocumentTree } from "../../types.ts";
+import type {
+	AssetToken,
+	Document,
+	DocumentDirectory,
+	DocumentToken,
+	DocumentTree,
+} from "../../types.ts";
 
 import * as css from "./css.ts";
 
 import * as Html from "./components/html.tsx";
+import * as HastRenderer from "./components/atoms/hast_renderer.tsx";
 
+import { syntaxHighlightingHandlers } from "./mdast/syntax_highlighting_handlers.ts";
+import { mapTocItem, tocMut } from "./hast/hast_util_toc_mut.ts";
 import { PathResolverProvider } from "./contexts/path_resolver.tsx";
+
+const DOCTYPE = "<!DOCTYPE html>";
+
+function isAssetToken(token: unknown): token is AssetToken {
+	return typeof token === "string" && token.startsWith("mxa_");
+}
+
+function isDocumentToken(token: unknown): token is DocumentToken {
+	return typeof token === "string" && token.startsWith("mxt_");
+}
 
 function isObsidianMarkdown(
 	x: Document,
@@ -43,6 +65,31 @@ function toRelativePath(
 ): string {
 	return Array.from({ length: from.length }, () => "../").join("") +
 		path.join("/");
+}
+
+function mdastToHast(input: Mdast.Nodes) {
+	return ofmHtml(toHast(input, {
+		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
+		//                   which Deno does not support. APIs also don't accept type parameters.
+		handlers: {
+			...ofmToHastHandlers({
+				callout: {
+					generateIcon(type) {
+						return {
+							type: "element",
+							tagName: "MacanaOfmCalloutIcon",
+							properties: {
+								type,
+							},
+							children: [],
+						};
+					},
+				},
+			}),
+			...syntaxHighlightingHandlers(),
+		},
+		allowDangerousHtml: true,
+	}));
 }
 
 export interface Assets {
@@ -191,16 +238,145 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		if ("file" in item) {
 			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
-				const assetWrites: Promise<unknown>[] = [];
+				const enc = new TextEncoder();
 
-				if (item.content.kind === "json_canvas") {
-					await jsonCanvas.mapText(item.content.content, async (node) => {
+				const basePath = [
+					...pathPrefix,
+					item.metadata.name,
+				];
+
+				const writeTasks: Promise<unknown>[] = [];
+
+				switch (item.content.kind) {
+					case "json_canvas": {
+						const content = await jsonCanvas.mapNode(
+							item.content.content,
+							async (node) => {
+								switch (node.type) {
+									case "text": {
+										await macanaReplaceAssetTokens(
+											node.text,
+											async (token) => {
+												const file = tree.exchangeToken(token);
+
+												writeTasks.push(fileSystemWriter.write(
+													file.path,
+													await file.read(),
+												));
+
+												return toRelativePath(file.path, item.path);
+											},
+										);
+
+										await macanaReplaceDocumentToken(
+											node.text,
+											async (token) => {
+												const document = tree.exchangeToken(token);
+
+												return {
+													path: toRelativePath(
+														[...document.path, ""],
+														item.path,
+													),
+												};
+											},
+										);
+
+										return {
+											...node,
+											text: <HastRenderer.View node={mdastToHast(node.text)} />,
+										};
+									}
+									case "file": {
+										if (isAssetToken(node.file)) {
+											const file = tree.exchangeToken(node.file);
+
+											writeTasks.push(
+												fileSystemWriter.write(file.path, await file.read()),
+											);
+
+											return {
+												...node,
+												file: toRelativePath(file.path, item.path),
+											};
+										}
+
+										if (isDocumentToken(node.file)) {
+											const doc = tree.exchangeToken(node.file);
+
+											return {
+												...node,
+												file: toRelativePath(
+													[...doc.path, "embed.html"],
+													item.path,
+												),
+											};
+										}
+
+										return node;
+									}
+									default: {
+										return node;
+									}
+								}
+							},
+						);
+
+						const document = item as Document<JSONCanvasDocument<Mdast.Nodes>>;
+
+						const html = DOCTYPE + renderSSR(
+							() => (
+								// Adds 1 to depth due to	`<name>/index.html` conversion.
+								<PathResolverProvider depth={pathPrefix.length + 1}>
+									<Html.JSONCanvasView
+										tree={tree}
+										copyright={this.#copyright}
+										content={content}
+										document={item}
+										language={item.metadata.language || parentLanguage}
+										assets={assets}
+									/>
+								</PathResolverProvider>
+							),
+						);
+
+						writeTasks.push(
+							fileSystemWriter.write([
+								...basePath,
+								"index.html",
+							], enc.encode(html)),
+						);
+
+						const embed = DOCTYPE + renderSSR(
+							() => (
+								<PathResolverProvider depth={pathPrefix.length + 1}>
+									<Html.JSONCanvasEmbed
+										document={document}
+										language={item.metadata.language || parentLanguage}
+										content={content}
+										assets={assets}
+									/>
+								</PathResolverProvider>
+							),
+						);
+
+						writeTasks.push(
+							fileSystemWriter.write([
+								...basePath,
+								"embed.html",
+							], enc.encode(embed)),
+						);
+
+						await Promise.all(writeTasks);
+						return;
+					}
+					case "obsidian_markdown": {
 						await macanaReplaceAssetTokens(
-							node.text,
+							item.content.content,
 							async (token) => {
 								const file = tree.exchangeToken(token);
 
-								assetWrites.push(fileSystemWriter.write(
+								writeTasks.push(fileSystemWriter.write(
 									file.path,
 									await file.read(),
 								));
@@ -210,7 +386,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 						);
 
 						await macanaReplaceDocumentToken(
-							node.text,
+							item.content.content,
 							async (token) => {
 								const document = tree.exchangeToken(token);
 
@@ -219,62 +395,68 @@ export class DefaultThemeBuilder implements PageBuilder {
 								};
 							},
 						);
-					});
+
+						const document = item as Document<ObsidianMarkdownDocument>;
+						const hast = mdastToHast(item.content.content);
+						const renderedNode = <HastRenderer.View node={hast} />;
+
+						const html = DOCTYPE + renderSSR(
+							() => (
+								// Adds 1 to depth due to	`<name>/index.html` conversion.
+								<PathResolverProvider depth={pathPrefix.length + 1}>
+									<Html.ObsidianMarkdownView
+										document={item}
+										language={item.metadata.language || parentLanguage}
+										assets={assets}
+										content={renderedNode}
+										tree={tree}
+										copyright={this.#copyright}
+										toc={tocMut(hast).map((node) => {
+											return mapTocItem(
+												node,
+												(item) => (
+													<HastRenderer.View
+														node={{ type: "root", children: item }}
+													/>
+												),
+											);
+										})}
+									/>
+								</PathResolverProvider>
+							),
+						);
+
+						writeTasks.push(
+							fileSystemWriter.write([
+								...basePath,
+								"index.html",
+							], enc.encode(html)),
+						);
+
+						const embed = DOCTYPE + renderSSR(
+							() => (
+								<PathResolverProvider depth={pathPrefix.length + 1}>
+									<Html.ObsidianMarkdownEmbed
+										document={document}
+										language={item.metadata.language || parentLanguage}
+										content={hast}
+										assets={assets}
+									/>
+								</PathResolverProvider>
+							),
+						);
+
+						writeTasks.push(
+							fileSystemWriter.write([
+								...basePath,
+								"embed.html",
+							], enc.encode(embed)),
+						);
+
+						await Promise.all(writeTasks);
+						return;
+					}
 				}
-
-				if (item.content.kind === "obsidian_markdown") {
-					await macanaReplaceAssetTokens(
-						item.content.content,
-						async (token) => {
-							const file = tree.exchangeToken(token);
-
-							assetWrites.push(fileSystemWriter.write(
-								file.path,
-								await file.read(),
-							));
-
-							return toRelativePath(file.path, item.path);
-						},
-					);
-
-					await macanaReplaceDocumentToken(
-						item.content.content,
-						async (token) => {
-							const document = tree.exchangeToken(token);
-
-							return {
-								path: toRelativePath([...document.path, ""], item.path),
-							};
-						},
-					);
-				}
-
-				const html = "<!DOCTYPE html>" + renderSSR(
-					() => (
-						// Adds 1 to depth due to	`<name>/index.html` conversion.
-						<PathResolverProvider depth={pathPrefix.length + 1}>
-							<Html.View
-								tree={tree}
-								document={item}
-								language={item.metadata.language || parentLanguage}
-								copyright={this.#copyright}
-								assets={assets}
-							/>
-						</PathResolverProvider>
-					),
-				);
-
-				const enc = new TextEncoder();
-
-				await Promise.all([
-					...assetWrites,
-					fileSystemWriter.write([
-						...pathPrefix,
-						item.metadata.name,
-						"index.html",
-					], enc.encode(html)),
-				]);
-				return;
 			}
 
 			throw new Error(`Unsupported content type: ${item.content.kind}`);

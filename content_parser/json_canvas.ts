@@ -2,14 +2,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { extname } from "../deps/deno.land/std/path/mod.ts";
 import type * as Mdast from "../deps/esm.sh/mdast/types.ts";
 
 import type { ContentParser, ParseParameters } from "./interface.ts";
 import type { DocumentContent } from "../types.ts";
 
 import { isJSONCanvas, type JSONCanvas } from "./json_canvas/types.ts";
-import { mapText } from "./json_canvas/utils.ts";
+import { mapNode } from "./json_canvas/utils.ts";
 import { parseMarkdown } from "./obsidian_markdown.ts";
+
+const PROBABLY_URL_PATTERN = /^[a-z0-9]+:/i;
+const SEPARATOR = "/";
 
 export class JSONCanvasParseError extends Error {}
 
@@ -54,11 +58,38 @@ export class JSONCanvasParser
 
 		return {
 			kind: "json_canvas",
-			content: await mapText(json, async (node) => {
-				return parseMarkdown(node.text, {
-					getAssetToken,
-					getDocumentToken,
-				});
+			content: await mapNode(json, async (node) => {
+				switch (node.type) {
+					case "text": {
+						return {
+							...node,
+							text: await parseMarkdown(node.text, {
+								getAssetToken,
+								getDocumentToken,
+							}),
+						};
+					}
+					case "file": {
+						if (PROBABLY_URL_PATTERN.test(node.file)) {
+							return node;
+						}
+
+						const path = node.file.split(SEPARATOR);
+
+						const ext = extname(node.file);
+						const token = (!ext || /^\.md$/i.test(ext))
+							? await getDocumentToken(path)
+							: await getAssetToken(path);
+
+						return {
+							...node,
+							file: token,
+						};
+					}
+					default: {
+						return node;
+					}
+				}
 			}),
 		};
 	}
