@@ -2,7 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { assertEquals } from "../deps/deno.land/std/assert/mod.ts";
+import {
+	assertEquals,
+	assertRejects,
+} from "../deps/deno.land/std/assert/mod.ts";
 
 import { DenoFsWriter } from "./deno_fs.ts";
 
@@ -37,6 +40,28 @@ Deno.test("Should write a file", {
 		assertEquals(
 			await Deno.readTextFile(new URL("foo/bar.txt", root)),
 			"Hello, World!\n",
+		);
+	} finally {
+		await Deno.remove(root, { recursive: true });
+	}
+});
+
+Deno.test("Should abort on attempt to write different content at same path", {
+	// Skip this test if write permission is not granted.
+	// Without this, simple `deno test` would fail or prompt permissions, which is annoying.
+	ignore: writePermission.state !== "granted" ||
+		readPermission.state !== "granted",
+}, async () => {
+	await Deno.mkdir(root, { recursive: true });
+
+	try {
+		const writer = new DenoFsWriter(root);
+
+		const enc = new TextEncoder();
+
+		await writer.write(["hash-test", "foo.txt"], enc.encode("Foo"));
+		await assertRejects(() =>
+			writer.write(["hash-test", "foo.txt"], enc.encode("Bar"))
 		);
 	} finally {
 		await Deno.remove(root, { recursive: true });

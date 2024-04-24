@@ -10,6 +10,7 @@ import type { FileSystemWriter } from "./interface.ts";
 
 export class DenoFsWriter implements FileSystemWriter {
 	#root: string;
+	#wroteHash: Map<string, Uint8Array> = new Map();
 
 	constructor(rootDirectory: string | URL) {
 		this.#root = typeof rootDirectory === "string"
@@ -49,6 +50,18 @@ export class DenoFsWriter implements FileSystemWriter {
 		content: Uint8Array,
 	) {
 		const resolvedPath = this.#resolve(path);
+		const hash = new Uint8Array(await crypto.subtle.digest("SHA-1", content));
+		const wrote = this.#wroteHash.get(resolvedPath);
+		if (wrote) {
+			if (!wrote.every((b, i) => hash[i] === b)) {
+				throw new Error(
+					`Attempt to write different content at ${resolvedPath}`,
+				);
+			}
+			return;
+		}
+
+		this.#wroteHash.set(resolvedPath, hash);
 
 		logger().debug(`Writing file at ${path.join(SEPARATOR)}`, {
 			path,
