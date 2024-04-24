@@ -45,7 +45,7 @@ function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 export function render(hast: Hast.Nodes) {
 	return toJsxRuntime(hast, {
 		components: {
-			MacanaOfmCalloutIcon({ type }: { type: CalloutType }) {
+			"macana-ofm-callout-icon"({ type }: { type: CalloutType }) {
 				switch (type) {
 					case "abstract":
 						return (

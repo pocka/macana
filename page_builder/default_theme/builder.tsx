@@ -77,7 +77,7 @@ function mdastToHast(input: Mdast.Nodes) {
 					generateIcon(type) {
 						return {
 							type: "element",
-							tagName: "MacanaOfmCalloutIcon",
+							tagName: "macana-ofm-callout-icon",
 							properties: {
 								type,
 							},
