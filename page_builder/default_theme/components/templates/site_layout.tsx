@@ -89,12 +89,16 @@ export const styles = css`
 		position: sticky;
 		top: calc(var(--baseline) * 1rem);
 
-		opacity: 0.8;
-		transition: opacity 0.2s ease;
+		opacity: 0.7;
+		transition: opacity 8s ease;
 	}
 
-	.${C.NavInner}:hover, .${C.AsideInner}:hover {
+	.${C.NavInner}:hover,
+	.${C.NavInner}:focus-within,
+	.${C.AsideInner}:hover,
+	.${C.AsideInner}:focus-within {
 		opacity: 1;
+		transition-duration: 0.2s;
 	}
 
 	.${C.Main} {
