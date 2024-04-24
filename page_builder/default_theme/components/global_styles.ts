@@ -25,7 +25,7 @@ export const globalStyles = css`
 
 		--obsidian-color-red: #e03131;
 		--obsidian-color-blue: #4c6ef5;
-		--obsidian-color-orange: #e03131;
+		--obsidian-color-orange: #f76707;
 		--obsidian-color-yellow: #fcc419;
 		--obsidian-color-green: #2f9e44;
 		--obsidian-color-cyan: #22b8cf;
