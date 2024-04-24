@@ -50,6 +50,10 @@ export const styles = css`
 
 		cursor: pointer;
 	}
+	.${C.DirectoryHeader}::marker,
+	.${C.DirectoryHeader}::-webkit-details-marker {
+		display: none;
+	}
 
 	.${C.Link} {
 		color: var(--color-fg-sub);
