@@ -6,11 +6,6 @@
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import type * as Hast from "../../deps/esm.sh/hast/types.ts";
-import {
-	type State,
-	toHast,
-} from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 
 import { logger } from "../../logger.ts";
 
@@ -19,13 +14,7 @@ import {
 	macanaReplaceAssetTokens,
 	macanaReplaceDocumentToken,
 	type ObsidianMarkdownDocument,
-	ofmHtml,
-	ofmToHastHandlers,
 } from "../../content_parser/obsidian_markdown.ts";
-import {
-	type OfmCallout,
-	parseOfmCalloutNode,
-} from "../../content_parser/obsidian_markdown/mdast_util_ofm_callout.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
 import * as jsonCanvas from "../../content_parser/json_canvas/utils.ts";
 import type {
@@ -41,7 +30,6 @@ import * as css from "./css.ts";
 import * as Html from "./components/html.tsx";
 import * as HastRenderer from "./components/atoms/hast_renderer.tsx";
 
-import { syntaxHighlightingHandlers } from "./mdast/syntax_highlighting_handlers.ts";
 import { mapTocItem, tocMut } from "./hast/hast_util_toc_mut.ts";
 import { PathResolverProvider } from "./contexts/path_resolver.tsx";
 
@@ -73,58 +61,6 @@ function toRelativePath(
 ): string {
 	return Array.from({ length: from.length }, () => "../").join("") +
 		path.join("/");
-}
-
-function mdastToHast(input: Mdast.Nodes) {
-	return ofmHtml(toHast(input, {
-		handlers: {
-			...ofmToHastHandlers({
-				callout: {
-					generateIcon(type) {
-						return {
-							type: "element",
-							tagName: "macana-ofm-callout-icon",
-							properties: {
-								type,
-							},
-							children: [],
-						};
-					},
-				},
-			}),
-			// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
-			//                   which Deno does not support. APIs also don't accept type parameters.
-			ofmCallout(state: State, node: OfmCallout): Hast.Nodes {
-				const { title, body, type } = parseOfmCalloutNode(state, node);
-
-				return {
-					type: "element",
-					tagName: "macana-ofm-callout",
-					properties: {
-						type: type,
-						foldable: node.isFoldable,
-						defaultExpanded: node.defaultExpanded,
-					},
-					children: [
-						{
-							type: "element",
-							tagName: "macana-ofm-callout-title",
-							properties: {},
-							children: title,
-						},
-						{
-							type: "element",
-							tagName: "macana-ofm-callout-body",
-							properties: {},
-							children: body,
-						},
-					],
-				};
-			},
-			...syntaxHighlightingHandlers(),
-		},
-		allowDangerousHtml: true,
-	}));
 }
 
 export interface Assets {
@@ -328,7 +264,11 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 										return {
 											...node,
-											text: <HastRenderer.View node={mdastToHast(node.text)} />,
+											text: (
+												<HastRenderer.View
+													node={HastRenderer.mdastToHast(node.text)}
+												/>
+											),
 										};
 									}
 									case "file": {
@@ -442,7 +382,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 						);
 
 						const document = item as Document<ObsidianMarkdownDocument>;
-						const hast = mdastToHast(item.content.content);
+						const hast = HastRenderer.mdastToHast(item.content.content);
 						const renderedNode = <HastRenderer.View node={hast} />;
 
 						const html = DOCTYPE + renderSSR(
