@@ -55,10 +55,10 @@ export const styles = css`
 		padding: 4px 8px;
 		overflow: auto;
 	}
-	.${C.Embed} > p {
+	.${C.Embed} > div > p {
 		margin-block-start: calc(var(--baseline) * 0.5rem);
 	}
-	.${C.Embed} > :first-child {
+	.${C.Embed} > div > :first-child {
 		margin-block-start: 0;
 	}
 `;
