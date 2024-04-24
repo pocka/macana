@@ -56,6 +56,7 @@ export async function build() {
 		new ObsidianMarkdownParser({ frontmatter: true }),
 	);
 	const pageBuilder = new DefaultThemeBuilder({
+		siteName: "Macana",
 		copyright: "© 2024 Shota FUJI. This document is licensed under CC BY 4.0",
 		faviconSvg: ["Assets", "logo.svg"],
 		faviconPng: ["Assets", "logo-64x64.png"],

@@ -88,6 +88,8 @@ function MetadataDates({ metadata }: MetadataDatesProps) {
 }
 
 interface ViewProps {
+	title: string;
+
 	document: Document;
 
 	language: string;
@@ -98,7 +100,7 @@ interface ViewProps {
 }
 
 function View(
-	{ assets, language, document, children }: ViewProps,
+	{ assets, language, document, children, title }: ViewProps,
 ) {
 	const path = usePathResolver();
 
@@ -107,7 +109,7 @@ function View(
 			<head>
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<title>{document.metadata.title}</title>
+				<title>{document.metadata.title} - {title}</title>
 				<link
 					rel="stylesheet"
 					href={path.resolve(assets.globalCss)}

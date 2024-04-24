@@ -150,6 +150,13 @@ interface InnerBuildParameters {
 
 export interface DefaultThemeBuilderConstructorParameters {
 	/**
+	 * Website's name, title.
+	 *
+	 * The default theme display this text inside <title> tag.
+	 */
+	siteName: string;
+
+	/**
 	 * Copyright text to display at website footer.
 	 * The page buidler does not add/subtract to the text: do not forget to
 	 * include "Copyright" or "©".
@@ -177,15 +184,17 @@ export class DefaultThemeBuilder implements PageBuilder {
 	#faviconSvg?: readonly string[];
 	#faviconPng?: readonly string[];
 	#siteLogo?: readonly string[];
+	#siteName: string;
 
 	constructor(
-		{ copyright, faviconSvg, faviconPng, siteLogo }:
+		{ copyright, faviconSvg, faviconPng, siteLogo, siteName }:
 			DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
 		this.#faviconPng = faviconPng;
 		this.#faviconSvg = faviconSvg;
 		this.#siteLogo = siteLogo;
+		this.#siteName = siteName;
 	}
 
 	async build(
@@ -364,6 +373,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 								// Adds 1 to depth due to	`<name>/index.html` conversion.
 								<PathResolverProvider depth={pathPrefix.length + 1}>
 									<Html.JSONCanvasView
+										title={this.#siteName}
 										tree={tree}
 										copyright={this.#copyright}
 										content={content}
@@ -440,6 +450,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 								// Adds 1 to depth due to	`<name>/index.html` conversion.
 								<PathResolverProvider depth={pathPrefix.length + 1}>
 									<Html.ObsidianMarkdownView
+										title={this.#siteName}
 										document={item}
 										language={item.metadata.language || parentLanguage}
 										assets={assets}
