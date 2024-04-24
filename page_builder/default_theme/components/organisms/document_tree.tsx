@@ -14,25 +14,62 @@ import type {
 
 import { css } from "../../css.ts";
 import { usePathResolver } from "../../contexts/path_resolver.tsx";
+import { ChevronDown } from "../lucide_icons.tsx";
 
 const enum C {
 	Root = "o-dt--root",
 	List = "o-dt--list",
 	DirectoryHeader = "o-dt--dirh",
+	Directory = "o-dt--dir",
+	Chevron = "o-dt--ch",
+	Link = "o-dt--ln",
 }
 
 export const styles = css`
 	.${C.Root} {
 		padding: calc(var(--baseline) * 0.25rem) 0.75em;
-		font-size: 0.9em;
+		font-size: 0.85rem;
 	}
 
 	.${C.Root}, .${C.List} {
+		margin: 0;
 		list-style: none;
 	}
 
+	.${C.List} {
+		padding: 0;
+		padding-inline-start: calc(1em + 4px);
+		border-inline-start: 2px solid var(--color-subtle-overlay);
+	}
+
 	.${C.DirectoryHeader} {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 4px;
+
 		cursor: pointer;
+	}
+
+	.${C.Link} {
+		color: var(--color-fg-sub);
+		text-decoration: none;
+	}
+	.${C.Link}:hover {
+		text-decoration: underline;
+	}
+
+	.${C.Directory} {
+		display: flex;
+	}
+
+	.${C.Chevron} {
+		color: var(--color-fg-light);
+
+		transition: transform 0.1s ease;
+	}
+	.${C.Directory}:not([open]) > .${C.DirectoryHeader} > .${C.Chevron} {
+		transform: rotate(-90deg);
 	}
 `;
 
@@ -73,7 +110,7 @@ function Node({ value, currentPath }: NodeProps) {
 
 		return (
 			<li lang={value.metadata.language ?? undefined}>
-				<a href={path}>{value.metadata.title}</a>
+				<a className={C.Link} href={path}>{value.metadata.title}</a>
 			</li>
 		);
 	}
@@ -82,8 +119,11 @@ function Node({ value, currentPath }: NodeProps) {
 
 	return (
 		<li lang={value.metadata.language ?? undefined}>
-			<details open={defaultOpened ? "" : undefined}>
-				<summary className={C.DirectoryHeader}>{value.metadata.title}</summary>
+			<details className={C.Directory} open={defaultOpened ? "" : undefined}>
+				<summary className={C.DirectoryHeader}>
+					<ChevronDown className={C.Chevron} />
+					<span>{value.metadata.title}</span>
+				</summary>
 
 				<ul className={C.List}>
 					{value.entries.map((entry) => (

@@ -30,6 +30,7 @@ export const styles = css`
 `;
 
 export interface LucideIconProps {
+	id?: string;
 	className?: string;
 	role?: string;
 }
