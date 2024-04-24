@@ -24,6 +24,7 @@ import type { Assets } from "../builder.tsx";
 
 import * as LucideIcons from "./lucide_icons.tsx";
 
+import * as Title from "./atoms/title.tsx";
 import * as HastRenderer from "./atoms/hast_renderer.tsx";
 import * as JSONCanvasRenderer from "./atoms/json_canvas_renderer.tsx";
 import * as DocumentTreeUI from "./organisms/document_tree.tsx";
@@ -33,6 +34,7 @@ import * as SiteLayout from "./templates/site_layout.tsx";
 
 export const styles = css.join(
 	globalStyles,
+	Title.styles,
 	LucideIcons.styles,
 	DocumentTreeUI.styles,
 	Footer.styles,
@@ -174,7 +176,7 @@ export function ObsidianMarkdownView(
 				logoImage={assets.siteLogo}
 				defaultDocument={tree.defaultDocument}
 			>
-				<h1>{document.metadata.title}</h1>
+				<Title.View>{document.metadata.title}</Title.View>
 				<MetadataDates metadata={document.metadata} />
 				{content}
 			</SiteLayout.View>
@@ -209,7 +211,7 @@ export function JSONCanvasView(
 				logoImage={assets.siteLogo}
 				defaultDocument={tree.defaultDocument}
 			>
-				<h1>{document.metadata.title}</h1>
+				<Title.View>{document.metadata.title}</Title.View>
 				<MetadataDates metadata={document.metadata} />
 				<JSONCanvasRenderer.View data={content} />
 			</SiteLayout.View>
