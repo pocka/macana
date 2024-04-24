@@ -33,12 +33,12 @@ export const globalStyles = css`
 		--obsidian-color-fallback: #adb5bd;
 
 		--canvas-color-red: var(--obsidian-color-red);
-		--canvas-color-orange: var(--obisidian-color-orange);
-		--canvas-color-yellow: var(--obisidian-color-yellow);
-		--canvas-color-green: var(--obisidian-color-green);
-		--canvas-color-cyan: var(--obisidian-color-cyan);
-		--canvas-color-purple: var(--obisidian-color-purple);
-		--canvas-color-fallback: var(--obisidian-color-fallback);
+		--canvas-color-orange: var(--obsidian-color-orange);
+		--canvas-color-yellow: var(--obsidian-color-yellow);
+		--canvas-color-green: var(--obsidian-color-green);
+		--canvas-color-cyan: var(--obsidian-color-cyan);
+		--canvas-color-purple: var(--obsidian-color-purple);
+		--canvas-color-fallback: var(--obsidian-color-fallback);
 
 		--callout-color-info: var(--obsidian-color-blue);
 		--callout-color-todo: var(--obsidian-color-blue);
