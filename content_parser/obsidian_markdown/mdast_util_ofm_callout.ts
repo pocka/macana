@@ -307,7 +307,7 @@ export function ofmCalloutToHastHandlers(
 							type: "element",
 							tagName: "details",
 							properties: {
-								open: node.defaultExpanded ? "" : undefined,
+								open: node.defaultExpanded ? true : undefined,
 							},
 							children: [
 								{
