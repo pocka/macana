@@ -31,23 +31,23 @@ const enum C {
 }
 
 const ownStyles = css`
-	.${C.Wrapper} a {
+	:where(.${C.Wrapper}) a {
 		color: var(--color-fg-sub);
 		font-weight: 500;
 		text-decoration: underline;
 		transition: color 0.15s ease;
 	}
 
-	.${C.Wrapper} a:hover {
+	:where(.${C.Wrapper}) a:hover {
 		color: var(--color-primary);
 	}
 
-	.${C.Wrapper} p {
+	:where(.${C.Wrapper}) p {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
-	.${C.Wrapper} pre {
+	:where(.${C.Wrapper}) pre {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem) !important;
 		padding: calc(var(--baseline) * 1rem) 1em !important;
@@ -61,11 +61,11 @@ const ownStyles = css`
 		overflow-x: auto;
 	}
 
-	.${C.Wrapper} pre > code {
+	:where(.${C.Wrapper}) pre > code {
 		all: unset;
 	}
 
-	.${C.Wrapper} code {
+	:where(.${C.Wrapper}) code {
 		margin: 0 0.2em;
 		padding: calc(1rem / 4);
 
@@ -75,103 +75,103 @@ const ownStyles = css`
 		font-family: "Ubuntu Mono", monospace;
 	}
 
-	.${C.Wrapper} pre > code .token.comment {
+	:where(.${C.Wrapper}) pre > code .token.comment {
 		font-style: italic;
 	}
 
-	.${C.Wrapper} a,
-	.${C.Wrapper} time,
-	.${C.Wrapper} span,
-	.${C.Wrapper} code,
-	.${C.Wrapper} sup,
-	.${C.Wrapper} small,
-	.${C.Wrapper} s,
-	.${C.Wrapper} b,
-	.${C.Wrapper} i {
+	:where(.${C.Wrapper}) a,
+	:where(.${C.Wrapper}) time,
+	:where(.${C.Wrapper}) span,
+	:where(.${C.Wrapper}) code,
+	:where(.${C.Wrapper}) sup,
+	:where(.${C.Wrapper}) small,
+	:where(.${C.Wrapper}) s,
+	:where(.${C.Wrapper}) b,
+	:where(.${C.Wrapper}) i {
 		line-height: 1;
 	}
 
-	.${C.Wrapper} button {
+	:where(.${C.Wrapper}) button {
 		font-family: inherit;
 	}
 
-	.${C.Wrapper} s,
-	.${C.Wrapper} del {
+	:where(.${C.Wrapper}) s,
+	:where(.${C.Wrapper}) del {
 		color: var(--color-fg-sub);
 		text-decoration: line-through;
 	}
 
-	.${C.Wrapper} b {
+	:where(.${C.Wrapper}) b {
 		font-weight: bold;
 	}
 
-	.${C.Wrapper} i {
+	:where(.${C.Wrapper}) i {
 		font-style: italic;
 	}
 
-	.${C.Wrapper} ul {
+	:where(.${C.Wrapper}) ul {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 		padding-left: 1.5em;
 	}
 
-	.${C.Wrapper} ul ul {
+	:where(.${C.Wrapper}) ul ul {
 		margin-top: 0;
 	}
 
-	.${C.Wrapper} h1,
-	.${C.Wrapper} h2,
-	.${C.Wrapper} h3 {
+	:where(.${C.Wrapper}) h1,
+	:where(.${C.Wrapper}) h2,
+	:where(.${C.Wrapper}) h3 {
 		font-weight: 700;
 		color: var(--color-fg-sub);
 	}
 
-	.${C.Wrapper} h1 {
+	:where(.${C.Wrapper}) h1 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 2rem);
 		line-height: calc(var(--baseline) * 2rem);
 	}
 
-	.${C.Wrapper} h2 {
+	:where(.${C.Wrapper}) h2 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 2rem);
 	}
 
-	.${C.Wrapper} h3,
-	.${C.Wrapper} h4,
-	.${C.Wrapper} h5,
-	.${C.Wrapper} h6 {
+	:where(.${C.Wrapper}) h3,
+	:where(.${C.Wrapper}) h4,
+	:where(.${C.Wrapper}) h5,
+	:where(.${C.Wrapper}) h6 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 
 		font-weight: 600;
 	}
 
-	.${C.Wrapper} table {
+	:where(.${C.Wrapper}) table {
 		border-spacing: 0;
 		margin: 0;
 		margin-top: calc(var(--baseline) * 0.5rem);
 		width: 100%;
 	}
 
-	.${C.Wrapper} thead {
+	:where(.${C.Wrapper}) thead {
 		background-color: var(--color-bg-accent);
 	}
 
-	.${C.Wrapper} th {
+	:where(.${C.Wrapper}) th {
 		font-weight: 500;
 		padding: calc(var(--baseline) * 0.25rem) 1em;
 	}
 
-	.${C.Wrapper} td {
+	:where(.${C.Wrapper}) td {
 		padding: calc(var(--baseline) * 0.5rem) 1em;
 	}
 
-	.${C.Wrapper} tbody td {
+	:where(.${C.Wrapper}) tbody td {
 		position: relative;
 	}
 
-	.${C.Wrapper} tbody td::after {
+	:where(.${C.Wrapper}) tbody td::after {
 		content: "";
 		position: absolute;
 		left: 0;
@@ -180,15 +180,15 @@ const ownStyles = css`
 		border-bottom: 1px solid var(--color-fg-light);
 	}
 
-	.${C.Wrapper} hr {
+	:where(.${C.Wrapper}) hr {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
-	.${C.Wrapper} img {
+	:where(.${C.Wrapper}) img {
 		max-width: 100%;
 	}
-	.${C.Wrapper} img:not(:first-child) {
+	:where(.${C.Wrapper}) img:not(:first-child) {
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 `;
