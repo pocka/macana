@@ -403,6 +403,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 												(item) => (
 													<HastRenderer.View
 														node={{ type: "root", children: item }}
+														wrapAndStyle={false}
 													/>
 												),
 											);

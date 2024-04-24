@@ -12,11 +12,35 @@ import { css } from "../../css.ts";
 
 const enum C {
 	Root = "o-toc--root",
+	List = "o-toc--l",
+	Item = "o-toc--i",
+	Link = "o-toc--k",
 }
 
 export const styles = css`
 	.${C.Root} {
-		font-size: 0.8em;
+		font-size: 0.8rem;
+	}
+
+	.${C.List} {
+		display: flex;
+		flex-direction: column;
+		padding-left: 0.75em;
+		border-left: 2px solid var(--color-subtle-overlay);
+	}
+
+	.${C.Item} {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.${C.Link} {
+		text-decoration: none;
+
+		color: var(--color-fg-sub);
+	}
+	.${C.Link}:hover {
+		text-decoration: underline;
 	}
 `;
 
@@ -35,10 +59,10 @@ export function View({ toc }: ViewProps) {
 
 export function Items({ toc }: ViewProps) {
 	return (
-		<ul>
+		<ul className={C.List}>
 			{toc.map((item) => (
-				<li>
-					<a href={`#${item.id}`}>{item.text}</a>
+				<li className={C.Item}>
+					<a className={C.Link} href={`#${item.id}`}>{item.text}</a>
 					{item.children.length > 0 && <Items toc={item.children} />}
 				</li>
 			))}

@@ -217,13 +217,15 @@ function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 	return ret;
 }
 
-export function render(hast: Hast.Nodes) {
+export function render(hast: Hast.Nodes, wrapAndStyle: boolean = true) {
 	return toJsxRuntime(hast, {
-		components: {
-			"macana-ofm-callout": callout.MacanaOfmCallout,
-			"macana-ofm-callout-title": callout.MacanaOfmCalloutTitle,
-			"macana-ofm-callout-body": callout.MacanaOfmCalloutBody,
-		},
+		components: wrapAndStyle
+			? {
+				"macana-ofm-callout": callout.MacanaOfmCallout,
+				"macana-ofm-callout-title": callout.MacanaOfmCalloutTitle,
+				"macana-ofm-callout-body": callout.MacanaOfmCalloutBody,
+			}
+			: {},
 		Fragment: jsxRuntime.Fragment,
 		jsx(type, props, key) {
 			return jsxRuntime.jsx(type, nanoifyProps(props), key || "");
@@ -288,9 +290,15 @@ export function mdastToHast(input: Mdast.Nodes): Hast.Nodes {
 
 export interface ViewProps {
 	node: Hast.Nodes;
+
+	wrapAndStyle?: boolean;
 }
 
-export function View({ node }: ViewProps) {
+export function View({ node, wrapAndStyle = true }: ViewProps) {
+	if (!wrapAndStyle) {
+		return render(node);
+	}
+
 	return (
 		<div className={C.Wrapper}>
 			{render(node)}
