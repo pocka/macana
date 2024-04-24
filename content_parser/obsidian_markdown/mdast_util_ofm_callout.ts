@@ -258,6 +258,43 @@ function defaultTitleId(count: number): string {
 	return `_ofm_callout__${count}`;
 }
 
+export function parseOfmCalloutNode(
+	state: State,
+	node: OfmCallout,
+): {
+	title: Hast.ElementContent[];
+	body: Hast.ElementContent[];
+	type: CalloutType;
+} {
+	const titleTextTitleCased = node.calloutType.slice(0, 1).toUpperCase() +
+		node.calloutType.slice(1).toLowerCase();
+	const type = normalizeType(node.calloutType);
+
+	let mdastTitle: OfmCalloutTitle | null = null;
+	const mdastBody: (Mdast.BlockContent | Mdast.DefinitionContent)[] = [];
+	for (const child of node.children) {
+		if (child.type === "ofmCalloutTitle") {
+			mdastTitle = child;
+		} else {
+			mdastBody.push(child);
+		}
+	}
+
+	const title: Hast.ElementContent[] = mdastTitle
+		? state.all({
+			type: "paragraph",
+			children: mdastTitle.children,
+		})
+		: [{
+			type: "text",
+			value: titleTextTitleCased,
+		}];
+
+	// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
+	//                   which Deno does not support. APIs also don't accept type parameters.
+	return { title, body: state.all({ ...node, children: mdastBody }), type };
+}
+
 export function ofmCalloutToHastHandlers(
 	{ generateTitleId = defaultTitleId, generateIcon }:
 		OfmCalloutToHastHandlersOptions = {},

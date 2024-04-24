@@ -5,20 +5,15 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
 
-import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
 import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
 import * as jsxRuntime from "../../../../deps/deno.land/x/nano_jsx/jsx-runtime/index.ts";
 import { toJsxRuntime } from "../../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 import * as HastToJSXRuntime from "../../../../deps/esm.sh/hast-util-to-jsx-runtime/mod.ts";
 
-import { css } from "../../css.ts";
-import {
-	type CalloutType,
-} from "../../../../content_parser/obsidian_markdown.ts";
+import { join as joinCss } from "../../css.ts";
+import * as callout from "../from-hast/callout.tsx";
 
-import * as LucideIcons from "../lucide_icons.tsx";
-
-export const styles = css``;
+export const styles = joinCss(callout.styles);
 
 function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 	const ret: HastToJSXRuntime.Props = {};
@@ -45,48 +40,9 @@ function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 export function render(hast: Hast.Nodes) {
 	return toJsxRuntime(hast, {
 		components: {
-			"macana-ofm-callout-icon"({ type }: { type: CalloutType }) {
-				switch (type) {
-					case "abstract":
-						return (
-							<LucideIcons.ClipboardList
-								role="img"
-								aria-label="Clipboard icon"
-							/>
-						);
-					case "info":
-						return <LucideIcons.Info role="img" aria-label="Info icon" />;
-					case "todo":
-						return (
-							<LucideIcons.CircleCheck role="img" aria-label="Check icon" />
-						);
-					case "tip":
-						return <LucideIcons.Flame role="img" aria-label="Flame icon" />;
-					case "success":
-						return <LucideIcons.Check role="img" aria-label="Check icon" />;
-					case "question":
-						return (
-							<LucideIcons.CircleHelp role="img" aria-label="Question icon" />
-						);
-					case "warning":
-						return (
-							<LucideIcons.TriangleAlert role="img" aria-label="Warning icon" />
-						);
-					case "failure":
-						return <LucideIcons.X role="img" aria-label="Cross icon" />;
-					case "danger":
-						return <LucideIcons.Zap role="img" aria-label="Lightning icon" />;
-					case "bug":
-						return <LucideIcons.Bug role="img" aria-label="Bug icon" />;
-					case "example":
-						return <LucideIcons.List role="img" aria-label="List icon" />;
-					case "quote":
-						return <LucideIcons.Quote role="img" aria-label="Quote icon" />;
-					case "note":
-					default:
-						return <LucideIcons.Pencil role="img" aria-label="Pencil icon" />;
-				}
-			},
+			"macana-ofm-callout": callout.MacanaOfmCallout,
+			"macana-ofm-callout-title": callout.MacanaOfmCalloutTitle,
+			"macana-ofm-callout-body": callout.MacanaOfmCalloutBody,
 		},
 		Fragment: jsxRuntime.Fragment,
 		jsx(type, props, key) {

@@ -6,7 +6,11 @@
 
 import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import { toHast } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Hast from "../../deps/esm.sh/hast/types.ts";
+import {
+	type State,
+	toHast,
+} from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 
 import { logger } from "../../logger.ts";
 
@@ -18,6 +22,10 @@ import {
 	ofmHtml,
 	ofmToHastHandlers,
 } from "../../content_parser/obsidian_markdown.ts";
+import {
+	type OfmCallout,
+	parseOfmCalloutNode,
+} from "../../content_parser/obsidian_markdown/mdast_util_ofm_callout.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
 import * as jsonCanvas from "../../content_parser/json_canvas/utils.ts";
 import type {
@@ -69,8 +77,6 @@ function toRelativePath(
 
 function mdastToHast(input: Mdast.Nodes) {
 	return ofmHtml(toHast(input, {
-		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
-		//                   which Deno does not support. APIs also don't accept type parameters.
 		handlers: {
 			...ofmToHastHandlers({
 				callout: {
@@ -86,6 +92,35 @@ function mdastToHast(input: Mdast.Nodes) {
 					},
 				},
 			}),
+			// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
+			//                   which Deno does not support. APIs also don't accept type parameters.
+			ofmCallout(state: State, node: OfmCallout): Hast.Nodes {
+				const { title, body, type } = parseOfmCalloutNode(state, node);
+
+				return {
+					type: "element",
+					tagName: "macana-ofm-callout",
+					properties: {
+						type: type,
+						foldable: node.isFoldable,
+						defaultExpanded: node.defaultExpanded,
+					},
+					children: [
+						{
+							type: "element",
+							tagName: "macana-ofm-callout-title",
+							properties: {},
+							children: title,
+						},
+						{
+							type: "element",
+							tagName: "macana-ofm-callout-body",
+							properties: {},
+							children: body,
+						},
+					],
+				};
+			},
 			...syntaxHighlightingHandlers(),
 		},
 		allowDangerousHtml: true,

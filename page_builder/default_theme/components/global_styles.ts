@@ -23,13 +23,34 @@ export const globalStyles = css`
 		--color-subtle-overlay: hsl(0deg 0% 0% / 0.035);
 		color: var(--color-fg);
 
-		--canvas-color-red: #e03131;
-		--canvas-color-orange: #f76707;
-		--canvas-color-yellow: #fcc419;
-		--canvas-color-green: #2f9e44;
-		--canvas-color-cyan: #22b8cf;
-		--canvas-color-purple: #ae3ec9;
-		--canvas-color-fallback: #adb5bd;
+		--obsidian-color-red: #e03131;
+		--obsidian-color-blue: #4c6ef5;
+		--obsidian-color-orange: #e03131;
+		--obsidian-color-yellow: #fcc419;
+		--obsidian-color-green: #2f9e44;
+		--obsidian-color-cyan: #22b8cf;
+		--obsidian-color-purple: #ae3ec9;
+		--obsidian-color-fallback: #adb5bd;
+
+		--canvas-color-red: var(--obsidian-color-red);
+		--canvas-color-orange: var(--obisidian-color-orange);
+		--canvas-color-yellow: var(--obisidian-color-yellow);
+		--canvas-color-green: var(--obisidian-color-green);
+		--canvas-color-cyan: var(--obisidian-color-cyan);
+		--canvas-color-purple: var(--obisidian-color-purple);
+		--canvas-color-fallback: var(--obisidian-color-fallback);
+
+		--callout-color-info: var(--obsidian-color-blue);
+		--callout-color-todo: var(--obsidian-color-blue);
+		--callout-color-tip: var(--obsidian-color-cyan);
+		--callout-color-success: var(--obsidian-color-green);
+		--callout-color-question: var(--obsidian-color-yellow);
+		--callout-color-warning: var(--obsidian-color-yellow);
+		--callout-color-failure: var(--obsidian-color-red);
+		--callout-color-danger: var(--obsidian-color-red);
+		--callout-color-bug: var(--obsidian-color-red);
+		--callout-color-example: var(--obsidian-color-purple);
+		--callout-color-quote: var(--obsidian-color-fallback);
 
 		--canvas-node-bg-opacity: 0.05;
 		--canvas-node-stroke-width: 2px;
@@ -256,22 +277,6 @@ export const globalStyles = css`
 	hr {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
-	}
-
-	aside[data-ofm-callout-type] {
-		margin: 0;
-		margin-top: calc(var(--baseline) * 1rem);
-		padding: calc(var(--baseline) * 0.5rem) 1em;
-		line-height: calc(var(--baseline) * 1rem);
-		max-width: 100%;
-		font-size: 1rem;
-		border: 1px solid var(--color-fg-light);
-
-		border-radius: 4px;
-	}
-	aside[data-ofm-callout-type] > p:first-child, aside[data-ofm-callout-type] > details > summary {
-		margin-top: 0;
-		font-weight: 700;
 	}
 
 	/* Syntax highlight */
