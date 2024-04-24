@@ -93,7 +93,7 @@ export const styles = css`
 		transition: opacity 0.2s ease;
 	}
 
-	.${C.NavInner}:hover {
+	.${C.NavInner}:hover, .${C.AsideInner}:hover {
 		opacity: 1;
 	}
 
