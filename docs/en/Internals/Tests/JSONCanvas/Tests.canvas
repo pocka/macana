@@ -1,9 +1,9 @@
 {
 	"nodes":[
-		{"id":"a2a6b20bb3129a7a","x":-125,"y":-30,"width":250,"height":450,"type":"text","text":"# Heading1\n## Heading2\n### Heading3\n\n> [!warning]-\n> Yay\n\n- List Item\n- List Item\n\t- Nested List Item\n\n```ts\nconst foo = \"bar\"\n```"},
-		{"id":"f64025c69470260f","x":318,"y":32,"width":400,"height":400,"type":"file","file":"en/Roadmap.md"},
-		{"id":"e42673f255295e01","x":-200,"y":-720,"width":400,"height":400,"type":"file","file":"Assets/dog.jpg"},
-		{"id":"21bafbf34e0554ed","x":500,"y":-720,"width":400,"height":400,"type":"link","url":"https://wikipedia.org"}
+		{"id":"a2a6b20bb3129a7a","type":"text","text":"# Heading1\n## Heading2\n### Heading3\n\n> [!warning]-\n> Yay\n\n- List Item\n- List Item\n\t- Nested List Item\n\n```ts\nconst foo = \"bar\"\n```","x":-125,"y":-30,"width":250,"height":450},
+		{"id":"f64025c69470260f","type":"file","file":"en/Roadmap.md","x":318,"y":32,"width":400,"height":400},
+		{"id":"e42673f255295e01","type":"file","file":"Assets/dog.jpg","x":-200,"y":-720,"width":400,"height":400},
+		{"id":"21bafbf34e0554ed","type":"link","url":"https://example.com","x":500,"y":-720,"width":400,"height":400}
 	],
 	"edges":[
 		{"id":"4a196cf19d0b3085","fromNode":"a2a6b20bb3129a7a","fromSide":"right","toNode":"f64025c69470260f","toSide":"left"},
