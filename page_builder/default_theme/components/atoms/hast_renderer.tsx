@@ -25,6 +25,7 @@ import { syntaxHighlightingHandlers } from "../../mdast/syntax_highlighting_hand
 
 import { css, join as joinCss } from "../../css.ts";
 import * as callout from "../from-hast/callout.tsx";
+import * as taskList from "../from-hast/task_list.tsx";
 
 const enum C {
 	Wrapper = "a--hr",
@@ -193,7 +194,7 @@ const ownStyles = css`
 	}
 `;
 
-export const styles = joinCss(ownStyles, callout.styles);
+export const styles = joinCss(ownStyles, callout.styles, taskList.styles);
 
 function nanoifyProps(props: HastToJSXRuntime.Props): HastToJSXRuntime.Props {
 	const ret: HastToJSXRuntime.Props = {};
@@ -224,6 +225,8 @@ export function render(hast: Hast.Nodes, wrapAndStyle: boolean = true) {
 				"macana-ofm-callout": callout.MacanaOfmCallout,
 				"macana-ofm-callout-title": callout.MacanaOfmCalloutTitle,
 				"macana-ofm-callout-body": callout.MacanaOfmCalloutBody,
+				"macana-gfm-task-list": taskList.MacanaGfmTaskList,
+				"macana-gfm-task-list-item": taskList.MacanaGfmTaskListItem,
 			}
 			: {},
 		Fragment: jsxRuntime.Fragment,
@@ -280,6 +283,33 @@ export function mdastToHast(input: Mdast.Nodes): Hast.Nodes {
 							children: body,
 						},
 					],
+				};
+			},
+			list(state: State, node: Mdast.List): Hast.ElementContent {
+				return {
+					type: "element",
+					tagName: "macana-gfm-task-list",
+					properties: {
+						ordered: node.ordered,
+					},
+					children: state.all(node),
+				};
+			},
+			listItem(state: State, node: Mdast.ListItem): Hast.ElementContent {
+				const children = state.all(node).map((child) =>
+					child.type === "element" && child.tagName === "p"
+						? child.children
+						: [child]
+				).flat();
+
+				return {
+					type: "element",
+					tagName: "macana-gfm-task-list-item",
+					properties: {
+						checked: !!node.checked,
+						is_task: typeof node.checked === "boolean",
+					},
+					children,
 				};
 			},
 			...syntaxHighlightingHandlers(),
