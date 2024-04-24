@@ -246,6 +246,8 @@ function FileNodeRenderer({ node }: FileNodeRendererProps) {
 						xmlns="http://www.w3.org/1999/xhtml"
 						style={`width: ${node.width}px;height: ${node.height}px;`}
 						src={node.file}
+						sandbox="allow-scripts"
+						loading="lazy"
 					/>
 				</foreignObject>
 			);
