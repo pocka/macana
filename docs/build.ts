@@ -17,7 +17,7 @@ import {
 import { ObsidianMarkdownParser } from "../content_parser/obsidian_markdown.ts";
 import { JSONCanvasParser } from "../content_parser/json_canvas.ts";
 import { oneof } from "../content_parser/oneof.ts";
-import { DefaultThemeBuilder } from "../page_builder/default_theme/builder.tsx";
+import { DefaultThemeBuilder } from "../page_builder/default_theme/mod.ts";
 
 export async function build() {
 	const outDir = new URL("./.dist", import.meta.url);

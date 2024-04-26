@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://deno.land/x/nano_jsx@v0.1.0/mod.ts";
+export * from "https://esm.sh/v135/hast-util-to-html@9.0.1";

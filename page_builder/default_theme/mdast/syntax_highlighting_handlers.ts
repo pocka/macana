@@ -8,6 +8,7 @@ import type * as Mdast from "../../../deps/esm.sh/mdast/types.ts";
 import type * as Hast from "../../../deps/esm.sh/hast/types.ts";
 import {
 	defaultHandlers,
+	type Handlers,
 	type State,
 } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 
@@ -53,9 +54,9 @@ export function syntaxHighlightingHandlers({
 	className = "macana--highlight",
 	nodeTypeAttribute = "data-hl-node",
 	langNameAttribute = "data-hl-lang",
-}: SyntaxHighlightingOptions = {}) {
+}: SyntaxHighlightingOptions = {}): Handlers {
 	return {
-		code(state: State, node: Mdast.Code): Hast.Nodes {
+		code(state: State, node: Mdast.Code) {
 			if (!node.lang || !refractor.registered(node.lang)) {
 				return defaultHandlers.code(state, node);
 			}
@@ -89,8 +90,7 @@ export function syntaxHighlightingHandlers({
 						type: "element",
 						tagName: "code",
 						properties: {},
-						// @ts-expect-error: refractor relys on @types/hast@2.x, which is not compatible the latest v3
-						children: code.children,
+						children: code.children as Hast.ElementContent[],
 					},
 				],
 			};

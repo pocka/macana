@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/** @jsx h */
-
-import { h, renderSSR } from "../../deps/deno.land/x/nano_jsx/mod.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
+import { toHtml } from "../../deps/esm.sh/hast-util-to-html/mod.ts";
 
 import { logger } from "../../logger.ts";
 
@@ -26,14 +24,29 @@ import type {
 } from "../../types.ts";
 
 import * as css from "./css.ts";
+import { globalStyles } from "./global_styles.ts";
+import type { Assets, BuildContext } from "./context.ts";
 
-import * as Html from "./components/html.tsx";
-import * as HastRenderer from "./components/atoms/hast_renderer.tsx";
+import { tocMut } from "./hast/hast_util_toc_mut.ts";
 
-import { mapTocItem, tocMut } from "./hast/hast_util_toc_mut.ts";
-import { PathResolverProvider } from "./contexts/path_resolver.tsx";
+import {
+	fromMdast,
+	fromMdastStyles,
+	style as styleMarkdownContent,
+} from "./from_mdast/mod.ts";
+import { indexRedirect } from "./pages/index_redirect.tsx";
+import {
+	markdownEmbed,
+	markdownPage,
+	markdownPageStyles,
+} from "./pages/markdown.tsx";
+import {
+	jsonCanvasEmbed,
+	jsonCanvasPage,
+	jsonCanvasPageStyles,
+} from "./pages/json_canvas.tsx";
 
-const DOCTYPE = "<!DOCTYPE html>";
+export type { BuildContext } from "./context.ts";
 
 function isAssetToken(token: unknown): token is AssetToken {
 	return typeof token === "string" && token.startsWith("mxa_");
@@ -58,16 +71,18 @@ function isJSONCanvas(
 function toRelativePath(
 	path: readonly string[],
 	from: readonly string[],
-): string {
-	return Array.from({ length: from.length }, () => "../").join("") +
-		path.join("/");
+): readonly string[] {
+	return [
+		...Array.from({ length: from.length }, () => ".."),
+		...path,
+	];
 }
 
-export interface Assets {
-	globalCss: readonly string[];
-	faviconSvg?: readonly string[];
-	faviconPng?: readonly string[];
-	siteLogo?: readonly string[];
+function toRelativePathString(
+	path: readonly string[],
+	from: readonly string[],
+): string {
+	return toRelativePath(path, from).join("/");
 }
 
 interface InnerBuildParameters {
@@ -139,7 +154,12 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const start = performance.now();
 
 		const styles = css.serialize(
-			Html.styles,
+			css.join(
+				globalStyles,
+				fromMdastStyles,
+				markdownPageStyles,
+				jsonCanvasPageStyles,
+			),
 		);
 
 		const assets: Assets = {
@@ -178,16 +198,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		}
 
 		const defaultPage = [...documentTree.defaultDocument.path, ""].join("/");
-		const redirectHtml = [
-			"<!DOCTYPE html>",
-			"<html><head>",
-			`<meta charset="utf-8">`,
-			`<meta http-equiv="refresh" content="0; URL='${defaultPage}'">`,
-			"</head><body>",
-			// For cases when a user or UA disallows automatic redirection.
-			`<a href="${defaultPage}">TOP</a>`,
-			"</body></html>",
-		].join("");
+		const redirectHtml = toHtml(indexRedirect({ redirectTo: defaultPage }));
 		await fileSystemWriter.write(
 			["index.html"],
 			new TextEncoder().encode(redirectHtml),
@@ -217,6 +228,19 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const { fileSystemWriter } = buildParameters;
 
 		if ("file" in item) {
+			const context: BuildContext = {
+				document: item,
+				documentTree: tree,
+				language: item.metadata.language || parentLanguage,
+				assets,
+				websiteTitle: this.#siteName,
+				copyright: this.#copyright,
+				resolvePath(to) {
+					// This page builder transforms path to "Foo/Bar.md" to "Foo/Bar/(index.html)"
+					return toRelativePath(to, [...item.path, ""]);
+				},
+			};
+
 			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
 				const enc = new TextEncoder();
 
@@ -244,7 +268,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 													await file.read(),
 												));
 
-												return toRelativePath(file.path, item.path);
+												return toRelativePathString(file.path, item.path);
 											},
 										);
 
@@ -254,7 +278,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 												const document = tree.exchangeToken(token);
 
 												return {
-													path: toRelativePath(
+													path: toRelativePathString(
 														[...document.path, ""],
 														item.path,
 													),
@@ -264,11 +288,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 										return {
 											...node,
-											text: (
-												<HastRenderer.View
-													node={HastRenderer.mdastToHast(node.text)}
-												/>
-											),
+											text: fromMdast(node.text),
 										};
 									}
 									case "file": {
@@ -281,7 +301,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 											return {
 												...node,
-												file: toRelativePath(file.path, item.path),
+												file: toRelativePathString(file.path, item.path),
 											};
 										}
 
@@ -290,7 +310,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 											return {
 												...node,
-												file: toRelativePath(
+												file: toRelativePathString(
 													[...doc.path, "embed.html"],
 													item.path,
 												),
@@ -306,24 +326,10 @@ export class DefaultThemeBuilder implements PageBuilder {
 							},
 						);
 
-						const document = item as Document<JSONCanvasDocument<Mdast.Nodes>>;
-
-						const html = DOCTYPE + renderSSR(
-							() => (
-								// Adds 1 to depth due to	`<name>/index.html` conversion.
-								<PathResolverProvider depth={pathPrefix.length + 1}>
-									<Html.JSONCanvasView
-										title={this.#siteName}
-										tree={tree}
-										copyright={this.#copyright}
-										content={content}
-										document={item}
-										language={item.metadata.language || parentLanguage}
-										assets={assets}
-									/>
-								</PathResolverProvider>
-							),
-						);
+						const html = toHtml(jsonCanvasPage({
+							content,
+							context,
+						}));
 
 						writeTasks.push(
 							fileSystemWriter.write([
@@ -332,18 +338,10 @@ export class DefaultThemeBuilder implements PageBuilder {
 							], enc.encode(html)),
 						);
 
-						const embed = DOCTYPE + renderSSR(
-							() => (
-								<PathResolverProvider depth={pathPrefix.length + 1}>
-									<Html.JSONCanvasEmbed
-										document={document}
-										language={item.metadata.language || parentLanguage}
-										content={content}
-										assets={assets}
-									/>
-								</PathResolverProvider>
-							),
-						);
+						const embed = toHtml(jsonCanvasEmbed({
+							context,
+							content,
+						}));
 
 						writeTasks.push(
 							fileSystemWriter.write([
@@ -366,7 +364,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 									await file.read(),
 								));
 
-								return toRelativePath(file.path, item.path);
+								return toRelativePathString(file.path, item.path);
 							},
 						);
 
@@ -376,42 +374,19 @@ export class DefaultThemeBuilder implements PageBuilder {
 								const document = tree.exchangeToken(token);
 
 								return {
-									path: toRelativePath([...document.path, ""], item.path),
+									path: toRelativePathString([...document.path, ""], item.path),
 								};
 							},
 						);
 
-						const document = item as Document<ObsidianMarkdownDocument>;
-						const hast = HastRenderer.mdastToHast(item.content.content);
-						const renderedNode = <HastRenderer.View node={hast} />;
+						const hast = fromMdast(item.content.content);
+						const toc = tocMut(hast);
 
-						const html = DOCTYPE + renderSSR(
-							() => (
-								// Adds 1 to depth due to	`<name>/index.html` conversion.
-								<PathResolverProvider depth={pathPrefix.length + 1}>
-									<Html.ObsidianMarkdownView
-										title={this.#siteName}
-										document={item}
-										language={item.metadata.language || parentLanguage}
-										assets={assets}
-										content={renderedNode}
-										tree={tree}
-										copyright={this.#copyright}
-										toc={tocMut(hast).map((node) => {
-											return mapTocItem(
-												node,
-												(item) => (
-													<HastRenderer.View
-														node={{ type: "root", children: item }}
-														wrapAndStyle={false}
-													/>
-												),
-											);
-										})}
-									/>
-								</PathResolverProvider>
-							),
-						);
+						const html = toHtml(markdownPage({
+							context,
+							content: styleMarkdownContent(hast),
+							tocItems: toc,
+						}));
 
 						writeTasks.push(
 							fileSystemWriter.write([
@@ -420,18 +395,10 @@ export class DefaultThemeBuilder implements PageBuilder {
 							], enc.encode(html)),
 						);
 
-						const embed = DOCTYPE + renderSSR(
-							() => (
-								<PathResolverProvider depth={pathPrefix.length + 1}>
-									<Html.ObsidianMarkdownEmbed
-										document={document}
-										language={item.metadata.language || parentLanguage}
-										content={hast}
-										assets={assets}
-									/>
-								</PathResolverProvider>
-							),
-						);
+						const embed = toHtml(markdownEmbed({
+							context,
+							content: styleMarkdownContent(hast),
+						}));
 
 						writeTasks.push(
 							fileSystemWriter.write([

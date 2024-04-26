@@ -4,30 +4,28 @@
 
 /** @jsx h */
 
-import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
+import { h, type Result } from "../../../deps/esm.sh/hastscript/mod.ts";
+import type * as Hast from "../../../deps/esm.sh/hast/types.ts";
 
-import { type Document } from "../../../../types.ts";
-
-import { usePathResolver } from "../../contexts/path_resolver.tsx";
-
-import { css } from "../../css.ts";
+import type { BuildContext } from "../context.ts";
+import { css } from "../css.ts";
 
 const enum C {
-	Layout = "t-sl--root",
-	HeaderBg = "t-sl--headbg",
-	Header = "t-sl--head",
-	Logo = "t-sl--lg",
-	LogoLink = "t-sl--ll",
-	Nav = "t-sl--nav",
-	NavInner = "t-sl--nav-i",
-	FooterBg = "t-sl--fbg",
-	Footer = "t-sl--foot",
-	Main = "t-sl--main",
-	Aside = "t-sl--aside",
-	AsideInner = "t-sl--aside-i",
+	Layout = "w-l--root",
+	HeaderBg = "w-l--headbg",
+	Header = "w-l--head",
+	Logo = "w-l--lg",
+	LogoLink = "w-l--ll",
+	Nav = "w-l--nav",
+	NavInner = "w-l--nav-i",
+	FooterBg = "w-l--fbg",
+	Footer = "w-l--foot",
+	Main = "w-l--main",
+	Aside = "w-l--aside",
+	AsideInner = "w-l--aside-i",
 }
 
-export const styles = css`
+export const layoutStyles = css`
 	.${C.Layout} {
 		--_ends-shadow-color: hsl(0deg 0% 0% / 0.03);
 
@@ -157,59 +155,61 @@ export const styles = css`
   }
 `;
 
-export interface ViewProps {
-	children: JSX.ElementChildrenAttribute["children"];
+export interface LayoutProps {
+	/**
+	 * Site navigation content.
+	 */
+	nav: Result;
 
-	nav: JSX.ElementChildrenAttribute["children"];
+	aside?: Result;
 
-	aside?: JSX.ElementChildrenAttribute["children"];
+	/**
+	 * Content shown inside `<main>`.
+	 */
+	main: Result;
 
-	footer: JSX.ElementChildrenAttribute["children"];
-
-	logoImage?: readonly string[];
-
-	logoSize?: number;
-
-	defaultDocument: Document;
+	footer: Result;
 }
 
-export function View(
-	{ children, nav, aside, footer, logoImage, logoSize = 32, defaultDocument }:
-		ViewProps,
-) {
-	const path = usePathResolver();
+export function layout({
+	nav,
+	aside,
+	main,
+	footer,
+}: LayoutProps, ctx: BuildContext) {
+	const { assets, resolvePath, documentTree: { defaultDocument } } = ctx;
 
 	return (
-		<div className={C.Layout}>
-			<div className={C.HeaderBg} />
-			{logoImage && (
-				<header className={C.Header}>
+		<div class={C.Layout}>
+			<div class={C.HeaderBg} />
+			{assets.siteLogo && (
+				<header class={C.Header}>
 					<a
-						className={C.LogoLink}
-						href={path.resolve([...defaultDocument.path, ""])}
+						class={C.LogoLink}
+						href={resolvePath([...defaultDocument.path, ""]).join("/")}
 						title={defaultDocument.metadata.title}
 						lang={defaultDocument.metadata.language}
 					>
 						<img
-							className={C.Logo}
-							src={path.resolve(logoImage)}
-							width={logoSize}
-							height={logoSize}
+							class={C.Logo}
+							src={resolvePath(assets.siteLogo).join("/")}
+							width={32}
+							height={32}
 						/>
 					</a>
 				</header>
 			)}
-			<nav className={C.Nav}>
-				<div className={C.NavInner}>{nav}</div>
+			<nav class={C.Nav}>
+				<div class={C.NavInner}>{nav}</div>
 			</nav>
-			<main className={C.Main}>{children}</main>
+			<main class={C.Main}>{main}</main>
 			{aside && (
-				<aside className={C.Aside}>
-					<div className={C.AsideInner}>{aside}</div>
+				<aside class={C.Aside}>
+					<div class={C.AsideInner}>{aside}</div>
 				</aside>
 			)}
-			<div className={C.FooterBg} />
-			<footer className={C.Footer}>{footer}</footer>
+			<div class={C.FooterBg} />
+			<footer class={C.Footer}>{footer}</footer>
 		</div>
 	);
 }

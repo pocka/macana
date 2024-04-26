@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { css } from "../css.ts";
+import { css } from "./css.ts";
 
 export const globalStyles = css`
 	/* Variables */

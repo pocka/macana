@@ -5,9 +5,9 @@
 // This file includes source code of [Lucide](https://lucide.dev/).
 // See NOTICE file at the project root for its own license.
 
-/** @jsx h */
+/** @jsx s */
 
-import { h } from "../../../deps/deno.land/x/nano_jsx/mod.ts";
+import { s } from "../../../deps/esm.sh/hastscript/mod.ts";
 
 import { css } from "../css.ts";
 
@@ -21,7 +21,7 @@ const enum C {
 	Icon = "li--i",
 }
 
-export const styles = css`
+export const lucideIconStyles = css`
 	.${C.Icon} {
 		height: 1em;
 		width: auto;
@@ -33,9 +33,12 @@ export interface LucideIconProps {
 	id?: string;
 	className?: string;
 	role?: string;
+
+	[key: `aria-${string}`]: unknown;
+	[key: `data-${string}`]: unknown;
 }
 
-export function ClipboardList({ className, ...rest }: LucideIconProps) {
+export function clipboardList({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +61,7 @@ export function ClipboardList({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Pencil({ className, ...rest }: LucideIconProps) {
+export function pencil({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -77,7 +80,7 @@ export function Pencil({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Info({ className, ...rest }: LucideIconProps) {
+export function info({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +100,7 @@ export function Info({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function CircleCheck({ className, ...rest }: LucideIconProps) {
+export function circleCheck({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +119,7 @@ export function CircleCheck({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Flame({ className, ...rest }: LucideIconProps) {
+export function flame({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +137,7 @@ export function Flame({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Check({ className, ...rest }: LucideIconProps) {
+export function check({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -152,7 +155,7 @@ export function Check({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function CircleHelp({ className, ...rest }: LucideIconProps) {
+export function circleHelp({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -172,7 +175,7 @@ export function CircleHelp({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function TriangleAlert({ className, ...rest }: LucideIconProps) {
+export function triangleAlert({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -192,7 +195,7 @@ export function TriangleAlert({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function X({ className, ...rest }: LucideIconProps) {
+export function x({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -211,7 +214,7 @@ export function X({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Zap({ className, ...rest }: LucideIconProps) {
+export function zap({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -229,7 +232,7 @@ export function Zap({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Bug({ className, ...rest }: LucideIconProps) {
+export function bug({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -257,7 +260,7 @@ export function Bug({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function List({ className, ...rest }: LucideIconProps) {
+export function list({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -280,7 +283,7 @@ export function List({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function Quote({ className, ...rest }: LucideIconProps) {
+export function quote({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -299,7 +302,7 @@ export function Quote({ className, ...rest }: LucideIconProps) {
 	);
 }
 
-export function ChevronDown({ className, ...rest }: LucideIconProps) {
+export function chevronDown({ className, ...rest }: LucideIconProps) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

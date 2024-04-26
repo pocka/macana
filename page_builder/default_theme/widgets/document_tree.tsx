@@ -4,28 +4,26 @@
 
 /** @jsx h */
 
-import { h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
+import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 
-import type {
-	Document,
-	DocumentDirectory,
-	DocumentTree,
-} from "../../../../types.ts";
+import type { Document, DocumentDirectory } from "../../../types.ts";
 
-import { css } from "../../css.ts";
-import { usePathResolver } from "../../contexts/path_resolver.tsx";
-import { ChevronDown } from "../lucide_icons.tsx";
+import { css, join } from "../css.ts";
+import type { BuildContext } from "../context.ts";
+import * as icons from "../icons/lucide.tsx";
 
 const enum C {
-	Root = "o-dt--root",
-	List = "o-dt--list",
-	DirectoryHeader = "o-dt--dirh",
-	Directory = "o-dt--dir",
-	Chevron = "o-dt--ch",
-	Link = "o-dt--ln",
+	Root = "w-dt--root",
+	List = "w-dt--list",
+	DirectoryHeader = "w-dt--dirh",
+	Directory = "w-dt--dir",
+	Chevron = "w-dt--ch",
+	Link = "w-dt--ln",
 }
 
-export const styles = css`
+export const documentTreeStyles = join(
+	icons.lucideIconStyles,
+	css`
 	.${C.Root} {
 		padding: calc(var(--baseline) * 0.25rem) 0.75em;
 		font-size: 0.85rem;
@@ -75,22 +73,22 @@ export const styles = css`
 	.${C.Directory}:not([open]) > .${C.DirectoryHeader} > .${C.Chevron} {
 		transform: rotate(-90deg);
 	}
-`;
+`,
+);
 
-export interface ViewProps {
-	tree: DocumentTree;
-
-	currentPath: readonly string[];
+export interface DocumentTreeProps {
+	context: Readonly<BuildContext>;
 }
 
-export function View({ tree, currentPath }: ViewProps) {
+export function documentTree({ context }: DocumentTreeProps) {
 	return (
-		<ul className={C.Root} lang={tree.defaultLanguage}>
-			{tree.nodes.map((entry) => (
-				<Node
-					value={entry}
-					currentPath={currentPath}
-				/>
+		<ul className={C.Root} lang={context.documentTree.defaultLanguage}>
+			{context.documentTree.nodes.map((entry) => (
+				node({
+					value: entry,
+					currentPath: context.document.path,
+					context,
+				})
 			))}
 		</ul>
 	);
@@ -100,13 +98,13 @@ interface NodeProps {
 	value: Document | DocumentDirectory;
 
 	currentPath: readonly string[];
+
+	context: Readonly<BuildContext>;
 }
 
-function Node({ value, currentPath }: NodeProps) {
-	const pathResolver = usePathResolver();
-
+function node({ currentPath, value, context }: NodeProps) {
 	if ("file" in value) {
-		const path = pathResolver.resolve([
+		const path = context.resolvePath([
 			...value.path.map((segment) => encodeURIComponent(segment)),
 			// For trailing slash
 			"",
@@ -114,7 +112,7 @@ function Node({ value, currentPath }: NodeProps) {
 
 		return (
 			<li lang={value.metadata.language ?? undefined}>
-				<a className={C.Link} href={path}>{value.metadata.title}</a>
+				<a className={C.Link} href={path.join("/")}>{value.metadata.title}</a>
 			</li>
 		);
 	}
@@ -125,13 +123,17 @@ function Node({ value, currentPath }: NodeProps) {
 		<li lang={value.metadata.language ?? undefined}>
 			<details className={C.Directory} open={defaultOpened ? "" : undefined}>
 				<summary className={C.DirectoryHeader}>
-					<ChevronDown className={C.Chevron} />
+					{icons.chevronDown({ className: C.Chevron })}
 					<span>{value.metadata.title}</span>
 				</summary>
 
 				<ul className={C.List}>
 					{value.entries.map((entry) => (
-						<Node value={entry} currentPath={currentPath.slice(1)} />
+						node({
+							value: entry,
+							currentPath: currentPath.slice(1),
+							context,
+						})
 					))}
 				</ul>
 			</details>

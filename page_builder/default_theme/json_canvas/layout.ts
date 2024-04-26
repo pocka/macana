@@ -6,7 +6,7 @@ import type {
 	JSONCanvas,
 	Node,
 	NodeSide,
-} from "../../../../../content_parser/json_canvas/types.ts";
+} from "../../../content_parser/json_canvas/types.ts";
 
 export interface Rect {
 	x: number;

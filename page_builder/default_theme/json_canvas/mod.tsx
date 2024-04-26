@@ -2,16 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/** @jsx h */
-/** @jsxFrag Fragment */
+/** @jsx s */
 
-import { extname } from "../../../../deps/deno.land/std/path/mod.ts";
-import { Fragment, h } from "../../../../deps/deno.land/x/nano_jsx/mod.ts";
+import { extname } from "../../../deps/deno.land/std/path/mod.ts";
+import type * as Hast from "../../../deps/esm.sh/hast/types.ts";
+import { h, s } from "../../../deps/esm.sh/hastscript/mod.ts";
 
-import { logger } from "../../../../logger.ts";
-
-import { css } from "../../css.ts";
-
+import { logger } from "../../../logger.ts";
 import type {
 	CanvasColor,
 	FileNode,
@@ -21,7 +18,9 @@ import type {
 	Node,
 	NodeSide,
 	TextNode,
-} from "../../../../content_parser/json_canvas/types.ts";
+} from "../../../content_parser/json_canvas/types.ts";
+
+import { css } from "../css.ts";
 
 import {
 	getBoundingBox,
@@ -32,14 +31,14 @@ import {
 	type Point2D,
 	type Vec2D,
 	vecMul,
-} from "./json_canvas_renderer/layout.ts";
+} from "./layout.ts";
 
 const enum C {
-	Wrapper = "jcr--wr",
-	Embed = "jcr--em",
+	Wrapper = "jc--wr",
+	Embed = "jc--em",
 }
 
-export const styles = css`
+export const jsonCanvasStyles = css`
 	.${C.Wrapper} {
 		overflow: auto;
 		max-width: 100%;
@@ -96,11 +95,11 @@ function constructStyle(c: StyleConstructor): string {
 	}).filter((s): s is string => !!s).join(";");
 }
 
-interface TextNodeRendererProps {
-	node: TextNode<unknown>;
+interface TextNodeProps {
+	node: TextNode<Hast.Nodes>;
 }
 
-function TextNodeRenderer({ node }: TextNodeRendererProps) {
+function textNode({ node }: TextNodeProps) {
 	const containerStyle: StyleConstructor = {
 		width: node.width,
 		height: node.height,
@@ -122,7 +121,7 @@ function TextNodeRenderer({ node }: TextNodeRendererProps) {
 			<div
 				xmlns="http://www.w3.org/1999/xhtml"
 				style={constructStyle(containerStyle)}
-				className={C.Embed}
+				class={C.Embed}
 			>
 				{node.text}
 			</div>
@@ -130,11 +129,11 @@ function TextNodeRenderer({ node }: TextNodeRendererProps) {
 	);
 }
 
-interface LinkNodeRendererProps {
+interface LinkNodeProps {
 	node: LinkNode;
 }
 
-function LinkNodeRenderer({ node }: LinkNodeRendererProps) {
+function linkNode({ node }: LinkNodeProps) {
 	const iframeStyles: StyleConstructor = {
 		width: node.width,
 		height: node.height,
@@ -162,11 +161,11 @@ function LinkNodeRenderer({ node }: LinkNodeRendererProps) {
 	);
 }
 
-interface FileNodeRendererProps {
+interface FileNodeProps {
 	node: FileNode;
 }
 
-function FileNodeRenderer({ node }: FileNodeRendererProps) {
+function fileNode({ node }: FileNodeProps) {
 	const ext = extname(node.file);
 
 	switch (ext) {
@@ -279,7 +278,7 @@ interface BoxTextProps {
  * Renders text with background and padding.
  * SVG does not have this functionality, so we need to roll our own...
  */
-function BoxText(
+function boxText(
 	{
 		label,
 		x = 0,
@@ -371,13 +370,13 @@ function BoxText(
 	);
 }
 
-interface GroupNodeRendererProps {
+interface GroupNodeProps {
 	node: GroupNode;
 }
 
-function GroupNodeRenderer({ node }: GroupNodeRendererProps) {
+function groupNode({ node }: GroupNodeProps) {
 	if (!node.label) {
-		return <></>;
+		return null;
 	}
 
 	const color = node.color
@@ -385,36 +384,34 @@ function GroupNodeRenderer({ node }: GroupNodeRendererProps) {
 		: "var(--canvas-color-fallback)";
 
 	// TODO: Make fg color configurable
-	return (
-		<BoxText
-			x={node.x}
-			y={node.y - 6}
-			background={color}
-			color="var(--color-bg)"
-			padding={4}
-			radius={3}
-			fontSize={20}
-			label={node.label}
-			hAlign="left"
-			vAlign="bottom"
-		/>
-	);
+	return boxText({
+		x: node.x,
+		y: node.y - 6,
+		background: color,
+		color: "var(--color-bg)",
+		padding: 4,
+		radius: 3,
+		fontSize: 20,
+		label: node.label,
+		hAlign: "left",
+		vAlign: "bottom",
+	});
 }
 
 interface NodeRendererProps {
-	node: Node<unknown>;
+	node: Node<Hast.Nodes>;
 }
 
-function NodeRenderer({ node }: NodeRendererProps) {
+function nodeRenderer({ node }: NodeRendererProps) {
 	switch (node.type) {
 		case "text":
-			return <TextNodeRenderer node={node} />;
+			return textNode({ node });
 		case "link":
-			return <LinkNodeRenderer node={node} />;
+			return linkNode({ node });
 		case "file":
-			return <FileNodeRenderer node={node} />;
+			return fileNode({ node });
 		case "group":
-			return <GroupNodeRenderer node={node} />;
+			return groupNode({ node });
 	}
 }
 
@@ -429,7 +426,7 @@ interface EdgeArrowProps {
 	stroke?: string;
 }
 
-function EdgeArrow({ target, pointTo, size = 15, ...rest }: EdgeArrowProps) {
+function edgeArrow({ target, pointTo, size = 15, ...rest }: EdgeArrowProps) {
 	const start = `M${target[0]},${target[1]}`;
 	const width = size * 1.2;
 
@@ -464,17 +461,16 @@ function EdgeArrow({ target, pointTo, size = 15, ...rest }: EdgeArrowProps) {
 	);
 }
 
-export interface JSONCanvasRendererProps {
-	// nano-jsx does not ship working typings, thus "unknown" (no JSX.Element).
-	data: JSONCanvas<unknown>;
+export interface JSONCanvasProps {
+	data: JSONCanvas<Hast.Nodes>;
 
 	radius?: number;
 
 	arrowSize?: number;
 }
 
-export function JSONCanvasRenderer(
-	{ data, radius = 6, arrowSize = 20 }: JSONCanvasRendererProps,
+export function jsonCanvas(
+	{ data, radius = 6, arrowSize = 20 }: JSONCanvasProps,
 ) {
 	const boundingBox = getBoundingBox(data);
 
@@ -537,7 +533,7 @@ export function JSONCanvasRenderer(
 							rx={radius}
 							ry={radius}
 						/>
-						<NodeRenderer node={node} />
+						{nodeRenderer({ node })}
 					</g>
 				);
 			})}
@@ -639,34 +635,40 @@ export function JSONCanvasRenderer(
 							stroke-width="var(--canvas-edge-stroke-width)"
 							fill="none"
 						/>
-						{edge.fromEnd === "arrow" && (
-							<EdgeArrow
-								target={fromPoint}
-								pointTo={fromSide}
-								fill={color}
-								size={arrowSize}
-							/>
-						)}
-						{edge.toEnd !== "none" && (
-							<EdgeArrow
-								target={toPoint}
-								pointTo={toSide}
-								fill={color}
-								size={arrowSize}
-							/>
-						)}
-						{edge.label && (
-							<BoxText
-								label={edge.label}
-								x={(p1[0] + p2[0]) * 0.5}
-								y={(p1[1] + p2[1]) * 0.5}
-								background="var(--color-bg)"
-								color="var(--color-fg)"
-								fontSize={18}
-								padding={4}
-								radius={2}
-							/>
-						)}
+						{edge.fromEnd === "arrow"
+							? (
+								edgeArrow({
+									target: fromPoint,
+									pointTo: fromSide,
+									fill: color,
+									size: arrowSize,
+								})
+							)
+							: null}
+						{edge.toEnd !== "none"
+							? (
+								edgeArrow({
+									target: toPoint,
+									pointTo: toSide,
+									fill: color,
+									size: arrowSize,
+								})
+							)
+							: null}
+						{edge.label
+							? (
+								boxText({
+									label: edge.label,
+									x: (p1[0] + p2[0]) * 0.5,
+									y: (p1[1] + p2[1]) * 0.5,
+									background: "var(--color-bg)",
+									color: "var(--color-fg)",
+									fontSize: 18,
+									padding: 4,
+									radius: 2,
+								})
+							)
+							: null}
 					</g>
 				);
 			})}
@@ -674,12 +676,6 @@ export function JSONCanvasRenderer(
 	);
 }
 
-export type ViewProps = JSONCanvasRendererProps;
-
-export function View({ data }: ViewProps) {
-	return (
-		<div className={C.Wrapper}>
-			<JSONCanvasRenderer data={data} />
-		</div>
-	);
+export function wrappedJsonCanvas(props: JSONCanvasProps) {
+	return h("div", { class: C.Wrapper }, jsonCanvas(props));
 }
