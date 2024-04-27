@@ -68,6 +68,7 @@ export function embedTemplate({ body, context, scripts = [] }: TemplateProps) {
 					rel="stylesheet"
 					href={resolvePath(assets.globalCss).join("/")}
 				/>
+				<style>{"body{background-color: transparent}"}</style>
 			</head>
 			{h(
 				"body",
