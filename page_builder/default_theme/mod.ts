@@ -68,6 +68,9 @@ function isJSONCanvas(
 	return x.content.kind === "json_canvas";
 }
 
+/**
+ * @param from - **Directory** to resolve from.
+ */
 function toRelativePath(
 	path: readonly string[],
 	from: readonly string[],
@@ -237,7 +240,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 				copyright: this.#copyright,
 				resolvePath(to) {
 					// This page builder transforms path to "Foo/Bar.md" to "Foo/Bar/(index.html)"
-					return toRelativePath(to, [...item.path, ""]);
+					return toRelativePath(to, item.path);
 				},
 			};
 
