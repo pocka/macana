@@ -11,6 +11,10 @@ import {
 	gfmHtml,
 	type HtmlOptions,
 } from "../../deps/esm.sh/micromark-extension-gfm/mod.ts";
+import {
+	math,
+	mathHtml,
+} from "../../deps/esm.sh/micromark-extension-math/mod.ts";
 
 import {
 	ofmComment,
@@ -36,6 +40,7 @@ export function ofm(): Extension {
 		ofmWikilink(),
 		ofmHighlight(),
 		gfm(),
+		math(),
 	]);
 }
 
@@ -54,5 +59,6 @@ export function ofmHtml(
 		ofmHighlightHtml(),
 		ofmWikilinkHtml(),
 		gfmHtml(rest),
+		mathHtml(),
 	]);
 }

@@ -4,6 +4,7 @@
 
 import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 import { gfmFromMarkdown } from "../../deps/esm.sh/mdast-util-gfm/mod.ts";
+import { mathFromMarkdown } from "../../deps/esm.sh/mdast-util-math/mod.ts";
 
 import {
 	ofmCommentFromMarkdown,
@@ -25,6 +26,7 @@ import { ofmImageSize } from "./mdast_util_ofm_image_size.ts";
 export function ofmFromMarkdown(): Extension[] {
 	return [
 		...gfmFromMarkdown(),
+		mathFromMarkdown(),
 		ofmCommentFromMarkdown(),
 		ofmHighlightFromMarkdown(),
 		ofmWikilinkFromMarkdown(),

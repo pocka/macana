@@ -18,6 +18,7 @@ import { css, join as joinCss } from "../css.ts";
 
 import { calloutHandlers, calloutStyles } from "./callout.tsx";
 import { listHandlers, listStyles } from "./list.tsx";
+import { mathHandlers } from "./math.ts";
 
 const enum C {
 	Wrapper = "fm--m",
@@ -184,9 +185,25 @@ const ownStyles = css`
 	:where(.${C.Wrapper}) img:not(:first-child) {
 		margin-top: calc(var(--baseline) * 1rem);
 	}
+
+	:where(.${C.Wrapper}) > math {
+		display: block;
+		margin-top: calc(var(--baseline) * 1rem);
+	}
+
+	@supports (display: math) {
+		:where(.${C.Wrapper}) > math {
+			display: math;
+			width: 100%;
+		}
+	}
 `;
 
-export const fromMdastStyles = joinCss(ownStyles, calloutStyles, listStyles);
+export const fromMdastStyles = joinCss(
+	ownStyles,
+	calloutStyles,
+	listStyles,
+);
 
 export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 	return ofmHtml(toHast(mdast, {
@@ -195,6 +212,7 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 			...calloutHandlers(),
 			...listHandlers(),
 			...syntaxHighlightingHandlers(),
+			...mathHandlers(),
 		},
 		allowDangerousHtml: true,
 	}));

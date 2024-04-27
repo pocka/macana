@@ -58,3 +58,27 @@ You can inspect the `<img>` tags below to see how it affects the resulting marku
 ![Picture of my dog|64x32](../../Assets/dog.jpg)
 ![Picture of my dog|128x128](../../Assets/dog.jpg)
 ![[dog.jpg|64]]
+
+## Math extension (LaTeX)
+
+Macana parses math notations using [Temml](https://temml.org/). It converts LaTeX notation to MathML, which browsers natively support without JavaScript.
+
+```markdown
+This is an inline math expression $e^{2i\pi} = 1$.
+```
+
+This is an inline math expression $e^{2i\pi} = 1$.
+
+```markdown
+$$
+\begin{vmatrix}a & b\\
+c & d
+\end{vmatrix}=ad-bc
+$$
+```
+
+$$
+\begin{vmatrix}a & b\\
+c & d
+\end{vmatrix}=ad-bc
+$$

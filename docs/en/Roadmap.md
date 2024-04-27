@@ -13,7 +13,7 @@ updatedAt: 2024-04-23T23:00:00+09:00
 		- [x] Autolinks
 		- [x] Tables
 		- [ ] Diagrams (Mermaid) ... Maybe no support, as Mermaid's overall quality is questionable.
-		- [ ] MathJax ... No support if it can't generate MathML at build time.
+		- [x] Math ... ~No support if MathJax can't generate MathML at build time.~ Using Temml instead.
 	- [x] Syntax Highlighting
 	- [ ] Obsidian Extensions
 		- [x] Internal Link path resolution
