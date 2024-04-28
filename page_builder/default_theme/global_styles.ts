@@ -16,6 +16,7 @@ export const globalStyles = css`
 
 		--color-bg: #fafafa;
 		--color-bg-accent: #eaeaea;
+		--color-bg-light: #f4f4f3;
 		--color-fg: #333;
 		--color-fg-sub: #534c37;
 		--color-fg-light: #c5c5c5;
@@ -61,6 +62,7 @@ export const globalStyles = css`
 		:root {
 			--color-bg: #222228;
 			--color-bg-accent: #323135;
+			--color-bg-light: #2b2b2d;
 			--color-fg: #fafafa;
 			--color-fg-sub: #f3edd9;
 			--color-fg-light: #c5c5c5;
@@ -116,19 +118,5 @@ export const globalStyles = css`
 	}
 	a[data-hash-link]:focus {
 		opacity: 1;
-	}
-
-	/* Syntax highlight */
-	.macana--highlight [data-hl-node~="token"][data-hl-node~="content"] {
-		color: var(--color-bg);
-	}
-	.macana--highlight [data-hl-node~="token"][data-hl-node~="punctuation"] {
-		color: #ccc;
-	}
-
-	@media (prefers-color-scheme: dark) {
-		.macana--highlight [data-hl-node~="token"][data-hl-node~="punctuation"] {
-			color: #888;
-		}
 	}
 `;

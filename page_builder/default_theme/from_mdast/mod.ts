@@ -12,13 +12,12 @@ import {
 	ofmToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 
-import { syntaxHighlightingHandlers } from "../mdast/syntax_highlighting_handlers.ts";
-
 import { css, join as joinCss } from "../css.ts";
 
 import { calloutHandlers, calloutStyles } from "./callout.tsx";
 import { listHandlers, listStyles } from "./list.tsx";
 import { mathHandlers } from "./math.ts";
+import { codeHandlers, codeStyles } from "./code.tsx";
 
 const enum C {
 	Wrapper = "fm--m",
@@ -39,38 +38,6 @@ const ownStyles = css`
 	:where(.${C.Wrapper}) p {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
-	}
-
-	:where(.${C.Wrapper}) pre {
-		margin: 0;
-		margin-top: calc(var(--baseline) * 1rem) !important;
-		padding: calc(var(--baseline) * 1rem) 1em !important;
-		line-height: calc(var(--baseline) * 1rem);
-		max-width: 100%;
-		font-size: 1rem;
-
-		background-color: var(--color-fg);
-		color: var(--color-bg);
-		border-radius: calc(1rem / 4);
-		overflow-x: auto;
-	}
-
-	:where(.${C.Wrapper}) pre > code {
-		all: unset;
-	}
-
-	:where(.${C.Wrapper}) code {
-		margin: 0 0.2em;
-		padding: calc(1rem / 4);
-
-		background-color: var(--color-bg-accent);
-		color: var(--color-fg-sub);
-		border-radius: calc(1rem / 4);
-		font-family: "Ubuntu Mono", monospace;
-	}
-
-	:where(.${C.Wrapper}) pre > code .token.comment {
-		font-style: italic;
 	}
 
 	:where(.${C.Wrapper}) a,
@@ -203,6 +170,7 @@ export const fromMdastStyles = joinCss(
 	ownStyles,
 	calloutStyles,
 	listStyles,
+	codeStyles,
 );
 
 export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
@@ -211,8 +179,8 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 			...ofmToHastHandlers(),
 			...calloutHandlers(),
 			...listHandlers(),
-			...syntaxHighlightingHandlers(),
 			...mathHandlers(),
+			...codeHandlers(),
 		},
 		allowDangerousHtml: true,
 	}));
