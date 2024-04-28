@@ -18,29 +18,18 @@ import { calloutHandlers, calloutStyles } from "./callout.tsx";
 import { listHandlers, listStyles } from "./list.tsx";
 import { mathHandlers } from "./math.ts";
 import { codeHandlers, codeStyles } from "./code.tsx";
+import { linkHandlers, linkStyles } from "./link.tsx";
 
 const enum C {
 	Wrapper = "fm--m",
 }
 
 const ownStyles = css`
-	:where(.${C.Wrapper}) a {
-		color: var(--color-fg-sub);
-		font-weight: 500;
-		text-decoration: underline;
-		transition: color 0.15s ease;
-	}
-
-	:where(.${C.Wrapper}) a:hover {
-		color: var(--color-primary);
-	}
-
 	:where(.${C.Wrapper}) p {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
-	:where(.${C.Wrapper}) a,
 	:where(.${C.Wrapper}) time,
 	:where(.${C.Wrapper}) span,
 	:where(.${C.Wrapper}) code,
@@ -171,6 +160,7 @@ export const fromMdastStyles = joinCss(
 	calloutStyles,
 	listStyles,
 	codeStyles,
+	linkStyles,
 );
 
 export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
@@ -181,6 +171,7 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 			...listHandlers(),
 			...mathHandlers(),
 			...codeHandlers(),
+			...linkHandlers(),
 		},
 		allowDangerousHtml: true,
 	}));
