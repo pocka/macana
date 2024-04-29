@@ -4,6 +4,9 @@
 {
 	// Local $DENO_DIR on CI
 	"exclude": [".deno"],
+	"compilerOptions": {
+		"noUnusedLocals": true
+	},
 	"fmt": {
 		"useTabs": true,
 		"include": ["**/*.ts", "**/*.tsx"]

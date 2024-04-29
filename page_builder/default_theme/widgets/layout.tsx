@@ -5,7 +5,6 @@
 /** @jsx h */
 
 import { h, type Result } from "../../../deps/esm.sh/hastscript/mod.ts";
-import type * as Hast from "../../../deps/esm.sh/hast/types.ts";
 
 import type { BuildContext } from "../context.ts";
 import { css } from "../css.ts";
