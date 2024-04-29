@@ -20,7 +20,7 @@ import type {
 	TextNode,
 } from "../../../content_parser/json_canvas/types.ts";
 
-import { css } from "../css.ts";
+import { buildClasses, css } from "../css.ts";
 
 import {
 	getBoundingBox,
@@ -33,13 +33,10 @@ import {
 	vecMul,
 } from "./layout.ts";
 
-const enum C {
-	Wrapper = "jc--wr",
-	Embed = "jc--em",
-}
+const c = buildClasses("jc", ["wrapper", "embed"]);
 
 export const jsonCanvasStyles = css`
-	.${C.Wrapper} {
+	.${c.wrapper} {
 		overflow: auto;
 		max-width: 100%;
 		max-height: 80dvh;
@@ -50,14 +47,14 @@ export const jsonCanvasStyles = css`
 		padding: 4px;
 	}
 
-	.${C.Embed} {
+	.${c.embed} {
 		padding: 4px 8px;
 		overflow: auto;
 	}
-	.${C.Embed} > div > p {
+	.${c.embed} > div > p {
 		margin-block-start: calc(var(--baseline) * 0.5rem);
 	}
-	.${C.Embed} > div > :first-child {
+	.${c.embed} > div > :first-child {
 		margin-block-start: 0;
 	}
 `;
@@ -121,7 +118,7 @@ function textNode({ node }: TextNodeProps) {
 			<div
 				xmlns="http://www.w3.org/1999/xhtml"
 				style={constructStyle(containerStyle)}
-				class={C.Embed}
+				class={c.embed}
 			>
 				{node.text}
 			</div>
@@ -677,5 +674,5 @@ export function jsonCanvas(
 }
 
 export function wrappedJsonCanvas(props: JSONCanvasProps) {
-	return h("div", { class: C.Wrapper }, jsonCanvas(props));
+	return h("div", { class: c.wrapper }, jsonCanvas(props));
 }

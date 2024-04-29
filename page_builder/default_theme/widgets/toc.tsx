@@ -7,38 +7,33 @@
 import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 
 import type { TocItem } from "../hast/hast_util_toc_mut.ts";
-import { css } from "../css.ts";
+import { buildClasses, css } from "../css.ts";
 
-const enum C {
-	Root = "w-toc--root",
-	List = "w-toc--l",
-	Item = "w-toc--i",
-	Link = "w-toc--k",
-}
+const c = buildClasses("w-toc", ["root", "list", "item", "link"]);
 
 export const tocStyles = css`
-	.${C.Root} {
+	.${c.root} {
 		font-size: 0.8rem;
 	}
 
-	.${C.List} {
+	.${c.list} {
 		display: flex;
 		flex-direction: column;
 		padding-left: 0.75em;
 		border-left: 2px solid var(--color-subtle-overlay);
 	}
 
-	.${C.Item} {
+	.${c.item} {
 		display: flex;
 		flex-direction: column;
 	}
 
-	.${C.Link} {
+	.${c.link} {
 		text-decoration: none;
 
 		color: var(--color-fg-sub);
 	}
-	.${C.Link}:hover {
+	.${c.link}:hover {
 		text-decoration: underline;
 	}
 `;
@@ -49,7 +44,7 @@ export interface TocProps {
 
 export function toc({ toc }: TocProps) {
 	return (
-		<div class={C.Root}>
+		<div class={c.root}>
 			{items({ toc })}
 		</div>
 	);
@@ -57,10 +52,10 @@ export function toc({ toc }: TocProps) {
 
 export function items({ toc }: TocProps) {
 	return (
-		<ul className={C.List}>
+		<ul className={c.list}>
 			{toc.map((item) => (
-				<li class={C.Item}>
-					<a class={C.Link} href={`#${item.id}`}>{item.text}</a>
+				<li class={c.item}>
+					<a class={c.link} href={`#${item.id}`}>{item.text}</a>
 					{item.children.length > 0 ? items({ toc: item.children }) : null}
 				</li>
 			))}

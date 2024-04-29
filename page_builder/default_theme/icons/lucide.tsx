@@ -9,7 +9,7 @@
 
 import { s } from "../../../deps/esm.sh/hastscript/mod.ts";
 
-import { css } from "../css.ts";
+import { buildClasses, css } from "../css.ts";
 
 function cls(
 	...classNames: readonly (string | null | false | undefined)[]
@@ -17,12 +17,10 @@ function cls(
 	return classNames.filter((c) => typeof c === "string").join(" ");
 }
 
-const enum C {
-	Icon = "li--i",
-}
+const c = buildClasses("i-l", ["icon"]);
 
 export const lucideIconStyles = css`
-	.${C.Icon} {
+	.${c.icon} {
 		height: 1em;
 		width: auto;
 		vertical-align: sub;
@@ -49,7 +47,7 @@ export function clipboardList({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
 			<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
@@ -72,7 +70,7 @@ export function pencil({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
 			<path d="m15 5 4 4" />
@@ -91,7 +89,7 @@ export function info({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<circle cx="12" cy="12" r="10" />
 			<path d="M12 16v-4" />
@@ -111,7 +109,7 @@ export function circleCheck({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<circle cx="12" cy="12" r="10" />
 			<path d="m9 12 2 2 4-4" />
@@ -130,7 +128,7 @@ export function flame({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
 		</svg>
@@ -148,7 +146,7 @@ export function check({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="M20 6 9 17l-5-5" />
 		</svg>
@@ -166,7 +164,7 @@ export function circleHelp({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<circle cx="12" cy="12" r="10" />
 			<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
@@ -186,7 +184,7 @@ export function triangleAlert({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
 			<path d="M12 9v4" />
@@ -206,7 +204,7 @@ export function x({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="M18 6 6 18" />
 			<path d="m6 6 12 12" />
@@ -225,7 +223,7 @@ export function zap({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
 		</svg>
@@ -243,7 +241,7 @@ export function bug({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="m8 2 1.88 1.88" />
 			<path d="M14.12 3.88 16 2" />
@@ -271,7 +269,7 @@ export function list({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<line x1="8" x2="21" y1="6" y2="6" />
 			<line x1="8" x2="21" y1="12" y2="12" />
@@ -294,7 +292,7 @@ export function quote({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
 			<path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
@@ -313,7 +311,7 @@ export function chevronDown({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			className={cls(C.Icon, className)}
+			className={cls(c.icon, className)}
 		>
 			<path d="m6 9 6 6 6-6" />
 		</svg>
@@ -331,7 +329,7 @@ export function externalLink({ className, ...rest }: LucideIconProps) {
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			{...rest}
-			class={cls(C.Icon, className)}
+			class={cls(c.icon, className)}
 		>
 			<path d="M15 3h6v6" />
 			<path d="M10 14 21 3" />

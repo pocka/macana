@@ -6,14 +6,12 @@
 
 import { type Child, h } from "../../../deps/esm.sh/hastscript/mod.ts";
 
-import { css } from "../css.ts";
+import { buildClasses, css } from "../css.ts";
 
-const enum C {
-	Title = "w--title",
-}
+const c = buildClasses("w-title", ["title"]);
 
 export const titleStyles = css`
-	.${C.Title} {
+	.${c.title} {
 		font-weight: 700;
 		font-size: 2rem;
 		margin: 0;
@@ -31,7 +29,7 @@ export interface TitleProps {
 
 export function title({ className, children }: TitleProps) {
 	return (
-		<h1 class={[className, C.Title].filter((s) => !!s).join(" ")}>
+		<h1 class={[className, c.title].filter((s) => !!s).join(" ")}>
 			{children}
 		</h1>
 	);

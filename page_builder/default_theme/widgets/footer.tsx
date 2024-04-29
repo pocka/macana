@@ -6,27 +6,27 @@
 
 import { Child, h } from "../../../deps/esm.sh/hastscript/mod.ts";
 
-import { css } from "../css.ts";
+import { buildClasses, css } from "../css.ts";
 
-const enum C {
-	Root = "w-fo--root",
-	Copyright = "w-fo--cpy",
-	Links = "w-fo--links",
-}
+const c = buildClasses("w-fo", [
+	"root",
+	"copyright",
+	"links",
+]);
 
 export const footerStyles = css`
-	.${C.Root} {
+	.${c.root} {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		gap: 2em;
 	}
 
-	.${C.Copyright} {
+	.${c.copyright} {
 		font-size: 0.8em;
 	}
 
-	.${C.Links} {
+	.${c.links} {
 		font-size: 0.9em;
 		display: flex;
 		gap: 0.25em 0.5em;
@@ -43,10 +43,10 @@ export interface FooterProps {
 
 export function footer({ copyright, children }: FooterProps) {
 	return (
-		<div class={C.Root}>
-			<small class={C.Copyright}>{copyright}</small>
+		<div class={c.root}>
+			<small class={c.copyright}>{copyright}</small>
 			{children && (
-				<div class={C.Links}>
+				<div class={c.links}>
 					{children}
 				</div>
 			)}

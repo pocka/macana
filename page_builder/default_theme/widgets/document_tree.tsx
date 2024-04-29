@@ -8,39 +8,39 @@ import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 
 import type { Document, DocumentDirectory } from "../../../types.ts";
 
-import { css, join } from "../css.ts";
+import { buildClasses, css, join } from "../css.ts";
 import type { BuildContext } from "../context.ts";
 import * as icons from "../icons/lucide.tsx";
 
-const enum C {
-	Root = "w-dt--root",
-	List = "w-dt--list",
-	DirectoryHeader = "w-dt--dirh",
-	Directory = "w-dt--dir",
-	Chevron = "w-dt--ch",
-	Link = "w-dt--ln",
-}
+const c = buildClasses("w-dt", [
+	"root",
+	"list",
+	"directoryHeader",
+	"directory",
+	"chevron",
+	"link",
+]);
 
 export const documentTreeStyles = join(
 	icons.lucideIconStyles,
 	css`
-	.${C.Root} {
+	.${c.root} {
 		padding: calc(var(--baseline) * 0.25rem) 0.75em;
 		font-size: 0.85rem;
 	}
 
-	.${C.Root}, .${C.List} {
+	.${c.root}, .${c.list} {
 		margin: 0;
 		list-style: none;
 	}
 
-	.${C.List} {
+	.${c.list} {
 		padding: 0;
 		padding-inline-start: calc(1em + 4px);
 		border-inline-start: 2px solid var(--color-subtle-overlay);
 	}
 
-	.${C.DirectoryHeader} {
+	.${c.directoryHeader} {
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
@@ -48,29 +48,29 @@ export const documentTreeStyles = join(
 
 		cursor: pointer;
 	}
-	.${C.DirectoryHeader}::marker,
-	.${C.DirectoryHeader}::-webkit-details-marker {
+	.${c.directoryHeader}::marker,
+	.${c.directoryHeader}::-webkit-details-marker {
 		display: none;
 	}
 
-	.${C.Link} {
+	.${c.link} {
 		color: var(--color-fg-sub);
 		text-decoration: none;
 	}
-	.${C.Link}:hover {
+	.${c.link}:hover {
 		text-decoration: underline;
 	}
 
-	.${C.Directory} {
+	.${c.directory} {
 		display: flex;
 	}
 
-	.${C.Chevron} {
+	.${c.chevron} {
 		color: var(--color-fg-light);
 
 		transition: transform 0.1s ease;
 	}
-	.${C.Directory}:not([open]) > .${C.DirectoryHeader} > .${C.Chevron} {
+	.${c.directory}:not([open]) > .${c.directoryHeader} > .${c.chevron} {
 		transform: rotate(-90deg);
 	}
 `,
@@ -82,7 +82,7 @@ export interface DocumentTreeProps {
 
 export function documentTree({ context }: DocumentTreeProps) {
 	return (
-		<ul className={C.Root} lang={context.documentTree.defaultLanguage}>
+		<ul className={c.root} lang={context.documentTree.defaultLanguage}>
 			{context.documentTree.nodes.map((entry) => (
 				node({
 					value: entry,
@@ -112,7 +112,7 @@ function node({ currentPath, value, context }: NodeProps) {
 
 		return (
 			<li lang={value.metadata.language ?? undefined}>
-				<a className={C.Link} href={path.join("/")}>{value.metadata.title}</a>
+				<a className={c.link} href={path.join("/")}>{value.metadata.title}</a>
 			</li>
 		);
 	}
@@ -121,13 +121,13 @@ function node({ currentPath, value, context }: NodeProps) {
 
 	return (
 		<li lang={value.metadata.language ?? undefined}>
-			<details className={C.Directory} open={defaultOpened ? "" : undefined}>
-				<summary className={C.DirectoryHeader}>
-					{icons.chevronDown({ className: C.Chevron })}
+			<details className={c.directory} open={defaultOpened ? "" : undefined}>
+				<summary className={c.directoryHeader}>
+					{icons.chevronDown({ className: c.chevron })}
 					<span>{value.metadata.title}</span>
 				</summary>
 
-				<ul className={C.List}>
+				<ul className={c.list}>
 					{value.entries.map((entry) => (
 						node({
 							value: entry,

@@ -11,79 +11,44 @@ import { refractor } from "../../../deps/esm.sh/refractor/mod.ts";
 import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 import { type Handlers } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 
-import { css } from "../css.ts";
+import { buildClasses, css } from "../css.ts";
 
-const enum C {
-	BlockContainer = "fm-code--bc",
-	InlineCode = "fm-code--i",
-	TokenKeyword = "fm-code--tk",
-	TokenBuiltin = "fm-code--tb",
-	TokenClassName = "fm-code--tc",
-	TokenFunction = "fm-code--tf",
-	TokenBoolean = "fm-code--tl",
-	TokenNumber = "fm-code--tn",
-	TokenString = "fm-code--ts",
-	TokenChar = "fm-code--th",
-	TokenSymbol = "fm-code--ty",
-	TokenRegex = "fm-code--tr",
-	TokenUrl = "fm-code--tu",
-	TokenOperator = "fm-code--to",
-	TokenVariable = "fm-code--tv",
-	TokenConstant = "fm-code--ta",
-	TokenProperty = "fm-code--tp",
-	TokenPunctuation = "fm-code--tpu",
-	TokenImportant = "fm-code--ti",
-	TokenComment = "fm-code--tcm",
-	TokenTag = "fm-code--tt",
-	TokenAttrName = "fm-code--tan",
-	TokenAttrValue = "fm-code--tav",
-	TokenNamespace = "fm-code--tns",
-	TokenProlog = "fm-code--tg",
-	TokenDoctype = "fm-code--td",
-	TokenCdata = "fm-code--tcd",
-	TokenEntity = "fm-code--te",
-	TokenBold = "fm-code--tbl",
-	TokenItalic = "fm-code--til",
-	TokenAtrule = "fm-code--tat",
-	TokenSelector = "fm-code--tsl",
-	TokenInserted = "fm-code--tin",
-	TokenDeleted = "fm-code--tdl",
-}
-
-// https://prismjs.com/tokens.html
-const prismTokenToClassMap = new Map<string, string>([
-	["keyword", C.TokenKeyword],
-	["builtin", C.TokenBuiltin],
-	["class-name", C.TokenClassName],
-	["function", C.TokenFunction],
-	["boolean", C.TokenBoolean],
-	["number", C.TokenNumber],
-	["string", C.TokenString],
-	["char", C.TokenChar],
-	["symbol", C.TokenSymbol],
-	["regex", C.TokenRegex],
-	["url", C.TokenUrl],
-	["operator", C.TokenOperator],
-	["variable", C.TokenVariable],
-	["constant", C.TokenConstant],
-	["property", C.TokenProperty],
-	["punctuation", C.TokenPunctuation],
-	["important", C.TokenImportant],
-	["comment", C.TokenComment],
-	["tag", C.TokenTag],
-	["attr-name", C.TokenAttrName],
-	["attr-value", C.TokenAttrValue],
-	["namespace", C.TokenNamespace],
-	["prolog", C.TokenProlog],
-	["doctype", C.TokenDoctype],
-	["cdata", C.TokenCdata],
-	["entity", C.TokenEntity],
-	["bold", C.TokenBold],
-	["italic", C.TokenItalic],
-	["atrule", C.TokenAtrule],
-	["selector", C.TokenSelector],
-	["inserted", C.TokenInserted],
-	["deleted", C.TokenDeleted],
+const c = buildClasses("fm-cd", [
+	"blockContainer",
+	"inlineCode",
+	// https://prismjs.com/tokens.html
+	"keyword",
+	"builtin",
+	"class-name",
+	"function",
+	"boolean",
+	"number",
+	"string",
+	"char",
+	"symbol",
+	"regex",
+	"url",
+	"operator",
+	"variable",
+	"constant",
+	"property",
+	"punctuation",
+	"important",
+	"comment",
+	"tag",
+	"attr-name",
+	"attr-value",
+	"namespace",
+	"prolog",
+	"doctype",
+	"cdata",
+	"entity",
+	"bold",
+	"italic",
+	"atrule",
+	"selector",
+	"inserted",
+	"deleted",
 ]);
 
 // This highlighting style is inspired by https://github.com/Alligator/accent.vim
@@ -95,7 +60,7 @@ const prismTokenToClassMap = new Map<string, string>([
 // TODO: Make font-family configurable
 // TODO: Make accent color configurable
 export const codeStyles = css`
-	.${C.BlockContainer} {
+	.${c.blockContainer} {
 		--_accent: var(--color-primary);
 
 		tab-size: 4ch;
@@ -114,7 +79,7 @@ export const codeStyles = css`
 		overflow-x: auto;
 	}
 
-	.${C.InlineCode} {
+	.${c.inlineCode} {
 		margin: 0 0.2em;
 		padding: calc(1rem / 4);
 		font-family: monospace;
@@ -125,31 +90,31 @@ export const codeStyles = css`
 		border-radius: 4px;
 	}
 
-	.${C.TokenComment} {
+	.${c.comment} {
 		opacity: 0.65;
 	}
 
-	.${C.TokenString},
-	.${C.TokenRegex},
-	.${C.TokenAttrValue},
-	.${C.TokenNumber} {
+	.${c.string},
+	.${c.regex},
+	.${c["attr-value"]},
+	.${c.number} {
 		color: var(--_accent);
 	}
 
-	.${C.TokenOperator},
-	.${C.TokenVariable},
-	.${C.TokenConstant} {
+	.${c.operator},
+	.${c.variable},
+	.${c.constant} {
 		color: var(--color-fg);
 	}
 
-	.${C.TokenFunction},
-	.${C.TokenPunctuation},
-	.${C.TokenClassName} {
+	.${c.function},
+	.${c.punctuation},
+	.${c["class-name"]} {
 		color: var(--color-fg-sub);
 		opacity: 0.9;
 	}
 
-	.${C.TokenKeyword} {
+	.${c.keyword} {
 		color: var(--color-fg-sub);
 		font-weight: bold;
 	}
@@ -203,7 +168,7 @@ export function codeHandlers({
 	return {
 		code(_state, node: Mdast.Code) {
 			if (!node.lang || !refractor.registered(node.lang)) {
-				return h("pre", { class: C.BlockContainer }, [
+				return h("pre", { class: c.blockContainer }, [
 					<code>{node.value}</code>,
 				]);
 			}
@@ -224,15 +189,15 @@ export function codeHandlers({
 				}
 
 				const classNames = Array.isArray(className)
-					? className
+					? (className as string[])
 					: className.split(" ");
 
 				let replacedClassName: string | undefined;
 
 				if (classNames.includes("token")) {
 					replacedClassName = classNames.filter((c) => c !== "token").map(
-						(c) => {
-							return prismTokenToClassMap.get(c);
+						(className) => {
+							return className in c ? c[className as keyof typeof c] : null;
 						},
 					).filter((c) => !!c).join(" ");
 				}
@@ -244,7 +209,7 @@ export function codeHandlers({
 			});
 
 			return h("pre", {
-				class: [C.BlockContainer, className].filter((s): s is string => !!s)
+				class: [c.blockContainer, className].filter((s): s is string => !!s)
 					.join(" "),
 				...(langNameAttribute ? { [langNameAttribute]: node.lang } : {}),
 			}, [
@@ -252,7 +217,7 @@ export function codeHandlers({
 			]);
 		},
 		inlineCode(_state, node: Mdast.InlineCode) {
-			return h("code", { class: C.InlineCode }, [node.value]);
+			return h("code", { class: c.inlineCode }, [node.value]);
 		},
 	};
 }

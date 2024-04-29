@@ -17,23 +17,23 @@ import {
 	parseOfmCalloutNode,
 } from "../../../content_parser/obsidian_markdown/mdast_util_ofm_callout.ts";
 
-import { css, join } from "../css.ts";
+import { buildClasses, css, join } from "../css.ts";
 import * as icons from "../icons/lucide.tsx";
 
-const enum C {
-	Root = "fm-co--root",
-	Title = "fm-co--title",
-	TitleText = "fm-co--tt",
-	Body = "fm-co--b",
-	Icon = "fm-co--i",
-	Bg = "fm-co--g",
-	Chevron = "fm-co--c",
-}
+const c = buildClasses("fm-co", [
+	"root",
+	"title",
+	"titleText",
+	"body",
+	"icon",
+	"bg",
+	"chevron",
+]);
 
 export const calloutStyles = join(
 	icons.lucideIconStyles,
 	css`
-	.${C.Root} {
+	.${c.root} {
 		--_macana-callout-overlay: hsl(0deg 0% 0% / 0.03);
 		--_macana-callout-color: var(--callout-color-info, var(--obsidian-color-fallback));
 
@@ -48,38 +48,38 @@ export const calloutStyles = join(
 
 		border-radius: 4px;
 	}
-	.${C.Root}[data-type="todo"] {
+	.${c.root}[data-type="todo"] {
 		--_macana-callout-color: var(--callout-color-todo);
 	}
-	.${C.Root}[data-type="tip"] {
+	.${c.root}[data-type="tip"] {
 		--_macana-callout-color: var(--callout-color-tip);
 	}
-	.${C.Root}[data-type="success"] {
+	.${c.root}[data-type="success"] {
 		--_macana-callout-color: var(--callout-color-success);
 	}
-	.${C.Root}[data-type="question"] {
+	.${c.root}[data-type="question"] {
 		--_macana-callout-color: var(--callout-color-question);
 	}
-	.${C.Root}[data-type="warning"] {
+	.${c.root}[data-type="warning"] {
 		--_macana-callout-color: var(--callout-color-warning);
 	}
-	.${C.Root}[data-type="failure"] {
+	.${c.root}[data-type="failure"] {
 		--_macana-callout-color: var(--callout-color-failure);
 	}
-	.${C.Root}[data-type="danger"] {
+	.${c.root}[data-type="danger"] {
 		--_macana-callout-color: var(--callout-color-danger);
 	}
-	.${C.Root}[data-type="bug"] {
+	.${c.root}[data-type="bug"] {
 		--_macana-callout-color: var(--callout-color-bug);
 	}
-	.${C.Root}[data-type="example"] {
+	.${c.root}[data-type="example"] {
 		--_macana-callout-color: var(--callout-color-example);
 	}
-	.${C.Root}[data-type="quote"] {
+	.${c.root}[data-type="quote"] {
 		--_macana-callout-color: var(--callout-color-quote);
 	}
 
-	.${C.Bg} {
+	.${c.bg} {
 		position: absolute;
 		inset: 0;
 
@@ -90,16 +90,16 @@ export const calloutStyles = join(
 	}
 
 	@media (prefers-color-scheme: dark) {
-		.${C.Root} {
+		.${c.root} {
 			--_macana-callout-overlay: hsl(0deg 0% 100% / 0.1);
 		}
 
-		.${C.Bg} {
+		.${c.bg} {
 			opacity: 0.05;
 		}
 	}
 
-	.${C.Title} {
+	.${c.title} {
 		font-size: 1.1rem;
 		display: flex;
 		justify-content: flex-start;
@@ -111,37 +111,37 @@ export const calloutStyles = join(
 		margin-top: 0;
 		font-weight: 700;
 	}
-	summary.${C.Title} {
+	summary.${c.title} {
 		cursor: pointer;
 	}
-	summary.${C.Title}:hover {
+	summary.${c.title}:hover {
 		background-color: var(--_macana-callout-overlay);
 	}
-	details:not([open]) > summary.${C.Title} {
+	details:not([open]) > summary.${c.title} {
 		border-bottom-color: transparent;
 	}
 
-	.${C.Icon} {
+	.${c.icon} {
 		color: var(--_macana-callout-color);
 	}
 
-	.${C.TitleText} {
+	.${c.titleText} {
 		line-height: calc(var(--baseline) * 1rem);
 	}
 
-	.${C.Chevron} {
+	.${c.chevron} {
 		transition: transform 0.15s ease-out;
 	}
-	details:not([open]) .${C.Chevron} {
+	details:not([open]) .${c.chevron} {
 		transform: rotate(-90deg);
 	}
 
-	.${C.Body} {
+	.${c.body} {
 		font-size: 1rem;
 
 		padding: calc(var(--baseline) * 0.5rem) 12px;
 	}
-	.${C.Body} > :first-child {
+	.${c.body} > :first-child {
 		margin-block-start: 0;
 	}
 `,
@@ -159,7 +159,7 @@ export function calloutHandlers(): Handlers {
 			const titleId = "__macana-callout__" + (counter++).toString(16);
 
 			const containerProps = {
-				class: C.Root,
+				class: c.root,
 				"aria-labelledby": titleId,
 				"data-type": type,
 			};
@@ -169,29 +169,29 @@ export function calloutHandlers(): Handlers {
 					<aside
 						{...containerProps}
 					>
-						<div class={C.Bg} />
-						<p class={C.Title} id={titleId}>
-							{icon(type, C.Icon)}
-							<span class={C.TitleText}>{title}</span>
+						<div class={c.bg} />
+						<p class={c.title} id={titleId}>
+							{icon(type, c.icon)}
+							<span class={c.titleText}>{title}</span>
 						</p>
-						<div class={C.Body}>{body}</div>
+						<div class={c.body}>{body}</div>
 					</aside>
 				);
 			}
 
 			return (
 				<aside {...containerProps}>
-					<div class={C.Bg} />
+					<div class={c.bg} />
 					<details open={node.defaultExpanded ? "" : undefined}>
-						<summary class={C.Title} id={titleId}>
-							{icon(type, C.Icon)}
-							<span class={C.TitleText}>{title}</span>
+						<summary class={c.title} id={titleId}>
+							{icon(type, c.icon)}
+							<span class={c.titleText}>{title}</span>
 							{icons.chevronDown({
-								className: C.Chevron,
+								className: c.chevron,
 								"aria-hidden": "true",
 							})}
 						</summary>
-						<div class={C.Body}>{body}</div>
+						<div class={c.body}>{body}</div>
 					</details>
 				</aside>
 			);

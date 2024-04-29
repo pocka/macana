@@ -12,7 +12,7 @@ import {
 	ofmToHastHandlers,
 } from "../../../content_parser/obsidian_markdown.ts";
 
-import { css, join as joinCss } from "../css.ts";
+import { buildClasses, css, join as joinCss } from "../css.ts";
 
 import { calloutHandlers, calloutStyles } from "./callout.tsx";
 import { listHandlers, listStyles } from "./list.tsx";
@@ -20,108 +20,106 @@ import { mathHandlers } from "./math.ts";
 import { codeHandlers, codeStyles } from "./code.tsx";
 import { linkHandlers, linkStyles } from "./link.tsx";
 
-const enum C {
-	Wrapper = "fm--m",
-}
+const c = buildClasses("fm-0", ["wrapper"]);
 
 const ownStyles = css`
-	:where(.${C.Wrapper}) p {
+	:where(.${c.wrapper}) p {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
-	:where(.${C.Wrapper}) time,
-	:where(.${C.Wrapper}) span,
-	:where(.${C.Wrapper}) code,
-	:where(.${C.Wrapper}) sup,
-	:where(.${C.Wrapper}) small,
-	:where(.${C.Wrapper}) s,
-	:where(.${C.Wrapper}) b,
-	:where(.${C.Wrapper}) i {
+	:where(.${c.wrapper}) time,
+	:where(.${c.wrapper}) span,
+	:where(.${c.wrapper}) code,
+	:where(.${c.wrapper}) sup,
+	:where(.${c.wrapper}) small,
+	:where(.${c.wrapper}) s,
+	:where(.${c.wrapper}) b,
+	:where(.${c.wrapper}) i {
 		line-height: 1;
 	}
 
-	:where(.${C.Wrapper}) button {
+	:where(.${c.wrapper}) button {
 		font-family: inherit;
 	}
 
-	:where(.${C.Wrapper}) s,
-	:where(.${C.Wrapper}) del {
+	:where(.${c.wrapper}) s,
+	:where(.${c.wrapper}) del {
 		color: var(--color-fg-sub);
 		text-decoration: line-through;
 	}
 
-	:where(.${C.Wrapper}) b {
+	:where(.${c.wrapper}) b {
 		font-weight: bold;
 	}
 
-	:where(.${C.Wrapper}) i {
+	:where(.${c.wrapper}) i {
 		font-style: italic;
 	}
 
-	:where(.${C.Wrapper}) ul {
+	:where(.${c.wrapper}) ul {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 		padding-left: 1.5em;
 	}
 
-	:where(.${C.Wrapper}) ul ul {
+	:where(.${c.wrapper}) ul ul {
 		margin-top: 0;
 	}
 
-	:where(.${C.Wrapper}) h1,
-	:where(.${C.Wrapper}) h2,
-	:where(.${C.Wrapper}) h3 {
+	:where(.${c.wrapper}) h1,
+	:where(.${c.wrapper}) h2,
+	:where(.${c.wrapper}) h3 {
 		font-weight: 700;
 		color: var(--color-fg-sub);
 	}
 
-	:where(.${C.Wrapper}) h1 {
+	:where(.${c.wrapper}) h1 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 2rem);
 		line-height: calc(var(--baseline) * 2rem);
 	}
 
-	:where(.${C.Wrapper}) h2 {
+	:where(.${c.wrapper}) h2 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 2rem);
 	}
 
-	:where(.${C.Wrapper}) h3,
-	:where(.${C.Wrapper}) h4,
-	:where(.${C.Wrapper}) h5,
-	:where(.${C.Wrapper}) h6 {
+	:where(.${c.wrapper}) h3,
+	:where(.${c.wrapper}) h4,
+	:where(.${c.wrapper}) h5,
+	:where(.${c.wrapper}) h6 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 
 		font-weight: 600;
 	}
 
-	:where(.${C.Wrapper}) table {
+	:where(.${c.wrapper}) table {
 		border-spacing: 0;
 		margin: 0;
 		margin-top: calc(var(--baseline) * 0.5rem);
 		width: 100%;
 	}
 
-	:where(.${C.Wrapper}) thead {
+	:where(.${c.wrapper}) thead {
 		background-color: var(--color-bg-accent);
 	}
 
-	:where(.${C.Wrapper}) th {
+	:where(.${c.wrapper}) th {
 		font-weight: 500;
 		padding: calc(var(--baseline) * 0.25rem) 1em;
 	}
 
-	:where(.${C.Wrapper}) td {
+	:where(.${c.wrapper}) td {
 		padding: calc(var(--baseline) * 0.5rem) 1em;
 	}
 
-	:where(.${C.Wrapper}) tbody td {
+	:where(.${c.wrapper}) tbody td {
 		position: relative;
 	}
 
-	:where(.${C.Wrapper}) tbody td::after {
+	:where(.${c.wrapper}) tbody td::after {
 		content: "";
 		position: absolute;
 		left: 0;
@@ -130,25 +128,25 @@ const ownStyles = css`
 		border-bottom: 1px solid var(--color-fg-light);
 	}
 
-	:where(.${C.Wrapper}) hr {
+	:where(.${c.wrapper}) hr {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
-	:where(.${C.Wrapper}) img {
+	:where(.${c.wrapper}) img {
 		max-width: 100%;
 	}
-	:where(.${C.Wrapper}) img:not(:first-child) {
+	:where(.${c.wrapper}) img:not(:first-child) {
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
-	:where(.${C.Wrapper}) > math {
+	:where(.${c.wrapper}) > math {
 		display: block;
 		margin-top: calc(var(--baseline) * 1rem);
 	}
 
 	@supports (display: math) {
-		:where(.${C.Wrapper}) > math {
+		:where(.${c.wrapper}) > math {
 			display: math;
 			width: 100%;
 		}
@@ -178,5 +176,5 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 }
 
 export function style(node: Hast.Nodes): Hast.Nodes {
-	return h("div", { class: C.Wrapper }, [node]);
+	return h("div", { class: c.wrapper }, [node]);
 }

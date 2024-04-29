@@ -14,7 +14,7 @@ import {
 
 import { type OfmWikilink } from "../../../content_parser/obsidian_markdown/mdast_util_ofm_wikilink.ts";
 
-import { css, join } from "../css.ts";
+import { buildClasses, css, join } from "../css.ts";
 import * as lucide from "../icons/lucide.tsx";
 
 function isExternal(urlOrPath: string): boolean {
@@ -26,20 +26,13 @@ function isExternal(urlOrPath: string): boolean {
 	}
 }
 
-const enum C {
-	Anchor,
-	ExternalAnchor,
-}
-
-function c(type: C): string {
-	return `fm-li--${type}`;
-}
+const c = buildClasses("fm-li", ["anchor", "external"]);
 
 export const linkStyles = join(
 	lucide.lucideIconStyles,
 	css`
-		.${c(C.Anchor)},
-		.${c(C.ExternalAnchor)} {
+		.${c.anchor},
+		.${c.external} {
 			font-weight: 500;
 
 			color: var(--color-fg-sub);
@@ -48,12 +41,12 @@ export const linkStyles = join(
 			transition: color 0.15s ease;
 		}
 
-		.${c(C.Anchor)}:hover,
-		.${c(C.ExternalAnchor)}:hover {
+		.${c.anchor}:hover,
+		.${c.external}:hover {
 			color: var(--color-primary);
 		}
 
-		.${c(C.ExternalAnchor)} {
+		.${c.external} {
 			display: inline-flex;
 			align-items: center;
 			gap: 0.25em;
@@ -76,13 +69,13 @@ function link(
 ) {
 	if (!isExternal(urlOrPath)) {
 		return h("a", {
-			class: c(C.Anchor),
+			class: c.anchor,
 			href: urlOrPath,
 		}, children);
 	}
 
 	return h("a", {
-		class: c(C.ExternalAnchor),
+		class: c.external,
 		href: urlOrPath,
 		target: openExternalLinkInBlank ? "_blank" : undefined,
 		rel: openExternalLinkInBlank ? "noopener" : undefined,

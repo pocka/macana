@@ -8,26 +8,26 @@ import type * as Mdast from "../../../deps/esm.sh/mdast/types.ts";
 import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 import { type Handlers } from "../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 
-import { css, join } from "../css.ts";
+import { buildClasses, css, join } from "../css.ts";
 import * as icons from "../icons/lucide.tsx";
 
-const enum C {
-	TaskItem = "fm-l--i",
-	Checkbox = "fm-l--c",
-	Check = "fm-l--h",
-	Text = "fm-l--t",
-}
+const c = buildClasses("fm-l", [
+	"taskItem",
+	"checkbox",
+	"check",
+	"text",
+]);
 
 export const listStyles = join(
 	icons.lucideIconStyles,
 	css`
-	.${C.TaskItem} {
+	.${c.taskItem} {
 		display: flex;
 		align-items: start;
 		list-style: none;
 	}
 
-	.${C.Checkbox} {
+	.${c.checkbox} {
 		display: flex;
 		align-items: stretch;
 		justify-content: stretch;
@@ -43,13 +43,13 @@ export const listStyles = join(
 		border-radius: 2px;
 	}
 
-	.${C.Check} {
+	.${c.check} {
 		min-width: 0px;
 		min-height: 0px;
 		height: 100%;
 	}
 
-	.${C.Text} {
+	.${c.text} {
 		line-height: calc(var(--baseline) * 1rem);
 	}
 `,
@@ -75,9 +75,9 @@ export function listHandlers(): Handlers {
 
 			const labelId = "__macana_tcheck_lbl__" + (counter++).toString(16);
 
-			return h("li", { class: C.TaskItem }, [
+			return h("li", { class: c.taskItem }, [
 				<span
-					class={C.Checkbox}
+					class={c.checkbox}
 					role="checkbox"
 					aria-disabled="true"
 					tabindex="0"
@@ -85,10 +85,10 @@ export function listHandlers(): Handlers {
 					aria-labelledby={labelId}
 				>
 					{node.checked
-						? icons.check({ className: C.Check, "aria-hidden": "true" })
+						? icons.check({ className: c.check, "aria-hidden": "true" })
 						: null}
 				</span>,
-				<span id={labelId} className={C.Text}>{children}</span>,
+				<span id={labelId} className={c.text}>{children}</span>,
 			]);
 		},
 	};
