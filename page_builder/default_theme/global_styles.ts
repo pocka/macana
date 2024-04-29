@@ -14,13 +14,13 @@ export const globalStyles = css`
 
 		--color-primary: rgb(217, 59, 133);
 
-		--color-bg: #fafafa;
-		--color-bg-accent: #eaeaea;
-		--color-bg-light: #f4f4f3;
+		--color-bg: hsl(0deg 0% 98%);
+		--color-bg-accent: hsl(0deg 0% 95%);
+		--color-bg-light: hsl(60deg 4% 96%);
 		--color-fg: #333;
 		--color-fg-sub: #534c37;
 		--color-fg-light: #c5c5c5;
-		--color-border: #b4af9d;
+		--color-border: hsl(47deg 13% 66% / 0.3);
 		--color-subtle-overlay: hsl(0deg 0% 0% / 0.035);
 		color: var(--color-fg);
 
@@ -60,13 +60,12 @@ export const globalStyles = css`
 
 	@media (prefers-color-scheme: dark) {
 		:root {
-			--color-bg: #222228;
-			--color-bg-accent: #323135;
-			--color-bg-light: #2b2b2d;
+			--color-bg: hsl(240deg 8% 15%);
+			--color-bg-accent: hsl(250deg 3% 17%);
+			--color-bg-light: hsl(245deg 2% 16%);
 			--color-fg: #fafafa;
 			--color-fg-sub: #f3edd9;
 			--color-fg-light: #c5c5c5;
-			--color-border: #b4af9d;
 			--color-subtle-overlay: hsl(0deg 0% 100% / 0.1);
 
 			--canvas-node-bg-opacity: 0.1;

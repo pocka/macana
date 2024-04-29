@@ -59,6 +59,15 @@ export function serialize(css: Css): string {
 }
 
 /**
+ * Join class names.
+ */
+export function cx(
+	...classNames: (string | null | false | undefined)[]
+): string {
+	return classNames.filter((c): c is string => !!c).join(" ");
+}
+
+/**
  * This function returns an object whose every propery value is
  * class name string.
  *

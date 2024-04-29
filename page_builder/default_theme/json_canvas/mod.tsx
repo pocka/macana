@@ -459,6 +459,8 @@ function edgeArrow({ target, pointTo, size = 15, ...rest }: EdgeArrowProps) {
 }
 
 export interface JSONCanvasProps {
+	className?: string;
+
 	data: JSONCanvas<Hast.Nodes>;
 
 	radius?: number;
@@ -467,7 +469,7 @@ export interface JSONCanvasProps {
 }
 
 export function jsonCanvas(
-	{ data, radius = 6, arrowSize = 20 }: JSONCanvasProps,
+	{ className, data, radius = 6, arrowSize = 20 }: JSONCanvasProps,
 ) {
 	const boundingBox = getBoundingBox(data);
 
@@ -488,8 +490,11 @@ export function jsonCanvas(
 
 	return (
 		<svg
+			className={className}
 			xmlns="http://www.w3.org/2000/svg"
 			viewbox={viewBox}
+			width={boundingBox.width}
+			height={boundingBox.height}
 			data-original-width={boundingBox.width}
 			data-original-height={boundingBox.height}
 		>

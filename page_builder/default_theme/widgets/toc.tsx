@@ -7,7 +7,7 @@
 import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 
 import type { TocItem } from "../hast/hast_util_toc_mut.ts";
-import { buildClasses, css } from "../css.ts";
+import { buildClasses, css, cx } from "../css.ts";
 
 const c = buildClasses("w-toc", ["root", "list", "item", "link"]);
 
@@ -39,12 +39,14 @@ export const tocStyles = css`
 `;
 
 export interface TocProps {
+	className?: string;
+
 	toc: readonly TocItem[];
 }
 
-export function toc({ toc }: TocProps) {
+export function toc({ className, toc }: TocProps) {
 	return (
-		<div class={c.root}>
+		<div class={cx(c.root, className)}>
 			{items({ toc })}
 		</div>
 	);

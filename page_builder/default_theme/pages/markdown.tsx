@@ -8,7 +8,7 @@ import { h } from "../../../deps/esm.sh/hastscript/mod.ts";
 import type * as Hast from "../../../deps/esm.sh/hast/types.ts";
 
 import type { BuildContext } from "../context.ts";
-import * as css from "../css.ts";
+import { buildClasses, css, join } from "../css.ts";
 import type { TocItem } from "../hast/hast_util_toc_mut.ts";
 
 import { layout, layoutStyles } from "../widgets/layout.tsx";
@@ -20,12 +20,54 @@ import { pageMetadata, pageMetadataScript } from "../widgets/page_metadata.tsx";
 
 import { embedTemplate, template } from "./template.tsx";
 
-export const markdownPageStyles = css.join(
+const c = buildClasses("p-md", [
+	"main",
+	"toc",
+	"tocInner",
+]);
+
+const ownStyles = css`
+	.${c.main} {
+		max-width: 50rem;
+		padding: calc(var(--baseline) * 1rem) 1rem;
+		margin: 0 auto;
+	}
+
+	@media (min-width: 110rem) {
+		.${c.main} {
+			max-width: 100%;
+			display: grid;
+			grid-template-columns: 50rem minmax(0, 1fr);
+			grid-template-rows: min-content max-content;
+			column-gap: 2rem;
+
+			margin: 0;
+			padding-inline-start: 64px;
+		}
+
+		.${c.main} > * {
+			grid-column: 1;
+		}
+
+		.${c.toc} {
+			grid-column: 2;
+			grid-row: 1 / -1;
+		}
+
+		.${c.tocInner} {
+			position: sticky;
+			top: calc(var(--baseline) * 1rem);
+		}
+	}
+`;
+
+export const markdownPageStyles = join(
 	layoutStyles,
 	tocStyles,
 	documentTreeStyles,
 	footerStyles,
 	titleStyles,
+	ownStyles,
 );
 
 export interface MarkdownPageProps {
@@ -45,15 +87,26 @@ export function markdownPage(
 			context,
 			scripts: [pageMetadataScript],
 			body: layout({
-				aside: tocItems.length > 0 ? toc({ toc: tocItems }) : undefined,
 				nav: documentTree({ context }),
 				footer: footer({ copyright: context.copyright }),
-				main: h(null, [
-					title({ children: context.document.metadata.title }),
-					pageMetadata({ context }),
-					content,
-				]),
-			}, context),
+				main: (
+					<div class={c.main}>
+						<div>
+							{title({ children: context.document.metadata.title })}
+							{pageMetadata({ context })}
+						</div>
+						{tocItems.length > 0
+							? (
+								<div class={c.toc}>
+									{toc({ className: c.tocInner, toc: tocItems })}
+								</div>
+							)
+							: undefined}
+						{content}
+					</div>
+				),
+				context,
+			}),
 		}),
 	]);
 }

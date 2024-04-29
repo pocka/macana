@@ -62,8 +62,8 @@ updatedAt: 2024-04-23T23:00:00+09:00
 - [ ] Tags
 - [x] Config for site logo
 - [x] Tool's logo
-- [ ] Proper styling
-- [ ] Switch to drawer menu when side navigation cannot fit
+- [x] Proper styling
+- [x] Switch to drawer menu when side navigation cannot fit
 - [ ] CLI for opinionated build
 	- [ ] Simple JSONC config
 - [ ] Usage document
