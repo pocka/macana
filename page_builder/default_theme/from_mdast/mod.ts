@@ -19,6 +19,7 @@ import { listHandlers, listStyles } from "./list.tsx";
 import { mathHandlers } from "./math.ts";
 import { codeHandlers, codeStyles } from "./code.tsx";
 import { linkHandlers, linkStyles } from "./link.tsx";
+import { quoteHandlers, quoteStyles } from "./quote.tsx";
 
 const c = buildClasses("fm-0", ["wrapper"]);
 
@@ -159,6 +160,7 @@ export const fromMdastStyles = joinCss(
 	listStyles,
 	codeStyles,
 	linkStyles,
+	quoteStyles,
 );
 
 export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
@@ -170,6 +172,7 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 			...mathHandlers(),
 			...codeHandlers(),
 			...linkHandlers(),
+			...quoteHandlers(),
 		},
 		allowDangerousHtml: true,
 	}));
