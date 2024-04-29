@@ -50,7 +50,7 @@ export function markdownPage(
 				footer: footer({ copyright: context.copyright }),
 				main: h(null, [
 					title({ children: context.document.metadata.title }),
-					pageMetadata({ metadata: context.document.metadata }),
+					pageMetadata({ context }),
 					content,
 				]),
 			}, context),

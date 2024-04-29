@@ -50,7 +50,7 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 				footer: footer({ copyright: context.copyright }),
 				main: h(null, [
 					title({ children: context.document.metadata.title }),
-					pageMetadata({ metadata: context.document.metadata }),
+					pageMetadata({ context }),
 					wrappedJsonCanvas({ data: content }),
 				]),
 			}, context),
