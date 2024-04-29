@@ -26,13 +26,12 @@ function isExternal(urlOrPath: string): boolean {
 	}
 }
 
-const c = buildClasses("fm-li", ["anchor", "external"]);
+const c = buildClasses("fm-li", ["anchor", "externalIcon"]);
 
 export const linkStyles = join(
 	lucide.lucideIconStyles,
 	css`
-		.${c.anchor},
-		.${c.external} {
+		.${c.anchor} {
 			font-weight: 500;
 
 			color: var(--color-fg-sub);
@@ -41,15 +40,12 @@ export const linkStyles = join(
 			transition: color 0.15s ease;
 		}
 
-		.${c.anchor}:hover,
-		.${c.external}:hover {
+		.${c.anchor}:hover {
 			color: var(--color-primary);
 		}
 
-		.${c.external} {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.25em;
+		.${c.externalIcon} {
+			margin-inline-start: 0.25em;
 		}
 	`,
 );
@@ -75,13 +71,13 @@ function link(
 	}
 
 	return h("a", {
-		class: c.external,
+		class: c.anchor,
 		href: urlOrPath,
 		target: openExternalLinkInBlank ? "_blank" : undefined,
 		rel: openExternalLinkInBlank ? "noopener" : undefined,
 	}, [
 		<span>{children}</span>,
-		lucide.externalLink({ "aria-hidden": "true" }),
+		lucide.externalLink({ className: c.externalIcon, "aria-hidden": "true" }),
 	]);
 }
 
