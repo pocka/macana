@@ -86,17 +86,21 @@ export const layoutStyles = css`
 	.${C.NavInner}, .${C.AsideInner} {
 		position: sticky;
 		top: calc(var(--baseline) * 1rem);
-
-		opacity: 0.7;
-		transition: opacity 8s ease;
 	}
 
-	.${C.NavInner}:hover,
-	.${C.NavInner}:focus-within,
-	.${C.AsideInner}:hover,
-	.${C.AsideInner}:focus-within {
-		opacity: 1;
-		transition-duration: 0.2s;
+	@media (hover: hover) {
+		.${C.NavInner}, .${C.AsideInner} {
+			opacity: 0.7;
+			transition: opacity 8s ease;
+		}
+
+		.${C.NavInner}:hover,
+		.${C.NavInner}:focus-within,
+		.${C.AsideInner}:hover,
+		.${C.AsideInner}:focus-within {
+			opacity: 1;
+			transition-duration: 0.2s;
+		}
 	}
 
 	.${C.Main} {
