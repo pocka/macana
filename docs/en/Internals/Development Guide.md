@@ -44,7 +44,9 @@ Having files or directories whose names are same except casing are prohibited.
 
 Other than that, use `snake_case` for file/directory names.
 
-## Formatting code
+## Development commands, scripts
+
+### Formatting code
 
 Run this command on the repository root:
 
@@ -52,7 +54,7 @@ Run this command on the repository root:
 $ deno fmt
 ```
 
-## Running unit tests
+### Running unit tests
 
 The most straightforward way to run the tests is to run this command on the repository root:
 
@@ -62,3 +64,19 @@ $ deno test --allow-read=. --allow-write=./filesystem_writer/.test
 
 - If you omit the `--allow-read=.` permission, tests performing actual file I/O will be skipped.
 - If you omit the `--allow-write=./filesystem_writer/.test` permission, tests performing actual file write will be skipped.
+
+### Profiling
+
+You can inspect (call-tree, memory, etc) using V8 Inspector Protocol via `--inspect-brk` flag.
+Read more about the flag [here](https://dotland.deno.dev/manual@v1.33.1/basics/debugging_your_code).
+
+```
+$ deno run --inspect-brk --allow-read=docs --allow-write=docs/.dist docs/build.ts
+```
+
+The above command prints Inspector URL to your terminal. Open the URL with a debugger client supporting V8 Inspector Protocol, and hit the record button.
+
+You can replace `--inspect-brk` flag with `--inspect-wait` flag, if you don't want profiler.
+
+However, as Macana is short-lived program, you can't use the simple `--inspect` flag.
+It's difficult to connect to the debugger during building this document, which is under 500ms even in GitHub Actions runner.
