@@ -18,12 +18,6 @@ B. Plain ==Highlight== [[Roadmap]]
 ```
 
 <div>
-<p>
-Foo
-</p>
-<p>Bar **Baz**</p>
-</div>
-<div>
   <p>
 A. Plain
 **Bold**
