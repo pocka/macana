@@ -25,14 +25,8 @@ import { quoteHandlers, quoteStyles } from "./quote.tsx";
 const c = buildClasses("fm-0", ["wrapper"]);
 
 const ownStyles = css`
-	:where(.${c.wrapper}) time,
-	:where(.${c.wrapper}) span,
-	:where(.${c.wrapper}) code,
 	:where(.${c.wrapper}) sup,
-	:where(.${c.wrapper}) small,
-	:where(.${c.wrapper}) s,
-	:where(.${c.wrapper}) b,
-	:where(.${c.wrapper}) i {
+	:where(.${c.wrapper}) sub {
 		line-height: 1;
 	}
 
