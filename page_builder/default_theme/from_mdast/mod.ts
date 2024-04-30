@@ -113,10 +113,11 @@ const ownStyles = css`
 	}
 
 	:where(.${c.wrapper}) img {
+		display: block;
 		max-width: 100%;
 	}
 	:where(.${c.wrapper}) img:not(:first-child) {
-		margin-top: calc(var(--baseline) * 1rem);
+		margin-top: calc(var(--baseline) * 0.5rem);
 	}
 
 	:where(.${c.wrapper}) > math {
