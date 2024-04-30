@@ -36,7 +36,8 @@ export const documentTreeStyles = join(
 
 	.${c.list} {
 		padding: 0;
-		padding-inline-start: calc(1em + 4px);
+		padding-inline-start: calc(0.5em + 4px);
+		margin-inline-start: calc(0.5em - 1px);
 		border-inline-start: 2px solid var(--color-subtle-overlay);
 		line-height: 2;
 	}
