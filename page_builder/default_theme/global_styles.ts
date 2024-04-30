@@ -10,7 +10,6 @@ export const globalStyles = css`
 		font-size: 1em;
 
 		--baseline: 1.75;
-		line-height: var(--baseline);
 
 		--color-primary: rgb(217, 59, 133);
 
@@ -83,7 +82,7 @@ export const globalStyles = css`
 
 	body {
 		margin: 0;
-		line-height: calc(var(--baseline) * 1rem);
+		line-height: 1.5;
 
 		background: var(--color-bg);
 	}

@@ -108,7 +108,7 @@ export const calloutStyles = join(
 		padding: calc(var(--baseline) * 0.5rem) 8px;
 		border-bottom: 1px solid var(--_macana-callout-overlay);
 
-		margin-top: 0;
+		margin: 0;
 		font-weight: 700;
 	}
 	summary.${c.title} {

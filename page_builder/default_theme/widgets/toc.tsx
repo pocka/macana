@@ -14,6 +14,7 @@ const c = buildClasses("w-toc", ["root", "list", "item", "link"]);
 export const tocStyles = css`
 	.${c.root} {
 		font-size: 0.8rem;
+		line-height: 1.8;
 	}
 
 	.${c.list} {

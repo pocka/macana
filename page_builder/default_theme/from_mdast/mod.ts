@@ -19,16 +19,12 @@ import { listHandlers, listStyles } from "./list.tsx";
 import { mathHandlers } from "./math.ts";
 import { codeHandlers, codeStyles } from "./code.tsx";
 import { linkHandlers, linkStyles } from "./link.tsx";
+import { paragraphHandlers, paragraphStyles } from "./paragraph.ts";
 import { quoteHandlers, quoteStyles } from "./quote.tsx";
 
 const c = buildClasses("fm-0", ["wrapper"]);
 
 const ownStyles = css`
-	:where(.${c.wrapper}) p {
-		margin: 0;
-		margin-top: calc(var(--baseline) * 1rem);
-	}
-
 	:where(.${c.wrapper}) time,
 	:where(.${c.wrapper}) span,
 	:where(.${c.wrapper}) code,
@@ -58,16 +54,6 @@ const ownStyles = css`
 		font-style: italic;
 	}
 
-	:where(.${c.wrapper}) ul {
-		margin: 0;
-		margin-top: calc(var(--baseline) * 1rem);
-		padding-left: 1.5em;
-	}
-
-	:where(.${c.wrapper}) ul ul {
-		margin-top: 0;
-	}
-
 	:where(.${c.wrapper}) h1,
 	:where(.${c.wrapper}) h2,
 	:where(.${c.wrapper}) h3 {
@@ -84,6 +70,7 @@ const ownStyles = css`
 	:where(.${c.wrapper}) h2 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 2rem);
+		line-height: calc(var(--baseline) * 1rem);
 	}
 
 	:where(.${c.wrapper}) h3,
@@ -92,6 +79,7 @@ const ownStyles = css`
 	:where(.${c.wrapper}) h6 {
 		margin: 0;
 		margin-top: calc(var(--baseline) * 1rem);
+		line-height: calc(var(--baseline) * 1rem);
 
 		font-weight: 600;
 	}
@@ -156,6 +144,7 @@ const ownStyles = css`
 
 export const fromMdastStyles = joinCss(
 	ownStyles,
+	paragraphStyles,
 	calloutStyles,
 	listStyles,
 	codeStyles,
@@ -173,6 +162,7 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 			...codeHandlers(),
 			...linkHandlers(),
 			...quoteHandlers(),
+			...paragraphHandlers(),
 		},
 		allowDangerousHtml: true,
 	}));

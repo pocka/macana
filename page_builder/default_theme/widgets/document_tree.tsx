@@ -38,6 +38,7 @@ export const documentTreeStyles = join(
 		padding: 0;
 		padding-inline-start: calc(1em + 4px);
 		border-inline-start: 2px solid var(--color-subtle-overlay);
+		line-height: 2;
 	}
 
 	.${c.directoryHeader} {

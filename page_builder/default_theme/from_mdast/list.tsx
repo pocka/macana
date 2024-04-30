@@ -16,11 +16,27 @@ const c = buildClasses("fm-l", [
 	"checkbox",
 	"check",
 	"text",
+	"list",
+	"normalListItem",
 ]);
 
 export const listStyles = join(
 	icons.lucideIconStyles,
 	css`
+	.${c.list} {
+		margin: 0;
+		margin-top: calc(var(--baseline) * 1rem);
+		padding-left: 1.5em;
+		line-height: calc(var(--baseline) * 1rem);
+	}
+	.${c.list} .${c.list} {
+		margin-top: 0;
+	}
+
+	.${c.text} {
+		line-height: calc(var(--baseline) * 1rem);
+	}
+
 	.${c.taskItem} {
 		display: flex;
 		align-items: start;
@@ -49,8 +65,8 @@ export const listStyles = join(
 		height: 100%;
 	}
 
-	.${c.text} {
-		line-height: calc(var(--baseline) * 1rem);
+	.${c.normalListItem}::marker {
+		line-height: 1.5;
 	}
 `,
 );
@@ -60,7 +76,7 @@ let counter = 0;
 export function listHandlers(): Handlers {
 	return {
 		list(state, node: Mdast.List) {
-			return h(node.ordered ? "ol" : "ul", {}, state.all(node));
+			return h(node.ordered ? "ol" : "ul", { class: c.list }, state.all(node));
 		},
 		listItem(state, node: Mdast.ListItem) {
 			const children = state.all(node).map((child) =>
@@ -70,7 +86,7 @@ export function listHandlers(): Handlers {
 			).flat();
 
 			if (typeof node.checked !== "boolean") {
-				return h("li", {}, children);
+				return h("li", { class: c.normalListItem }, children);
 			}
 
 			const labelId = "__macana_tcheck_lbl__" + (counter++).toString(16);
