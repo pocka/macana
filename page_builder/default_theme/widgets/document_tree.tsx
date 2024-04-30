@@ -19,6 +19,7 @@ const c = buildClasses("w-dt", [
 	"directory",
 	"chevron",
 	"link",
+	"document",
 ]);
 
 export const documentTreeStyles = join(
@@ -70,6 +71,10 @@ export const documentTreeStyles = join(
 		display: flex;
 	}
 
+	.${c.document} {
+		margin-inline-start: 1.25em;
+	}
+
 	.${c.chevron} {
 		color: var(--color-fg-light);
 
@@ -119,7 +124,7 @@ function node({ currentPath, value, context }: NodeProps) {
 			currentPath[0] === value.metadata.name;
 
 		return (
-			<li lang={value.metadata.language ?? undefined}>
+			<li lang={value.metadata.language ?? undefined} class={c.document}>
 				<a
 					className={c.link}
 					href={path.join("/")}
