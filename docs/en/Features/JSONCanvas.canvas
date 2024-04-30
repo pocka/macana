@@ -1,0 +1,10 @@
+{
+	"nodes":[
+		{"id":"fcd5e40a9ea08eef","x":340,"y":-410,"width":360,"height":140,"type":"text","text":"# What is JSONCanvas?\nThis. What you are seeing now."},
+		{"id":"5ddfb6fb8ebe642f","x":-600,"y":-860,"width":460,"height":370,"color":"5","type":"text","text":"# Text node\nThis is text node.\n\nYou can write text content in Markdown format.\n\n> [!tip]+\n> All of Markdown extensions are also available in text nodes."},
+		{"id":"a7c1315325193216","x":-860,"y":-340,"width":420,"height":280,"type":"text","text":"# Supported features\n\n- [x] Text node\n- [x] Group node\n- [x] File node\n- [x] Link node"}
+	],
+	"edges":[
+		{"id":"7f28c2f7d51a0012","fromNode":"a7c1315325193216","fromSide":"top","toNode":"5ddfb6fb8ebe642f","toSide":"bottom"}
+	]
+}
