@@ -36,10 +36,6 @@ const ownStyles = css`
 		line-height: 1;
 	}
 
-	:where(.${c.wrapper}) button {
-		font-family: inherit;
-	}
-
 	:where(.${c.wrapper}) s,
 	:where(.${c.wrapper}) del {
 		color: var(--color-fg-sub);
