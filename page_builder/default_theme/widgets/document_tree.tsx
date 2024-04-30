@@ -131,7 +131,7 @@ function node({ currentPath, value, context }: NodeProps) {
 		);
 	}
 
-	const defaultOpened = currentPath[0] === value.directory.name;
+	const defaultOpened = currentPath[0] === value.metadata.name;
 
 	return (
 		<li lang={value.metadata.language ?? undefined}>
