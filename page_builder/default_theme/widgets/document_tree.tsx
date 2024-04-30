@@ -62,6 +62,9 @@ export const documentTreeStyles = join(
 	.${c.link}:hover {
 		text-decoration: underline;
 	}
+	.${c.link}[aria-current] {
+		font-weight: bold;
+	}
 
 	.${c.directory} {
 		display: flex;
@@ -112,9 +115,18 @@ function node({ currentPath, value, context }: NodeProps) {
 			"",
 		]);
 
+		const isCurrent = currentPath.length === 1 &&
+			currentPath[0] === value.metadata.name;
+
 		return (
 			<li lang={value.metadata.language ?? undefined}>
-				<a className={c.link} href={path.join("/")}>{value.metadata.title}</a>
+				<a
+					className={c.link}
+					href={path.join("/")}
+					aria-current={isCurrent ? "page" : undefined}
+				>
+					{value.metadata.title}
+				</a>
 			</li>
 		);
 	}
