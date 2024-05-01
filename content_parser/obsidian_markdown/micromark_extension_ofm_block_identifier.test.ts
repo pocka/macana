@@ -37,3 +37,10 @@ Deno.test("Should parse when at the end of block", () => {
 		`<p>Foo Bar <span id="Baz"></span></p>\n<p>Qux</p>`,
 	);
 });
+
+Deno.test("Should parse even an identifier is at the first on a line", () => {
+	assertEquals(
+		f("Foo Bar\n^Baz\n\nQux"),
+		`<p>Foo Bar\n<span id="Baz"></span></p>\n<p>Qux</p>`,
+	);
+});

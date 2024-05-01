@@ -12,7 +12,7 @@ import type {
 import { codes } from "../../deps/esm.sh/micromark-util-symbol/mod.ts";
 import {
 	asciiAlphanumeric,
-	markdownSpace,
+	markdownLineEndingOrSpace,
 } from "../../deps/esm.sh/micromark-util-character/mod.ts";
 
 const enum TokenTypeMap {
@@ -41,7 +41,7 @@ export function ofmBlockIdentifier(): Extension {
 					const { previous } = this;
 
 					const start: State = (code) => {
-						if (!markdownSpace(previous) || code !== codes.caret) {
+						if (!markdownLineEndingOrSpace(previous) || code !== codes.caret) {
 							return nok(code);
 						}
 
