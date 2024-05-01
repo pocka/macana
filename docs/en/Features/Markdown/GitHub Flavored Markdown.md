@@ -90,7 +90,7 @@ This feature is not officially documented at the specification.
 - [Basic writing and formatting syntax - GitHub Docs](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts)
 
 Syntax-wise, a valid GFM Alert is a valid OFM Callout: <math><mi>Alert</mi><mo>⊂</mo><mi>Callout</mi></math>.
-However, the `CAUTION` type will be rendered as same variant as `WARNING` type, as shown below.
+However, the `CAUTION` type will be rendered as same variant as `WARNING` type, as shown below. ^alert-callout-compat
 
 ```markdown
 > [!WARNING]

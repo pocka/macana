@@ -17,6 +17,10 @@ import {
 } from "../../deps/esm.sh/micromark-extension-math/mod.ts";
 
 import {
+	ofmBlockIdentifier,
+	ofmBlockIdentifierHtml,
+} from "./micromark_extension_ofm_block_identifier.ts";
+import {
 	ofmComment,
 	ofmCommentHtml,
 } from "./micromark_extension_ofm_comment.ts";
@@ -36,6 +40,7 @@ import type {
 
 export function ofm(): Extension {
 	return combineExtensions([
+		ofmBlockIdentifier(),
 		ofmComment(),
 		ofmWikilink(),
 		ofmHighlight(),
@@ -55,6 +60,7 @@ export function ofmHtml(
 	{ preserveComment = false, ...rest }: OfmHtmlOptions = {},
 ): HtmlExtension {
 	return combineHtmlExtensions([
+		ofmBlockIdentifierHtml(),
 		ofmCommentHtml({ preserveAsHtmlComment: preserveComment }),
 		ofmHighlightHtml(),
 		ofmWikilinkHtml(),

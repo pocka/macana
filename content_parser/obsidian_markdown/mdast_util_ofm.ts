@@ -7,6 +7,11 @@ import { gfmFromMarkdown } from "../../deps/esm.sh/mdast-util-gfm/mod.ts";
 import { mathFromMarkdown } from "../../deps/esm.sh/mdast-util-math/mod.ts";
 
 import {
+	ofmBlockIdentifierFromMarkdown,
+	ofmBlockIdentifierToHastHandlers,
+	type OfmBlockIdentifierToHastHandlersOptions,
+} from "./mdast_util_ofm_block_identifier.ts";
+import {
 	ofmCommentFromMarkdown,
 	ofmCommentToHastHandlers,
 	type OfmCommentToHastHandlersOptions,
@@ -27,6 +32,7 @@ export function ofmFromMarkdown(): Extension[] {
 	return [
 		...gfmFromMarkdown(),
 		mathFromMarkdown(),
+		ofmBlockIdentifierFromMarkdown(),
 		ofmCommentFromMarkdown(),
 		ofmHighlightFromMarkdown(),
 		ofmWikilinkFromMarkdown(),
@@ -38,12 +44,14 @@ export function ofmFromMarkdown(): Extension[] {
 export interface OfmToHastHandlersOptions {
 	comment?: OfmCommentToHastHandlersOptions;
 	callout?: OfmCalloutToHastHandlersOptions;
+	blockIdentifier?: OfmBlockIdentifierToHastHandlersOptions;
 }
 
 export function ofmToHastHandlers(
-	{ comment, callout }: OfmToHastHandlersOptions = {},
+	{ comment, callout, blockIdentifier }: OfmToHastHandlersOptions = {},
 ) {
 	return {
+		...ofmBlockIdentifierToHastHandlers(blockIdentifier),
 		...ofmCalloutToHastHandlers(callout),
 		...ofmWikilinkToHastHandlers,
 		...ofmCommentToHastHandlers(comment),

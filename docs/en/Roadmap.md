@@ -47,7 +47,7 @@ updatedAt: 2024-04-23T23:00:00+09:00
 			- [x] Label
 			- [x] Heading
 			- [ ] Block reference
-		- [ ] Defining a block
+		- [x] Defining a block
 		- [x] Image size annotation
 		- [ ] Embeddings
 			- [x] Image file
