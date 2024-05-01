@@ -241,3 +241,38 @@ Deno.test("Should resolve nested hash", async () => {
 
 	assertEquals(hash, "H3");
 });
+
+Deno.test("Should resolve link to custom block identifier", async () => {
+	const fs = new MemoryFsReader([
+		{
+			path: "Test.md",
+			content: `
+Foo Bar ^foo-bar
+
+Baz
+			`,
+		},
+	]);
+
+	const fileReader =
+		(await (fs.getRootDirectory().then((dir) => dir.read()).then((entries) =>
+			entries[0]
+		))) as FileReader;
+
+	const parser = new ObsidianMarkdownParser();
+
+	const content = await parser.parse({
+		documentMetadata: {
+			title: "Test",
+			name: "Test",
+		},
+		fileReader,
+		getAssetToken,
+		getDocumentToken,
+	});
+	const c = "documentContent" in content ? content.documentContent : content;
+
+	const hash = c.getHash(["^foo-bar"]);
+
+	assertEquals(hash, "foo-bar");
+});

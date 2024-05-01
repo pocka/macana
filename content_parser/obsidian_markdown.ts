@@ -8,12 +8,18 @@ import type * as Mdast from "../deps/esm.sh/mdast/types.ts";
 import { fromMarkdown } from "../deps/esm.sh/mdast-util-from-markdown/mod.ts";
 import { toString } from "../deps/esm.sh/mdast-util-to-string/mod.ts";
 import { headingRange } from "../deps/esm.sh/mdast-util-heading-range/mod.ts";
+import { find as findNode } from "../deps/esm.sh/unist-util-find/mod.ts";
 
 import { ofm } from "./obsidian_markdown/micromark_extension_ofm.ts";
-import { ofmFromMarkdown } from "./obsidian_markdown/mdast_util_ofm.ts";
+import {
+	type OfmBlockIdentifier,
+	ofmFromMarkdown,
+} from "./obsidian_markdown/mdast_util_ofm.ts";
 import { macanaMarkAssets } from "./obsidian_markdown/mdast_util_macana_mark_assets.ts";
 import { macanaMarkDocumentToken } from "./obsidian_markdown/mdast_util_macana_mark_document_token.ts";
 import { autoHeadingIdFromMarkdown } from "./obsidian_markdown/mdast_util_auto_heading_id.ts";
+
+import { logger } from "../logger.ts";
 
 import type {
 	ContentParser,
@@ -117,6 +123,26 @@ function findNodeId(
 	}
 
 	const [selector, ...rest] = selectors;
+
+	if (selector.startsWith("^")) {
+		const ident = selector.slice(1);
+
+		const found = findNode(root, (node) => (
+			!!(node.data && node.type === "ofmBlockIdentifier" &&
+				(node as OfmBlockIdentifier).value === ident)
+		));
+
+		if (!found) {
+			logger().error(
+				`Macana couldn't find a block having a block ID "${selector}".` +
+					` You have to manually define the block identifier at the target location.`,
+				{ selector },
+			);
+			return null;
+		}
+
+		return ident;
+	}
 
 	const text = toString(fromMarkdown(selector, {
 		extensions: [ofm()],

@@ -21,11 +21,26 @@ To use this link style, surround the target file name without file extension or 
 - [[Overview|Alternative Title]]
 - [[Overview]]
 - [[Overview#Arbitrary document tree]]
+- [[GitHub Flavored Markdown#^alert-callout-compat]]
 ```
 
 - [[Overview|Alternative Title]]
 - [[Overview]]
 - [[Overview#Arbitrary document tree]]
+- [[GitHub Flavored Markdown#^alert-callout-compat]]
+
+### Block identifier
+
+Macana can generate corresponding anchor point if you create a block identifier.
+Links to automatically generated block identifier is not supported.
+
+- [Internal links - Obsidian Help](https://help.obsidian.md/Linking+notes+and+files/Internal+links#Link+to+a+block+in+a+note)
+
+```markdown
+This is a paragraph. ^block-ident-demo
+```
+
+This is a paragraph. ^block-ident-demo
 
 ### Image size attributes
 

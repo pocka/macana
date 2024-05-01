@@ -46,7 +46,7 @@ updatedAt: 2024-04-23T23:00:00+09:00
 		- [x] Wikilink
 			- [x] Label
 			- [x] Heading
-			- [ ] Block reference
+			- [x] Block reference
 		- [x] Defining a block
 		- [x] Image size annotation
 		- [ ] Embeddings

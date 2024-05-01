@@ -28,6 +28,8 @@ import {
 } from "./mdast_util_ofm_callout.ts";
 import { ofmImageSize } from "./mdast_util_ofm_image_size.ts";
 
+export type { OfmBlockIdentifier } from "./mdast_util_ofm_block_identifier.ts";
+
 export function ofmFromMarkdown(): Extension[] {
 	return [
 		...gfmFromMarkdown(),
