@@ -15,6 +15,8 @@ updatedAt: 2024-04-23T23:00:00+09:00
 - [ ] CLI for opinionated build
 - [ ] JSON/JSONC config for CLI
 - [ ] Usage document for CLI
+- [ ] Wikilink internal hash reference
+- [ ] Client script to close site menu on navigation event
 
 ## v0.2
 
