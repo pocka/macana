@@ -91,6 +91,13 @@ export class JSONCanvasParser
 					}
 				}
 			}),
+			getHash(fragments) {
+				const n = fileReader.path.join(SEPARATOR);
+				throw new Error(
+					`You can't reference part of JSONCanvas via hash syntax.` +
+						`Requested ${n} # ${fragments.join(" > ")}`,
+				);
+			},
 		};
 	}
 }

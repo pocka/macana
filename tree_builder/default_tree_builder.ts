@@ -355,6 +355,11 @@ function resolveShortestPath(
 	});
 }
 
+interface DocumentTokenReference {
+	internalPath: string;
+	fragments: readonly string[];
+}
+
 interface InternalBuildParameters {
 	contentParser: BuildParameters["contentParser"];
 
@@ -363,7 +368,7 @@ interface InternalBuildParameters {
 	parentPath?: readonly string[];
 
 	assetTokensToFiles: Map<AssetToken, FileReader>;
-	documentTokenToPaths: Map<DocumentToken, string>;
+	documentTokenToReferences: Map<DocumentToken, DocumentTokenReference>;
 	pathToDocuments: Map<string, Document>;
 }
 
@@ -441,7 +446,10 @@ export class DefaultTreeBuilder implements TreeBuilder {
 		const root = await fileSystemReader.getRootDirectory();
 
 		const assetTokensToFiles = new Map<AssetToken, FileReader>();
-		const documentTokenToPaths = new Map<DocumentToken, string>();
+		const documentTokenToReferences = new Map<
+			DocumentToken,
+			DocumentTokenReference
+		>();
 		const pathToDocuments = new Map<string, Document>();
 
 		const children = await root.read();
@@ -452,7 +460,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					contentParser,
 					root,
 					assetTokensToFiles,
-					documentTokenToPaths,
+					documentTokenToReferences,
 					pathToDocuments,
 				})
 			),
@@ -504,21 +512,24 @@ export class DefaultTreeBuilder implements TreeBuilder {
 				}
 
 				if (isDocumentToken(token)) {
-					const path = documentTokenToPaths.get(token);
-					if (!path) {
+					const ref = documentTokenToReferences.get(token);
+					if (!ref) {
 						throw new Error(
 							`DefaultTreeBuilder: No document path registered for the Document Token ${token}`,
 						);
 					}
 
-					const doc = pathToDocuments.get(path);
+					const doc = pathToDocuments.get(ref.internalPath);
 					if (!doc) {
 						throw new Error(
-							`DefaultTreeBuilder: No document at the path ${path}, referenced by token ${token}`,
+							`DefaultTreeBuilder: No document at the path ${ref.internalPath}, referenced by token ${token}`,
 						);
 					}
 
-					return doc;
+					return {
+						document: doc,
+						fragments: ref.fragments,
+					};
 				}
 
 				throw new Error(`DefaultTreeBuilder: Invalid token type: ${token}`);
@@ -532,7 +543,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			contentParser,
 			root,
 			assetTokensToFiles,
-			documentTokenToPaths,
+			documentTokenToReferences,
 			pathToDocuments,
 			parentPath = [],
 		}: InternalBuildParameters,
@@ -602,7 +613,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 
 					return token;
 				},
-				getDocumentToken: async (path) => {
+				getDocumentToken: async (path, fragments = []) => {
 					if (!path.length) {
 						throw new Error(
 							`Document link cannot be empty (processing ${
@@ -621,9 +632,12 @@ export class DefaultTreeBuilder implements TreeBuilder {
 							resolveFsrPath(path, node.path),
 						);
 
-					documentTokenToPaths.set(
+					documentTokenToReferences.set(
 						token,
-						resolvedPath.join(INTERNAL_PATH_SEPARATOR),
+						{
+							internalPath: resolvedPath.join(INTERNAL_PATH_SEPARATOR),
+							fragments,
+						},
 					);
 
 					return token;
@@ -655,7 +669,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 					contentParser,
 					root,
 					assetTokensToFiles,
-					documentTokenToPaths,
+					documentTokenToReferences,
 					pathToDocuments,
 					parentPath: [
 						...parentPath,

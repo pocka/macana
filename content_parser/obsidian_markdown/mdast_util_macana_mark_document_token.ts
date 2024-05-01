@@ -12,12 +12,24 @@ import type { DocumentToken } from "../../types.ts";
 import type { OfmWikilink } from "./mdast_util_ofm_wikilink.ts";
 
 const SEPARATOR = "/";
+const FRAGMENT_PREFIX = "#";
 const IGNORE_REGEXP_PATTERN = /^([a-z0-9]+:\/\/|#)/i;
 
 function setDocumentToken(node: Mdast.Node, token: DocumentToken): void {
 	node.data ??= {};
 	// @ts-expect-error: incorrect library type definition.
 	node.data.macanaDocumentToken = token;
+}
+
+function parseInternalLink(
+	link: string,
+): { path: readonly string[]; fragments: readonly string[] } {
+	const [ref, ...fragments] = link.split(FRAGMENT_PREFIX);
+
+	return {
+		path: (ref || "").split(SEPARATOR),
+		fragments: fragments,
+	};
 }
 
 /**
@@ -42,9 +54,9 @@ export async function macanaMarkDocumentToken(
 		(node) => {
 			switch (node.type) {
 				case "ofmWikilink": {
-					const path = node.target.split(SEPARATOR);
+					const { path, fragments } = parseInternalLink(node.target);
 
-					const token = getDocumentToken(path);
+					const token = getDocumentToken(path, fragments);
 
 					if (token instanceof Promise) {
 						promises.push(token.then((t) => {
@@ -61,9 +73,9 @@ export async function macanaMarkDocumentToken(
 						return SKIP;
 					}
 
-					const path = node.url.split(SEPARATOR);
+					const { path, fragments } = parseInternalLink(node.url);
 
-					const token = getDocumentToken(path);
+					const token = getDocumentToken(path, fragments);
 
 					if (token instanceof Promise) {
 						promises.push(token.then((t) => {
@@ -85,9 +97,9 @@ export async function macanaMarkDocumentToken(
 						return SKIP;
 					}
 
-					const path = def.url.split(SEPARATOR);
+					const { path, fragments } = parseInternalLink(def.url);
 
-					const token = getDocumentToken(path);
+					const token = getDocumentToken(path, fragments);
 
 					if (token instanceof Promise) {
 						promises.push(token.then((t) => {

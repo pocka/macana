@@ -13,6 +13,9 @@ export const noopParser: ContentParser = {
 		return {
 			kind: "null",
 			content: null,
+			getHash() {
+				throw new Error("Unreachable");
+			},
 		};
 	},
 };

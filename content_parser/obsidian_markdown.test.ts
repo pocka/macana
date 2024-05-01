@@ -2,7 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { assertObjectMatch } from "../deps/deno.land/std/assert/mod.ts";
+import {
+	assertEquals,
+	assertObjectMatch,
+} from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
 import { ObsidianMarkdownParser } from "./obsidian_markdown.ts";
@@ -202,4 +205,39 @@ lang: en-US
 			isDefaultDocument: true,
 		},
 	});
+});
+
+Deno.test("Should resolve nested hash", async () => {
+	const fs = new MemoryFsReader([
+		{
+			path: "Test.md",
+			content: `
+# H1
+## H2
+### H3
+			`,
+		},
+	]);
+
+	const fileReader =
+		(await (fs.getRootDirectory().then((dir) => dir.read()).then((entries) =>
+			entries[0]
+		))) as FileReader;
+
+	const parser = new ObsidianMarkdownParser();
+
+	const content = await parser.parse({
+		documentMetadata: {
+			title: "Test",
+			name: "Test",
+		},
+		fileReader,
+		getAssetToken,
+		getDocumentToken,
+	});
+	const c = "documentContent" in content ? content.documentContent : content;
+
+	const hash = c.getHash(["H1", "H2", "H3"]);
+
+	assertEquals(hash, "H3");
 });

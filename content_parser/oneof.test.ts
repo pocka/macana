@@ -33,6 +33,9 @@ function literal(x: string): ContentParser {
 			return {
 				kind: x,
 				content: x,
+				getHash() {
+					unreachable();
+				},
 			};
 		},
 	};

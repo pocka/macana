@@ -45,7 +45,7 @@ updatedAt: 2024-04-23T23:00:00+09:00
 			- [x] Shortest path when possible
 		- [x] Wikilink
 			- [x] Label
-			- [ ] Heading
+			- [x] Heading
 			- [ ] Block reference
 		- [ ] Defining a block
 		- [x] Image size annotation

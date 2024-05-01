@@ -24,6 +24,7 @@ export interface ParseParameters {
 	getAssetToken(path: readonly string[]): AssetToken | Promise<AssetToken>;
 	getDocumentToken(
 		path: readonly string[],
+		fragments?: readonly string[],
 	): DocumentToken | Promise<DocumentToken>;
 }
 

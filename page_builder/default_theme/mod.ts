@@ -278,13 +278,19 @@ export class DefaultThemeBuilder implements PageBuilder {
 										await macanaReplaceDocumentToken(
 											node.text,
 											async (token) => {
-												const document = tree.exchangeToken(token);
+												const { document, fragments } = tree.exchangeToken(
+													token,
+												);
+
+												const hash = fragments.length > 0
+													? "#" + document.content.getHash(fragments)
+													: "";
 
 												return {
 													path: toRelativePathString(
 														[...document.path, ""],
 														item.path,
-													),
+													) + hash,
 												};
 											},
 										);
@@ -309,14 +315,20 @@ export class DefaultThemeBuilder implements PageBuilder {
 										}
 
 										if (isDocumentToken(node.file)) {
-											const doc = tree.exchangeToken(node.file);
+											const { document, fragments } = tree.exchangeToken(
+												node.file,
+											);
+
+											const hash = fragments.length > 0
+												? "#" + document.content.getHash(fragments)
+												: "";
 
 											return {
 												...node,
 												file: toRelativePathString(
-													[...doc.path, "embed.html"],
+													[...document.path, "embed.html"],
 													item.path,
-												),
+												) + hash,
 											};
 										}
 
@@ -374,10 +386,16 @@ export class DefaultThemeBuilder implements PageBuilder {
 						await macanaReplaceDocumentToken(
 							item.content.content,
 							async (token) => {
-								const document = tree.exchangeToken(token);
+								const { document, fragments } = tree.exchangeToken(token);
+
+								const hash = fragments.length > 0
+									? "#" + document.content.getHash(fragments)
+									: "";
 
 								return {
-									path: toRelativePathString([...document.path, ""], item.path),
+									path:
+										toRelativePathString([...document.path, ""], item.path) +
+										hash,
 								};
 							},
 						);

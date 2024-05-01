@@ -97,7 +97,17 @@ export interface DocumentContent<
 	Content = unknown,
 > {
 	kind: Kind;
+
 	content: Content;
+
+	/**
+	 * Returns hash part of the URL matchin to the selectors.
+	 * Format of selector differs by content types.
+	 *
+	 * If the document does not have section matching to the selectors,
+	 * this function throws an error.
+	 */
+	getHash(selectors: readonly string[]): string;
 }
 
 export interface Document<Content extends DocumentContent = DocumentContent> {
@@ -140,7 +150,10 @@ export interface DocumentTree {
 	 * Get a document in exchange for the token.
 	 * Throws an error if the token is invalid or target document is missing.
 	 */
-	exchangeToken(token: DocumentToken): Document;
+	exchangeToken(token: DocumentToken): {
+		document: Document;
+		fragments: readonly string[];
+	};
 
 	/**
 	 * Get an asset file in exchange for the token.

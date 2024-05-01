@@ -14,8 +14,10 @@ import { macanaMarkDocumentToken } from "./mdast_util_macana_mark_document_token
 import { ofmWikilinkFromMarkdown } from "./mdast_util_ofm_wikilink.ts";
 import { ofmWikilink } from "./micromark_extension_ofm_wikilink.ts";
 
-const getDocumentToken = (path: readonly string[]) =>
-	`mxt_${path.join("/")}` as const;
+const getDocumentToken = (
+	path: readonly string[],
+	fragments: readonly string[],
+) => `mxt_${path.join("/")}${fragments.map((s) => "&" + s).join("")}` as const;
 
 function toMdast(markdown: string) {
 	return fromMarkdown(markdown, {
@@ -93,6 +95,29 @@ Deno.test("Should set Document Token on wikilink", async () => {
 						type: "ofmWikilink",
 						data: {
 							macanaDocumentToken: "mxt_Foo",
+						},
+					},
+				],
+			},
+		],
+	});
+});
+
+Deno.test("Should parse hash part", async () => {
+	const mdast = toMdast("[[My note#Heading 1#Heading 2]]");
+
+	await macanaMarkDocumentToken(mdast, getDocumentToken);
+
+	assertObjectMatch(mdast, {
+		type: "root",
+		children: [
+			{
+				type: "paragraph",
+				children: [
+					{
+						type: "ofmWikilink",
+						data: {
+							macanaDocumentToken: "mxt_My note&Heading 1&Heading 2",
 						},
 					},
 				],

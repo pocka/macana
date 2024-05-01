@@ -7,6 +7,7 @@ import {
 	assertNotEquals,
 	assertObjectMatch,
 	assertRejects,
+	unreachable,
 } from "../deps/deno.land/std/assert/mod.ts";
 
 import { MemoryFsReader } from "../filesystem_reader/memory_fs.ts";
@@ -37,6 +38,9 @@ function linkCheckParser(
 			return {
 				kind: "testing",
 				content: null,
+				getHash() {
+					unreachable();
+				},
 			};
 		},
 	};
@@ -109,6 +113,9 @@ Deno.test("Should respect metadata returned by Content Parser", async () => {
 					documentContent: {
 						kind: "null",
 						content: null,
+						getHash() {
+							unreachable();
+						},
 					},
 					documentMetadata: {
 						title: "Brown fox",
@@ -275,7 +282,7 @@ Deno.test("Should resolve relative path link", async () => {
 	// `as` is required as Deno's assertion function does not return `a is B`.
 	const found = tree.exchangeToken(contentParser.token as DocumentToken);
 
-	assertObjectMatch(found, {
+	assertObjectMatch(found.document, {
 		path: ["Qux.md"],
 	});
 });
@@ -305,7 +312,7 @@ Deno.test("Should resolve relative path link without file extension", async () =
 	// `as` is required as Deno's assertion function does not return `a is B`.
 	const found = tree.exchangeToken(contentParser.token as DocumentToken);
 
-	assertObjectMatch(found, {
+	assertObjectMatch(found.document, {
 		path: ["Qux.md"],
 	});
 });
@@ -335,7 +342,7 @@ Deno.test("Should resolve absolute path link", async () => {
 	// `as` is required as Deno's assertion function does not return `a is B`.
 	const found = tree.exchangeToken(contentParser.token as DocumentToken);
 
-	assertObjectMatch(found, {
+	assertObjectMatch(found.document, {
 		path: ["Qux.md"],
 	});
 });
@@ -365,7 +372,7 @@ Deno.test("Should resolve absolute path link without file extension", async () =
 	// `as` is required as Deno's assertion function does not return `a is B`.
 	const found = tree.exchangeToken(contentParser.token as DocumentToken);
 
-	assertObjectMatch(found, {
+	assertObjectMatch(found.document, {
 		path: ["Qux.md"],
 	});
 });
@@ -396,7 +403,7 @@ Deno.test(`Should support "Shortest path when possible" resolution`, async () =>
 	// `as` is required as Deno's assertion function does not return `a is B`.
 	const found = tree.exchangeToken(contentParser.token as DocumentToken);
 
-	assertObjectMatch(found, {
+	assertObjectMatch(found.document, {
 		path: ["Qux.md"],
 	});
 });
@@ -427,7 +434,7 @@ Deno.test("Shortest path resolution look down directories as-well", async () => 
 	// `as` is required as Deno's assertion function does not return `a is B`.
 	const found = tree.exchangeToken(contentParser.token as DocumentToken);
 
-	assertObjectMatch(found, {
+	assertObjectMatch(found.document, {
 		path: ["Foo", "Bar", "Baz.md"],
 	});
 });

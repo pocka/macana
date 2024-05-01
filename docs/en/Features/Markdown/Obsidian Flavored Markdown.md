@@ -20,10 +20,12 @@ To use this link style, surround the target file name without file extension or 
 ```markdown
 - [[Overview|Alternative Title]]
 - [[Overview]]
+- [[Overview#Arbitrary document tree]]
 ```
 
 - [[Overview|Alternative Title]]
 - [[Overview]]
+- [[Overview#Arbitrary document tree]]
 
 ### Image size attributes
 
