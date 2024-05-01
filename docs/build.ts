@@ -128,9 +128,8 @@ function prettyLogFormatter(
 					break;
 			}
 		}
-
-		let ret = "\n" + level(record.levelName) + " " +
-			ts(record.datetime.toISOString()) + "\n" +
+		let ret = colors.reset("\n") + level(record.levelName) + colors.reset(" ") +
+			ts(record.datetime.toISOString()) + colors.reset("\n") +
 			msg(record.msg);
 
 		if (verbose) {
@@ -141,7 +140,7 @@ function prettyLogFormatter(
 				});
 
 				for (const line of text.split("\n")) {
-					ret += "\n    " + payload(line);
+					ret += colors.reset("\n    ") + payload(line);
 				}
 			}
 		}
