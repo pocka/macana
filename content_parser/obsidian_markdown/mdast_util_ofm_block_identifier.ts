@@ -6,6 +6,7 @@ import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.t
 import type { State } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 import type * as Hast from "../../deps/esm.sh/hast/types.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
+import { visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
 
 export interface OfmBlockIdentifier extends Mdast.Node {
 	type: "ofmBlockIdentifier";
@@ -16,7 +17,21 @@ export interface OfmBlockIdentifier extends Mdast.Node {
 	value: string;
 }
 
-export function ofmBlockIdentifierFromMarkdown(): Extension {
+function isOfmBlockIdentifier(node: Mdast.Node): node is OfmBlockIdentifier {
+	return node.type === "ofmBlockIdentifier";
+}
+
+export interface OfmBlockIdentifierFromMarkdownOptions {
+	/**
+	 * Whether to set the ID to the parent node, instead of leaving
+	 * "ofmBlockIdentifier" node.
+	 */
+	hoist?: boolean;
+}
+
+export function ofmBlockIdentifierFromMarkdown(
+	{ hoist = false }: OfmBlockIdentifierFromMarkdownOptions = {},
+): Extension {
 	return {
 		enter: {
 			ofmBlockIdentifierIdentifier(token) {
@@ -42,6 +57,33 @@ export function ofmBlockIdentifierFromMarkdown(): Extension {
 				this.exit(token);
 			},
 		},
+		transforms: hoist
+			? [
+				(nodes) => {
+					visit(nodes, (node) =>
+						isOfmBlockIdentifier(node), (node, index, parent) => {
+						if (
+							!isOfmBlockIdentifier(node) || typeof index !== "number" ||
+							!parent
+						) {
+							return;
+						}
+
+						parent.data = {
+							...parent.data,
+							hProperties: {
+								id: (node as OfmBlockIdentifier).value,
+								...(parent.data && "hProperties" in parent.data &&
+										parent.data.hProperties || {}),
+							},
+						};
+
+						parent.children.splice(index, 1);
+						return;
+					});
+				},
+			]
+			: [],
 	};
 }
 

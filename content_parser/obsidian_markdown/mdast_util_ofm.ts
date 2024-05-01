@@ -8,6 +8,7 @@ import { mathFromMarkdown } from "../../deps/esm.sh/mdast-util-math/mod.ts";
 
 import {
 	ofmBlockIdentifierFromMarkdown,
+	type OfmBlockIdentifierFromMarkdownOptions,
 	ofmBlockIdentifierToHastHandlers,
 	type OfmBlockIdentifierToHastHandlersOptions,
 } from "./mdast_util_ofm_block_identifier.ts";
@@ -30,11 +31,17 @@ import { ofmImageSize } from "./mdast_util_ofm_image_size.ts";
 
 export type { OfmBlockIdentifier } from "./mdast_util_ofm_block_identifier.ts";
 
-export function ofmFromMarkdown(): Extension[] {
+export interface OfmFromMarkdownOptions {
+	blockIdentifier?: OfmBlockIdentifierFromMarkdownOptions;
+}
+
+export function ofmFromMarkdown(
+	{ blockIdentifier }: OfmFromMarkdownOptions = {},
+): Extension[] {
 	return [
 		...gfmFromMarkdown(),
 		mathFromMarkdown(),
-		ofmBlockIdentifierFromMarkdown(),
+		ofmBlockIdentifierFromMarkdown(blockIdentifier),
 		ofmCommentFromMarkdown(),
 		ofmHighlightFromMarkdown(),
 		ofmWikilinkFromMarkdown(),

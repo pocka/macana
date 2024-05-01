@@ -105,13 +105,36 @@ export async function parseMarkdown(
 ): Promise<Mdast.Root> {
 	const mdast = fromMarkdown(markdown, {
 		extensions: [ofm()],
-		mdastExtensions: [ofmFromMarkdown(), autoHeadingIdFromMarkdown()],
+		mdastExtensions: [
+			ofmFromMarkdown({ blockIdentifier: { hoist: true } }),
+			autoHeadingIdFromMarkdown(),
+		],
 	});
 
 	await macanaMarkAssets(mdast, getAssetToken);
 	await macanaMarkDocumentToken(mdast, getDocumentToken);
 
 	return mdast;
+}
+
+function haveId<Node extends Mdast.Node>(
+	node: Node,
+): node is Node & { data: { hProperties: { id: string } } } {
+	if (
+		!node.data || !("hProperties" in node.data) ||
+		typeof node.data.hProperties !== "object" || !node.data.hProperties
+	) {
+		return false;
+	}
+
+	if (
+		!("id" in node.data.hProperties) ||
+		typeof node.data.hProperties.id !== "string"
+	) {
+		return false;
+	}
+
+	return true;
 }
 
 function findNodeId(
@@ -127,10 +150,22 @@ function findNodeId(
 	if (selector.startsWith("^")) {
 		const ident = selector.slice(1);
 
-		const found = findNode(root, (node) => (
-			!!(node.data && node.type === "ofmBlockIdentifier" &&
-				(node as OfmBlockIdentifier).value === ident)
-		));
+		const found = findNode(root, (node) => {
+			// Non-hoisted block identifier
+			if (
+				node.type === "ofmBlockIdentifier" &&
+				(node as OfmBlockIdentifier).value === ident
+			) {
+				return true;
+			}
+
+			// Hoisted parent block
+			if (!haveId(node)) {
+				return false;
+			}
+
+			return node.data.hProperties.id === ident;
+		});
 
 		if (!found) {
 			logger().error(
@@ -160,12 +195,7 @@ function findNodeId(
 				return;
 			}
 
-			if (
-				!start.data || !("hProperties" in start.data) ||
-				typeof start.data.hProperties !== "object" || !start.data.hProperties ||
-				!("id" in start.data.hProperties) ||
-				typeof start.data.hProperties.id !== "string"
-			) {
+			if (!haveId(start)) {
 				return;
 			}
 
