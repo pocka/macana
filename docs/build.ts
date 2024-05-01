@@ -83,7 +83,7 @@ if (import.meta.main) {
 		handlers: {
 			default: new log.ConsoleHandler("DEBUG", {
 				formatter: args.json ? log.jsonFormatter : undefined,
-				useColors: args.json ? false : undefined,
+				useColors: Deno.stdout.isTerminal(),
 			}),
 		},
 		loggers: {
