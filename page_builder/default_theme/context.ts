@@ -1,4 +1,4 @@
-import type { Document, DocumentTree } from "../../types.ts";
+import type { Document, DocumentTree, FileReader } from "../../types.ts";
 
 export interface Assets {
 	globalCss: readonly string[];
@@ -39,4 +39,9 @@ export interface BuildContext {
 	 * relative path from the current document.
 	 */
 	resolvePath(to: readonly string[]): readonly string[];
+
+	/**
+	 * Copy file to the output directory.
+	 */
+	copyFile(file: FileReader): void;
 }

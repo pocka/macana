@@ -13,8 +13,10 @@ import {
 } from "../../../content_parser/obsidian_markdown.ts";
 
 import { buildClasses, css, join as joinCss } from "../css.ts";
+import { type BuildContext } from "../context.ts";
 
 import { calloutHandlers, calloutStyles } from "./callout.tsx";
+import { embedHandlers, type EmbedHandlersParameters } from "./embed.tsx";
 import { listHandlers, listStyles } from "./list.tsx";
 import { mathHandlers } from "./math.ts";
 import { codeHandlers, codeStyles } from "./code.tsx";
@@ -143,7 +145,15 @@ export const fromMdastStyles = joinCss(
 	quoteStyles,
 );
 
-export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
+export interface FromMdastParameters
+	extends Pick<EmbedHandlersParameters, "buildDocumentContent"> {
+	context: BuildContext;
+}
+
+export function fromMdast(
+	mdast: Mdast.Nodes,
+	{ context, buildDocumentContent }: FromMdastParameters,
+): Hast.Nodes {
 	return ofmHtml(toHast(mdast, {
 		handlers: {
 			...ofmToHastHandlers(),
@@ -151,9 +161,10 @@ export function fromMdast(mdast: Mdast.Nodes): Hast.Nodes {
 			...listHandlers(),
 			...mathHandlers(),
 			...codeHandlers(),
-			...linkHandlers(),
+			...linkHandlers({ context }),
 			...quoteHandlers(),
 			...paragraphHandlers(),
+			...embedHandlers({ context, buildDocumentContent }),
 		},
 		allowDangerousHtml: true,
 	}));

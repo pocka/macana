@@ -4,20 +4,37 @@
 
 import type { JSONCanvas, Node } from "./types.ts";
 
-export async function mapNode<A, B = A>(
+export function mapNode<A, B = A>(
 	tree: JSONCanvas<A>,
-	f: (node: Node<A>) => Node<B> | Promise<Node<B>>,
+	f: (node: Node<A>) => Node<B>,
+): JSONCanvas<B> {
+	if (!tree.nodes?.map?.length) {
+		// No nodes = no text nodes = Markdown type does not matter.
+		return tree as unknown as JSONCanvas<B>;
+	}
+
+	const nodes = tree.nodes.map<Node<B>>((node) => {
+		return f(node);
+	});
+
+	return {
+		...tree,
+		nodes,
+	};
+}
+
+export async function mapNodeAsync<A, B = A>(
+	tree: JSONCanvas<A>,
+	f: (node: Node<A>) => Promise<Node<B>>,
 ): Promise<JSONCanvas<B>> {
 	if (!tree.nodes?.map?.length) {
 		// No nodes = no text nodes = Markdown type does not matter.
-		return Promise.resolve(tree as unknown as JSONCanvas<B>);
+		return tree as unknown as JSONCanvas<B>;
 	}
 
-	const nodes = await Promise.all(
-		tree.nodes.map<Promise<Node<B>>>(async (node) => {
-			return await f(node);
-		}),
-	);
+	const nodes = await Promise.all(tree.nodes.map<Promise<Node<B>>>((node) => {
+		return f(node);
+	}));
 
 	return {
 		...tree,

@@ -121,3 +121,22 @@ Deno.test("Should build outline tree", () => {
 		},
 	]);
 });
+
+Deno.test("Should not set duplicate IDs", () => {
+	const toc = tocMut(h(null, [
+		h("h1", [{ type: "text", value: "Foo" }]),
+		h("h1", [{ type: "text", value: "Foo" }]),
+	]));
+
+	// @ts-expect-error: Deno ships broken type definition for assert functions
+	assertObjectMatch(toc, [
+		{
+			level: 1,
+			id: "Foo",
+		},
+		{
+			level: 1,
+			id: "Foo__1",
+		},
+	]);
+});

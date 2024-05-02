@@ -9,7 +9,7 @@ import type { ContentParser, ParseParameters } from "./interface.ts";
 import type { DocumentContent } from "../types.ts";
 
 import { isJSONCanvas, type JSONCanvas } from "./json_canvas/types.ts";
-import { mapNode } from "./json_canvas/utils.ts";
+import { mapNodeAsync } from "./json_canvas/utils.ts";
 import { parseMarkdown } from "./obsidian_markdown.ts";
 
 const PROBABLY_URL_PATTERN = /^[a-z0-9]+:/i;
@@ -58,7 +58,7 @@ export class JSONCanvasParser
 
 		return {
 			kind: "json_canvas",
-			content: await mapNode(json, async (node) => {
+			content: await mapNodeAsync(json, async (node) => {
 				switch (node.type) {
 					case "text": {
 						return {

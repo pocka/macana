@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { extname } from "../../deps/deno.land/std/path/mod.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
 import { SKIP, visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
 import { definitions } from "../../deps/esm.sh/mdast-util-definitions/mod.ts";
@@ -9,7 +10,10 @@ import { definitions } from "../../deps/esm.sh/mdast-util-definitions/mod.ts";
 import type { ParseParameters } from "../interface.ts";
 import type { DocumentToken } from "../../types.ts";
 
-import type { OfmWikilink } from "./mdast_util_ofm_wikilink.ts";
+import type {
+	OfmWikilink,
+	OfmWikilinkEmbed,
+} from "./mdast_util_ofm_wikilink.ts";
 
 const SEPARATOR = "/";
 const FRAGMENT_PREFIX = "#";
@@ -37,9 +41,12 @@ function parseInternalLink(
  * with Document Token.
  *
  * This function mutates the Mdast tree in place.
+ *
+ * In order to correctly mark document embeds, run this function before
+ * `macanaMarkAssets`.
  */
 export async function macanaMarkDocumentToken(
-	tree: Mdast.Nodes | OfmWikilink,
+	tree: Mdast.Nodes | OfmWikilink | OfmWikilinkEmbed,
 	getDocumentToken: ParseParameters["getDocumentToken"],
 ): Promise<void> {
 	const promises: Promise<unknown>[] = [];
@@ -50,9 +57,29 @@ export async function macanaMarkDocumentToken(
 		tree,
 		(node) =>
 			node.type === "link" || node.type === "linkReference" ||
-			node.type === "ofmWikilink",
+			node.type === "ofmWikilink" || node.type === "ofmWikilinkEmbed",
 		(node) => {
 			switch (node.type) {
+				case "ofmWikilinkEmbed": {
+					const { path, fragments } = parseInternalLink(node.target);
+
+					if (extname(path[path.length - 1])) {
+						// File embeds
+						return SKIP;
+					}
+
+					const token = getDocumentToken(path, fragments);
+
+					if (token instanceof Promise) {
+						promises.push(token.then((t) => {
+							setDocumentToken(node, t);
+						}));
+						return SKIP;
+					}
+
+					setDocumentToken(node, token);
+					return SKIP;
+				}
 				case "ofmWikilink": {
 					const { path, fragments } = parseInternalLink(node.target);
 

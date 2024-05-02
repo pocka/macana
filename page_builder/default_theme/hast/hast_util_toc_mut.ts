@@ -34,6 +34,8 @@ export function tocMut<Node extends Hast.Node>(
 	const items: TocItem[] = [];
 	const stack: TocItem[] = [];
 
+	const counts = new Map<string, number>();
+
 	const pop = () => {
 		const popped = stack.pop();
 		if (!popped) {
@@ -85,6 +87,15 @@ export function tocMut<Node extends Hast.Node>(
 			id = fastUslug(toString(node), {
 				lower: false,
 			});
+			node.properties.id = id;
+		}
+
+		const count = counts.get(id) ?? 0;
+
+		counts.set(id, count + 1);
+
+		if (count > 0) {
+			id = id + "__" + count;
 			node.properties.id = id;
 		}
 

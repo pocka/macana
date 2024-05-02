@@ -90,6 +90,23 @@ To set the display image size, add a vertical pipe (`|`) following text specifyi
 
 ![[dog.jpg|128x128]]
 
+#### Another documents
+
+Put an exclamation symbol `!` before internal wikilink to make it a document embeds.
+
+- [Embed files - Obsidian Help](https://help.obsidian.md/Linking+notes+and+files/Embed+files#Embed+a+note+in+another+note)
+
+As you can see in the below examples, Macana embeds the target document directly inside body without any modifications. The embedded section affects embedder's document outline. 
+Place the embed inside blockquote if you want to it to be shown as quote.
+
+```markdown
+![[GitHub Flavored Markdown#Strikethrough]]
+> ![[GitHub Flavored Markdown#Strikethrough]]
+```
+
+![[GitHub Flavored Markdown#Strikethrough]]
+
+> ![[GitHub Flavored Markdown#Strikethrough]]
 ### Highlights
 
 Surround text with `==` to make the text highlighted.

@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-04-23T23:00:00+09:00
+updatedAt: 2024-05-03T15:00:00+09:00
 ---
 ## v1.0
 
@@ -37,7 +37,7 @@ updatedAt: 2024-04-23T23:00:00+09:00
 ## v0.1
 
 - [x] Using Vault as a site structure
-- [ ] Markdown Parsing
+- [x] Markdown Parsing
 	- [x] CommonMark
 	- [x] GitHub Flavored Markdown
 		- [x] Strikethrough
@@ -47,7 +47,7 @@ updatedAt: 2024-04-23T23:00:00+09:00
 		- [x] Tables
 		- [x] Math ... ~No support if MathJax can't generate MathML at build time.~ Using Temml instead.
 	- [x] Syntax Highlighting
-	- [ ] Obsidian Extensions
+	- [x] Obsidian Extensions
 		- [x] Internal Link path resolution
 			- [x] Absolute path in vault
 			- [x] Absolute path in vault (extension-less)
@@ -60,11 +60,11 @@ updatedAt: 2024-04-23T23:00:00+09:00
 			- [x] Block reference
 		- [x] Defining a block
 		- [x] Image size annotation
-		- [ ] Embeddings
+		- [x] Embeddings
 			- [x] Image file
 			- [x] Audio file
 			- [x] PDF file
-			- [ ] List from another file
+			- [x] Another document
 		- [x] ==Highlight==
 		- [x] Callouts
 		- [x] Comments %% You can check this item once I'm no longer visible %%

@@ -43,6 +43,11 @@ export async function macanaMarkAssets(
 		(node) => {
 			switch (node.type) {
 				case "ofmWikilinkEmbed": {
+					// This node is document embed.
+					if (node.data && "macanaDocumentToken" in node.data) {
+						return SKIP;
+					}
+
 					const path = node.target.split(SEPARATOR);
 
 					promises.push(

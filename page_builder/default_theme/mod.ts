@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type * as Hast from "../../deps/esm.sh/hast/types.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
+import { headingRange } from "../../deps/esm.sh/mdast-util-heading-range/mod.ts";
 import { toHtml } from "../../deps/esm.sh/hast-util-to-html/mod.ts";
 
 import { logger } from "../../logger.ts";
 
 import type { BuildParameters, PageBuilder } from "../interface.ts";
 import {
-	macanaReplaceAssetTokens,
-	macanaReplaceDocumentToken,
 	type ObsidianMarkdownDocument,
 } from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
@@ -28,23 +28,20 @@ import { globalStyles } from "./global_styles.ts";
 import type { Assets, BuildContext } from "./context.ts";
 
 import { tocMut } from "./hast/hast_util_toc_mut.ts";
+import { deleteId } from "./mdast/mdast_util_delete_id.ts";
 
 import {
 	fromMdast,
 	fromMdastStyles,
 	style as styleMarkdownContent,
 } from "./from_mdast/mod.ts";
+import {
+	jsonCanvas as jsonCanvasRenderer,
+	jsonCanvasStyles as jsonCanvasRendererStyles,
+} from "./json_canvas/mod.tsx";
 import { indexRedirect } from "./pages/index_redirect.tsx";
-import {
-	markdownEmbed,
-	markdownPage,
-	markdownPageStyles,
-} from "./pages/markdown.tsx";
-import {
-	jsonCanvasEmbed,
-	jsonCanvasPage,
-	jsonCanvasPageStyles,
-} from "./pages/json_canvas.tsx";
+import { markdownPage, markdownPageStyles } from "./pages/markdown.tsx";
+import { jsonCanvasPage, jsonCanvasPageStyles } from "./pages/json_canvas.tsx";
 
 export type { BuildContext } from "./context.ts";
 
@@ -162,6 +159,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 				fromMdastStyles,
 				markdownPageStyles,
 				jsonCanvasPageStyles,
+				jsonCanvasRendererStyles,
 			),
 		);
 
@@ -224,6 +222,127 @@ export class DefaultThemeBuilder implements PageBuilder {
 		});
 	}
 
+	#buildEmbed(
+		context: BuildContext,
+		target: Document,
+		fragments: readonly string[] = [],
+	): Hast.Nodes {
+		if (isJSONCanvas(target)) {
+			if (fragments.length > 0) {
+				logger().warn(
+					"JSONCanvas embeds does not support partial embed using hash",
+					{
+						embedder: context.document.path.join(" > "),
+						target: target.path.join(" > "),
+						fragments,
+					},
+				);
+			}
+
+			const content = jsonCanvas.mapNode(
+				target.content.content,
+				(node) => {
+					switch (node.type) {
+						case "text": {
+							const nodes = structuredClone(node.text);
+
+							deleteId(nodes);
+
+							return {
+								...node,
+								text: fromMdast(nodes, {
+									context,
+									buildDocumentContent: (document, fragments) => {
+										return this.#buildEmbed(
+											context,
+											document,
+											fragments,
+										);
+									},
+								}),
+							};
+						}
+						case "file": {
+							if (isAssetToken(node.file)) {
+								const file = context.documentTree.exchangeToken(node.file);
+
+								context.copyFile(file);
+
+								return {
+									...node,
+									file: toRelativePathString(file.path, context.document.path),
+								};
+							}
+
+							if (isDocumentToken(node.file)) {
+								const { document, fragments } = context.documentTree
+									.exchangeToken(
+										node.file,
+									);
+
+								return {
+									...node,
+									type: "text",
+									text: this.#buildEmbed(
+										context,
+										document,
+										fragments,
+									),
+								};
+							}
+
+							return node;
+						}
+						default: {
+							return node;
+						}
+					}
+				},
+			);
+
+			return jsonCanvasRenderer({
+				data: content,
+			});
+		}
+
+		if (isObsidianMarkdown(target)) {
+			let nodes: Mdast.Nodes = structuredClone(target.content.content);
+
+			if (fragments.length > 0) {
+				const id = target.content.getHash(fragments);
+
+				headingRange(
+					nodes as Mdast.Root,
+					id,
+					(start, content) => {
+						nodes = {
+							type: "root",
+							children: [
+								start,
+								...content,
+							],
+						};
+					},
+				);
+			}
+
+			deleteId(nodes);
+
+			return fromMdast(nodes, {
+				context,
+				buildDocumentContent: (document, fragments) => {
+					return this.#buildEmbed(context, document, fragments);
+				},
+			});
+		}
+
+		throw new Error(
+			`Can't embed document "${
+				target.path.join("/")
+			}": unknown content kind (${target.content.kind})`,
+		);
+	}
+
 	async #build(
 		{ item, tree, parentLanguage, pathPrefix = [], buildParameters, assets }:
 			InnerBuildParameters,
@@ -231,6 +350,8 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const { fileSystemWriter } = buildParameters;
 
 		if ("file" in item) {
+			const writeTasks: Promise<unknown>[] = [];
+
 			const context: BuildContext = {
 				document: item,
 				documentTree: tree,
@@ -242,6 +363,13 @@ export class DefaultThemeBuilder implements PageBuilder {
 					// This page builder transforms path to "Foo/Bar.md" to "Foo/Bar/(index.html)"
 					return toRelativePath(to, item.path);
 				},
+				copyFile(file) {
+					writeTasks.push(
+						file.read().then((bytes) => {
+							fileSystemWriter.write(file.path, bytes);
+						}),
+					);
+				},
 			};
 
 			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
@@ -252,52 +380,25 @@ export class DefaultThemeBuilder implements PageBuilder {
 					item.metadata.name,
 				];
 
-				const writeTasks: Promise<unknown>[] = [];
-
 				switch (item.content.kind) {
 					case "json_canvas": {
-						const content = await jsonCanvas.mapNode(
+						const content = jsonCanvas.mapNode(
 							item.content.content,
-							async (node) => {
+							(node) => {
 								switch (node.type) {
 									case "text": {
-										await macanaReplaceAssetTokens(
-											node.text,
-											async (token) => {
-												const file = tree.exchangeToken(token);
-
-												writeTasks.push(fileSystemWriter.write(
-													file.path,
-													await file.read(),
-												));
-
-												return toRelativePathString(file.path, item.path);
-											},
-										);
-
-										await macanaReplaceDocumentToken(
-											node.text,
-											async (token) => {
-												const { document, fragments } = tree.exchangeToken(
-													token,
-												);
-
-												const hash = fragments.length > 0
-													? "#" + document.content.getHash(fragments)
-													: "";
-
-												return {
-													path: toRelativePathString(
-														[...document.path, ""],
-														item.path,
-													) + hash,
-												};
-											},
-										);
-
 										return {
 											...node,
-											text: fromMdast(node.text),
+											text: fromMdast(node.text, {
+												context,
+												buildDocumentContent: (document, fragments) => {
+													return this.#buildEmbed(
+														context,
+														document,
+														fragments,
+													);
+												},
+											}),
 										};
 									}
 									case "file": {
@@ -305,7 +406,9 @@ export class DefaultThemeBuilder implements PageBuilder {
 											const file = tree.exchangeToken(node.file);
 
 											writeTasks.push(
-												fileSystemWriter.write(file.path, await file.read()),
+												file.read().then((bytes) =>
+													fileSystemWriter.write(file.path, bytes)
+												),
 											);
 
 											return {
@@ -319,16 +422,10 @@ export class DefaultThemeBuilder implements PageBuilder {
 												node.file,
 											);
 
-											const hash = fragments.length > 0
-												? "#" + document.content.getHash(fragments)
-												: "";
-
 											return {
 												...node,
-												file: toRelativePathString(
-													[...document.path, "embed.html"],
-													item.path,
-												) + hash,
+												type: "text",
+												text: this.#buildEmbed(context, document, fragments),
 											};
 										}
 
@@ -353,54 +450,20 @@ export class DefaultThemeBuilder implements PageBuilder {
 							], enc.encode(html)),
 						);
 
-						const embed = toHtml(jsonCanvasEmbed({
-							context,
-							content,
-						}));
-
-						writeTasks.push(
-							fileSystemWriter.write([
-								...basePath,
-								"embed.html",
-							], enc.encode(embed)),
-						);
-
 						await Promise.all(writeTasks);
 						return;
 					}
 					case "obsidian_markdown": {
-						await macanaReplaceAssetTokens(
-							item.content.content,
-							async (token) => {
-								const file = tree.exchangeToken(token);
-
-								writeTasks.push(fileSystemWriter.write(
-									file.path,
-									await file.read(),
-								));
-
-								return toRelativePathString(file.path, item.path);
+						const hast = fromMdast(item.content.content, {
+							context,
+							buildDocumentContent: (document, fragments) => {
+								return this.#buildEmbed(
+									context,
+									document,
+									fragments,
+								);
 							},
-						);
-
-						await macanaReplaceDocumentToken(
-							item.content.content,
-							async (token) => {
-								const { document, fragments } = tree.exchangeToken(token);
-
-								const hash = fragments.length > 0
-									? "#" + document.content.getHash(fragments)
-									: "";
-
-								return {
-									path:
-										toRelativePathString([...document.path, ""], item.path) +
-										hash,
-								};
-							},
-						);
-
-						const hast = fromMdast(item.content.content);
+						});
 						const toc = tocMut(hast);
 
 						const html = toHtml(markdownPage({
@@ -414,18 +477,6 @@ export class DefaultThemeBuilder implements PageBuilder {
 								...basePath,
 								"index.html",
 							], enc.encode(html)),
-						);
-
-						const embed = toHtml(markdownEmbed({
-							context,
-							content: styleMarkdownContent(hast),
-						}));
-
-						writeTasks.push(
-							fileSystemWriter.write([
-								...basePath,
-								"embed.html",
-							], enc.encode(embed)),
 						);
 
 						await Promise.all(writeTasks);

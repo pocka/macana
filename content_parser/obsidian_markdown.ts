@@ -28,8 +28,6 @@ import type {
 } from "./interface.ts";
 import type { DocumentContent } from "../types.ts";
 
-export { macanaReplaceAssetTokens } from "./obsidian_markdown/mdast_util_macana_replace_asset_tokens.ts";
-export { macanaReplaceDocumentToken } from "./obsidian_markdown/mdast_util_macana_replace_document_tokens.ts";
 export { ofmToHastHandlers } from "./obsidian_markdown/mdast_util_ofm.ts";
 export { ofmHtml } from "./obsidian_markdown/hast_util_ofm_html.ts";
 export type { CalloutType } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
@@ -111,8 +109,8 @@ export async function parseMarkdown(
 		],
 	});
 
-	await macanaMarkAssets(mdast, getAssetToken);
 	await macanaMarkDocumentToken(mdast, getDocumentToken);
+	await macanaMarkAssets(mdast, getAssetToken);
 
 	return mdast;
 }

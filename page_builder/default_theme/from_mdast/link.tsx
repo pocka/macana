@@ -16,6 +16,9 @@ import { type OfmWikilink } from "../../../content_parser/obsidian_markdown/mdas
 
 import { buildClasses, css, join } from "../css.ts";
 import * as lucide from "../icons/lucide.tsx";
+import type { BuildContext } from "../context.ts";
+
+import { hasDocumentToken } from "./utils.ts";
 
 function isExternal(urlOrPath: string): boolean {
 	try {
@@ -56,6 +59,8 @@ interface LinkHandlersOptions {
 	 * external location.
 	 */
 	openExternalLinkInBlank?: boolean;
+
+	context: BuildContext;
 }
 
 function link(
@@ -81,12 +86,33 @@ function link(
 	]);
 }
 
+function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
+	if (!hasDocumentToken(node)) {
+		return url;
+	}
+
+	const { document, fragments } = context.documentTree.exchangeToken(
+		node.data.macanaDocumentToken,
+	);
+
+	const hash = fragments.length > 0
+		? "#" + document.content.getHash(fragments)
+		: "";
+
+	const path = context.resolvePath([...document.path, ""]);
+
+	return path.join("/") + hash;
+}
+
 export function linkHandlers(
-	{ openExternalLinkInBlank = true }: LinkHandlersOptions = {},
+	{ openExternalLinkInBlank = true, context }: LinkHandlersOptions,
 ): Handlers {
 	return {
 		link(state, node: Mdast.Link) {
-			return link(node.url, state.all(node), { openExternalLinkInBlank });
+			return link(getUrl(node.url, node, context), state.all(node), {
+				openExternalLinkInBlank,
+				context,
+			});
 		},
 		linkReference(state, node: Mdast.LinkReference) {
 			const def = state.definitionById.get(node.identifier);
@@ -94,15 +120,18 @@ export function linkHandlers(
 				throw new Error(`Orphaned link reference: id=${node.identifier}`);
 			}
 
-			return link(def.url, state.all(node), { openExternalLinkInBlank });
+			return link(getUrl(def.url, node, context), state.all(node), {
+				openExternalLinkInBlank,
+				context,
+			});
 		},
 		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		ofmWikilink(_state: State, node: OfmWikilink) {
-			return link(node.target, [{
+			return link(getUrl(node.target, node, context), [{
 				type: "text",
 				value: node.label ?? node.target,
-			}], { openExternalLinkInBlank });
+			}], { openExternalLinkInBlank, context });
 		},
 	};
 }
