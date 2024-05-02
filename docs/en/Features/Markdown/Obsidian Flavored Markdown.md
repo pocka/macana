@@ -42,6 +42,24 @@ This is a paragraph. ^block-ident-demo
 
 This is a paragraph. ^block-ident-demo
 
+---
+
+Since Macana strictly parse Markdown, block identifier separated by more than one newline characters is treated as a regular text, even though Obsidian treat that as a block identifier for the previous block.
+Because of this, you can't reference the entire list.
+This restriction may be removed if Obsidian published formal and correct specification for their Markdown flavor.
+
+```markdown
+- Foo
+- Bar
+
+^Baz
+```
+
+- Foo
+- Bar
+
+^Baz
+
 ### Image size attributes
 
 Add a vertical pipe (`|`) following text specifying image dimensions to set the image size inside image's alt text.
