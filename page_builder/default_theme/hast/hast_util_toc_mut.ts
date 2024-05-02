@@ -116,7 +116,7 @@ export function tocMut<Node extends Hast.Node>(
 				break;
 			}
 
-			stack[i].children.push(item);
+			stack.push(item);
 			break;
 		}
 	});
