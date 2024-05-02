@@ -59,7 +59,7 @@ const ownStyles = css`
 
 	:where(.${c.wrapper}) h2 {
 		margin: 0;
-		margin-top: calc(var(--baseline) * 2rem);
+		margin-top: calc(var(--baseline) * 3rem);
 		line-height: calc(var(--baseline) * 1rem);
 	}
 
@@ -68,7 +68,7 @@ const ownStyles = css`
 	:where(.${c.wrapper}) h5,
 	:where(.${c.wrapper}) h6 {
 		margin: 0;
-		margin-top: calc(var(--baseline) * 1rem);
+		margin-top: calc(var(--baseline) * 2rem);
 		line-height: calc(var(--baseline) * 1rem);
 
 		font-weight: 600;
