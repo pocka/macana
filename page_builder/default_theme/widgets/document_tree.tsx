@@ -120,8 +120,8 @@ function node({ currentPath, value, context }: NodeProps) {
 			"",
 		]);
 
-		const isCurrent = currentPath.length === 1 &&
-			currentPath[0] === value.metadata.name;
+		const isCurrent = value.path.length === context.document.path.length &&
+			value.path.every((x, i) => context.document.path[i] === x);
 
 		return (
 			<li lang={value.metadata.language ?? undefined} class={c.document}>
