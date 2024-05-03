@@ -63,7 +63,7 @@ export function embedHandlers(
 			}, []);
 		},
 		imageReference(state: State, node: Mdast.ImageReference) {
-			const def = state.definitionById.get(node.identifier);
+			const def = state.definitionById.get(node.identifier.toUpperCase());
 			if (!def) {
 				throw new Error(`Orphaned image reference: id=${node.identifier}`);
 			}

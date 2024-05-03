@@ -115,7 +115,7 @@ export function linkHandlers(
 			});
 		},
 		linkReference(state, node: Mdast.LinkReference) {
-			const def = state.definitionById.get(node.identifier);
+			const def = state.definitionById.get(node.identifier.toUpperCase());
 			if (!def) {
 				throw new Error(`Orphaned link reference: id=${node.identifier}`);
 			}
