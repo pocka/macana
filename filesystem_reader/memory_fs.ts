@@ -30,7 +30,7 @@ type InternalTree = Map<
 /**
  * In-memory readonly filesystem.
  *
- * This was created for testing purpose.
+ * This is for testing.
  */
 export class MemoryFsReader implements FileSystemReader {
 	#tree: InternalTree;

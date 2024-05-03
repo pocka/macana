@@ -7,6 +7,9 @@ export interface FileSystemStats {
 	createdAt?: Date;
 }
 
+/**
+ * Virtual readonly file system's file.
+ */
 export interface FileReader {
 	readonly type: "file";
 	readonly name: string;
@@ -18,6 +21,9 @@ export interface FileReader {
 	stat(): FileSystemStats | Promise<FileSystemStats>;
 }
 
+/**
+ * Virtual readonly file system's directory.
+ */
 export interface DirectoryReader {
 	readonly type: "directory";
 	readonly name: string;
@@ -33,6 +39,9 @@ export type DocumentToken = `mxt_${string}`;
 
 export type AssetToken = `mxa_${string}`;
 
+/**
+ * Virtual readonly file system's root directory.
+ */
 export interface RootDirectoryReader {
 	readonly type: "root";
 

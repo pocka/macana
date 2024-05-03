@@ -38,6 +38,11 @@ export type JSONCanvasDocument<T> = DocumentContent<
 	JSONCanvas<T>
 >;
 
+/**
+ * Content parser for JSONCanvas documents.
+ *
+ * This parser uses Obsidian Markdown parser internally.
+ */
 export class JSONCanvasParser
 	implements ContentParser<JSONCanvasDocument<Mdast.Nodes>> {
 	async parse(

@@ -8,6 +8,11 @@ import { logger } from "../logger.ts";
 
 import type { FileSystemWriter } from "./interface.ts";
 
+/**
+ * FileSystem Writer for native file system, using Deno runtime API.
+ *
+ * This writer requires "write" permission for the `rootDirectory`.
+ */
 export class DenoFsWriter implements FileSystemWriter {
 	#root: string;
 	#wroteHash: Map<string, Uint8Array> = new Map();

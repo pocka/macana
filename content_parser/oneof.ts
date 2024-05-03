@@ -4,6 +4,13 @@
 
 import type { ContentParser } from "./interface.ts";
 
+/**
+ * Combine multiple content parsers into one.
+ *
+ * It tries to parse the contents using given parsers and returns the first
+ * successful result. If all of parsers failed, this parser throws the last
+ * thrown error.
+ */
 export function oneof(...parsers: readonly ContentParser[]): ContentParser {
 	return {
 		async parse(...args) {

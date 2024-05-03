@@ -24,6 +24,9 @@ const SEP = "/";
  * Wraps the given FileSystem Writer and returns a new FileSystem Writer
  * that checks tree structure so there won't be a directory and a file
  * having same name.
+ *
+ * If you're writing to native file system, you won't need this function
+ * as the native file system validates using its own constraints.
  */
 export function validateTree(childWriter: FileSystemWriter): FileSystemWriter {
 	const nodes = new Map<string, NodeType>();

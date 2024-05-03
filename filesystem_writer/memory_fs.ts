@@ -6,6 +6,13 @@ import type { FileSystemWriter } from "./interface.ts";
 
 const SEP = "/";
 
+/**
+ * Write contents to in-memory `Map` object.
+ *
+ * This is for testing: this class does not implement iterator
+ * or a listing method. If you need in-memory abstraction or such,
+ * write your own.
+ */
 export class MemoryFsWriter implements FileSystemWriter {
 	#files: Map<string, Uint8Array> = new Map();
 

@@ -4,6 +4,17 @@
 
 import { getLogger } from "./deps/deno.land/std/log/mod.ts";
 
+/**
+ * @internal
+ *
+ * Logging interface for Macana internals.
+ *
+ * @module
+ */
+
+/**
+ * @internal
+ */
 export function logger() {
 	return getLogger("macana");
 }

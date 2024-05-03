@@ -94,6 +94,9 @@ export interface ObsidianMarkdownParserOptions {
 	frontmatter?: boolean;
 }
 
+/**
+ * @internal
+ */
 export async function parseMarkdown(
 	markdown: string | Uint8Array,
 	{ getAssetToken, getDocumentToken }: Pick<
@@ -237,6 +240,9 @@ async function ok(
 	};
 }
 
+/**
+ * Content parser for Obsidian Flavored Markdown documents.
+ */
 export class ObsidianMarkdownParser
 	implements ContentParser<ObsidianMarkdownDocument> {
 	#frontmatter: boolean;

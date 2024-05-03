@@ -13,6 +13,11 @@ import type {
 	RootDirectoryReader,
 } from "../types.ts";
 
+/**
+ * FileSystem Reader for native file system, using Deno runtime API.
+ *
+ * This writer requires "read" permission for the `rootDirectory`.
+ */
 export class DenoFsReader implements FileSystemReader {
 	#root: string;
 

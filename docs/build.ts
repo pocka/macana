@@ -2,6 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * @internal
+ *
+ * Build script for Macana's document website.
+ *
+ * @module
+ */
+
 import * as log from "../deps/deno.land/std/log/mod.ts";
 import * as cli from "../deps/deno.land/std/cli/mod.ts";
 import * as colors from "../deps/deno.land/std/fmt/colors.ts";

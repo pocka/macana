@@ -69,10 +69,30 @@ export function fileExtensions(exts: readonly string[]): TreeBuildStrategy {
 	};
 }
 
+/**
+ * Do not include files and directories whose name starts with dot (`.`).
+ */
 export const ignoreDotfiles: IgnoreFunction = (node) => {
 	return node.name.startsWith(".");
 };
 
+/**
+ * Treat specific named directories as language directory.
+ * Contents inside the language directory inherits its document language
+ * from the language directory, if the document does not have its own language
+ * set.
+ *
+ * @param langs - Map of directory name and display name.
+ * @param topLevelOnly - Whether this function skip non-toplevel directories.
+ *
+ * @example
+ * langDir({
+ *   // Directories named "en" is set to "lang=en" and displayed as "English"
+ *   "en": "English",
+ *   // Directories named "kr" is set to "lang=kr" and displayed as "Korean"
+ *   "kr": "Korean",
+ * })
+ */
 export function langDir(
 	langs: Record<string, string>,
 	topLevelOnly: boolean = false,
@@ -408,6 +428,12 @@ export interface DefaultTreeBuilderConfig {
 	resolveShortestPathWhenPossible?: boolean;
 }
 
+/**
+ * Macana's default tree builder.
+ *
+ * This tree builder prioritizes effortlessly building a tree from
+ * vanilla Obsidian Vault.
+ */
 export class DefaultTreeBuilder implements TreeBuilder {
 	#defaultLanguage: string;
 	#strategies: readonly TreeBuildStrategy[];
