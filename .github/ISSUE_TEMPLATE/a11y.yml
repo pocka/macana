@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Accessibility Problem
+
+description: File a accessibility problem report.
+
+labels:
+  - "type: a11y"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If you think Macana's default theme builder's output is inaccessible to
+        certain users, use this form.
+
+        Note that support for screen readers run only on Windows is limited.
+  - type: textarea
+    attributes:
+      label: Description
+      description: If you're sure the markup violates HTML spec or WAI-ARIA standards, also include a link to the corresponding section on the spec.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Minimal Reproduction Repository
+      description: URL for the minimal reproduction repository, sandbox, or a page of website built using Macana.
+      placeholder: "https://example.com/foo/"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Version
+      description: Version tag or SHA commit hash the a11y problem exists.
+      placeholder: "v0.1.0"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: System and Browser
+      description: If the problem is specific to certain browsers, write OS family, browser name and its version.
+      placeholder: "macOS Chrome 124.0"
+  - type: dropdown
+    attributes:
+      label: Screen Reader Software
+      description: If the problem is specific to certain screen readers, select those.
+      options:
+        - VoiceOver (iOS / macOS)
+        - TalkBack (Android)
+        - ChromeVox
+        - NVDA
+        - JAWS
+        - Others

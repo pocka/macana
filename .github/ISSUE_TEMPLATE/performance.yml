@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Performance Problem
+
+description: File a performance problem report.
+
+labels:
+  - "type: performance"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If you think Macana has performance problem on its build process,
+        use this issue form. Describing your context and usecase would help me
+        correctly evaluating the problem.
+  - type: textarea
+    attributes:
+      label: Description
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Minimal Reproduction Repository
+      description: URL for the minimal reproduction repository or sandbox.
+      placeholder: "https://example.com"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Version
+      description: Version tag or SHA commit hash the performance problem occurs.
+      placeholder: "v0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: System
+      options:
+        - Linux
+        - BSD
+        - macOS
+        - Windows
+    validations:
+      required: true
+

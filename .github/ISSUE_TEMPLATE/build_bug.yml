@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build Bug
+
+description: File a bug report about build process.
+
+labels:
+  - "type: bug (build)"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If you think Macana's build functions working differently from documented, use this form.
+  - type: textarea
+    attributes:
+      label: Brief Description
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Result / Behavior
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual Result / Behavior
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Minimal Reproduction Repository
+      description: URL for the minimal reproduction repository or sandbox.
+      placeholder: "https://example.com/"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Version
+      description: Version tag or SHA commit hash the bug exists.
+      placeholder: "v0.1.0"
+    validations:
+      required: true
