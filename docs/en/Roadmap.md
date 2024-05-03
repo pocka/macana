@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-05-03T15:00:00+09:00
+updatedAt: 2024-05-03T21:00:00+09:00
 ---
 ## v1.0
 
@@ -93,4 +93,4 @@ updatedAt: 2024-05-03T15:00:00+09:00
 - [x] Tool's logo
 - [x] Proper styling
 - [x] Switch to drawer menu when side navigation cannot fit
-- [ ] Library usage document
+- [x] Library usage document

@@ -10,6 +10,7 @@ Macana is a tool to generate a static website from an Obsidian Vault.
 ## Links
 
 - [Source code](https://github.com/pocka/macana)
+- [[Deno module|Use as a Deno module]]
 - [日本語版簡易ドキュメント](../ja/概要.md)
 
 ## Goals
