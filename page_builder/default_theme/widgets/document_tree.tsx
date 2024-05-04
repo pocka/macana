@@ -86,6 +86,57 @@ export const documentTreeStyles = join(
 `,
 );
 
+const enum StorageKey {
+	OpenedPaths = "__macana_doctree_0",
+}
+
+export const documentTreeScript = `
+function loadSavedTreeState() {
+	const data = window.sessionStorage.getItem("${StorageKey.OpenedPaths}");
+	if (!data) {
+		return []
+	}
+
+	const parsed = JSON.parse(data)
+	if (!Array.isArray(parsed)) {
+		return []
+	}
+
+	return parsed.filter(path => typeof path === "string");
+}
+
+let saved = new Set();
+try {
+	saved = new Set(loadSavedTreeState());
+} catch (error) {
+	console.warn("Failed to restore tree state", { error });
+}
+
+for (const dir of Array.from(document.getElementsByClassName("${c.directory}"))) {
+	const path = dir.dataset.macanaPath;
+	if (typeof path !== "string") {
+		continue;
+	}
+
+	if (saved.has(path)) {
+		dir.open = true;
+	}
+
+	dir.addEventListener("toggle", () => {
+		if (dir.open) {
+			saved.add(path);
+		} else {
+			saved.delete(path);
+		}
+
+		window.sessionStorage.setItem(
+			"${StorageKey.OpenedPaths}",
+			JSON.stringify(Array.from(saved.values()))
+		);
+	});
+}
+`.trim();
+
 export interface DocumentTreeProps {
 	context: Readonly<BuildContext>;
 }
@@ -140,7 +191,11 @@ function node({ currentPath, value, context }: NodeProps) {
 
 	return (
 		<li lang={value.metadata.language ?? undefined}>
-			<details className={c.directory} open={defaultOpened ? "" : undefined}>
+			<details
+				className={c.directory}
+				open={defaultOpened ? "" : undefined}
+				data-macana-path={value.path.join("/")}
+			>
 				<summary className={c.directoryHeader}>
 					{icons.chevronDown({ className: c.chevron })}
 					<span>{value.metadata.title}</span>

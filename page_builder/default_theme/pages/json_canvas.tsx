@@ -13,7 +13,11 @@ import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 
 import { layout, layoutStyles } from "../widgets/layout.tsx";
-import { documentTree, documentTreeStyles } from "../widgets/document_tree.tsx";
+import {
+	documentTree,
+	documentTreeScript,
+	documentTreeStyles,
+} from "../widgets/document_tree.tsx";
 import { footer, footerStyles } from "../widgets/footer.tsx";
 import { pageMetadata, pageMetadataScript } from "../widgets/page_metadata.tsx";
 import { jsonCanvas, jsonCanvasStyles } from "../json_canvas/mod.tsx";
@@ -80,7 +84,7 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [pageMetadataScript],
+			scripts: [pageMetadataScript, documentTreeScript],
 			body: layout({
 				fullscreen: true,
 				nav: documentTree({ context }),

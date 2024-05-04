@@ -13,7 +13,11 @@ import type { TocItem } from "../hast/hast_util_toc_mut.ts";
 
 import { layout, layoutStyles } from "../widgets/layout.tsx";
 import { toc, tocStyles } from "../widgets/toc.tsx";
-import { documentTree, documentTreeStyles } from "../widgets/document_tree.tsx";
+import {
+	documentTree,
+	documentTreeScript,
+	documentTreeStyles,
+} from "../widgets/document_tree.tsx";
 import { footer, footerStyles } from "../widgets/footer.tsx";
 import { title, titleStyles } from "../widgets/title.tsx";
 import { pageMetadata, pageMetadataScript } from "../widgets/page_metadata.tsx";
@@ -85,7 +89,7 @@ export function markdownPage(
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [pageMetadataScript],
+			scripts: [pageMetadataScript, documentTreeScript],
 			body: layout({
 				nav: documentTree({ context }),
 				footer: footer({ copyright: context.copyright }),
