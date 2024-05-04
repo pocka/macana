@@ -16,6 +16,7 @@ import type * as Hast from "../../deps/esm.sh/hast/types.ts";
 import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
 import { headingRange } from "../../deps/esm.sh/mdast-util-heading-range/mod.ts";
 import { toHtml } from "../../deps/esm.sh/hast-util-to-html/mod.ts";
+import * as csso from "../../deps/esm.sh/csso/mod.ts";
 
 import { logger } from "../../logger.ts";
 
@@ -180,13 +181,15 @@ export class DefaultThemeBuilder implements PageBuilder {
 			),
 		);
 
+		const minCss = csso.minify(styles);
+
 		const assets: Assets = {
 			globalCss: [".assets", "global.css"],
 		};
 
 		await fileSystemWriter.write(
 			assets.globalCss,
-			new TextEncoder().encode(styles),
+			new TextEncoder().encode(minCss.css),
 		);
 
 		const root = await fileSystemReader.getRootDirectory();
