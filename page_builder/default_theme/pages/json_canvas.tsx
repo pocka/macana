@@ -12,7 +12,7 @@ import type { JSONCanvas } from "../../../content_parser/json_canvas/types.ts";
 import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 
-import { layout, layoutStyles } from "../widgets/layout.tsx";
+import { layout, layoutScript, layoutStyles } from "../widgets/layout.tsx";
 import {
 	documentTree,
 	documentTreeScript,
@@ -84,7 +84,7 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [pageMetadataScript, documentTreeScript],
+			scripts: [pageMetadataScript, layoutScript, documentTreeScript],
 			body: layout({
 				fullscreen: true,
 				nav: documentTree({ context }),

@@ -11,7 +11,7 @@ import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 import type { TocItem } from "../hast/hast_util_toc_mut.ts";
 
-import { layout, layoutStyles } from "../widgets/layout.tsx";
+import { layout, layoutScript, layoutStyles } from "../widgets/layout.tsx";
 import { toc, tocStyles } from "../widgets/toc.tsx";
 import {
 	documentTree,
@@ -89,7 +89,7 @@ export function markdownPage(
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [pageMetadataScript, documentTreeScript],
+			scripts: [pageMetadataScript, layoutScript, documentTreeScript],
 			body: layout({
 				nav: documentTree({ context }),
 				footer: footer({ copyright: context.copyright }),

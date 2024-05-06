@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-05-05T00:05:00+09:00
+updatedAt: 2024-05-10T01:00:00+09:00
 ---
 ## v1.0
 
@@ -32,7 +32,7 @@ updatedAt: 2024-05-05T00:05:00+09:00
 - [ ] Headings down levelling option (render `# Foo` as `<h2>Foo</h2>`)
 - [x] Client script to retain open/close state of document tree
 - [ ] Client script to sync active table of contents entry to current scroll position
-- [ ] Client script to close site menu on navigation event
+- [x] Client script to close site menu on navigation event
 
 ## v0.1
 

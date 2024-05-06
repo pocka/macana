@@ -28,11 +28,32 @@ const c = buildClasses("w-l", [
 	"fullscreenLayout",
 ]);
 
+export const layoutScript = `
+window.addEventListener("pageshow", (ev) => {
+	const check = document.getElementById("__macana_menu_open");
+	if (!check) {
+		return;
+	}
+
+	if (ev.persisted) {
+		const isMenuLayout = getComputedStyle(check).getPropertyValue("--_layout-menu");
+		if (isMenuLayout) {
+			document.documentElement.focus();
+			check.checked = false;
+		}
+	}
+});
+`.trim();
+
 export const layoutStyles = join(
 	lucide.lucideIconStyles,
 	css`
 		html {
 			scroll-padding-top: calc(8px + 2.5rem);
+		}
+
+		.${c.layout} {
+			--_layout-menu: 1;
 		}
 
 		.${c.fullscreenLayout} {
@@ -163,6 +184,7 @@ export const layoutStyles = join(
 			}
 
 			.${c.layout} {
+				--_layout-menu: ;
 				--_appbar-height: calc(var(--baseline) * 2rem);
 
 				display: grid;
