@@ -29,7 +29,7 @@ updatedAt: 2024-05-10T01:00:00+09:00
 
 ## v0.2
 
-- [ ] Use HTML elements for JSONCanvas file/text nodes
+- [x] Use HTML elements for JSONCanvas file/text nodes
 - [x] Client script to retain open/close state of document tree
 - [ ] Client script to sync active table of contents entry to current scroll position
 - [x] Client script to close site menu on navigation event

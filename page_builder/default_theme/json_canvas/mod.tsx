@@ -11,6 +11,7 @@ import { h, s } from "../../../deps/esm.sh/hastscript/mod.ts";
 import { logger } from "../../../logger.ts";
 import type {
 	CanvasColor,
+	Edge,
 	FileNode,
 	GroupNode,
 	JSONCanvas,
@@ -20,7 +21,7 @@ import type {
 	TextNode,
 } from "../../../content_parser/json_canvas/types.ts";
 
-import { buildClasses, css } from "../css.ts";
+import { buildClasses, css, cx } from "../css.ts";
 
 import {
 	getBoundingBox,
@@ -33,29 +34,92 @@ import {
 	vecMul,
 } from "./layout.ts";
 
-const c = buildClasses("jc", ["wrapper", "embed"]);
+const c = buildClasses("jc", [
+	"embed",
+	"canvas",
+	"nodeContainer",
+	"nodeBg",
+	"vectorCanvas",
+	"groupNode",
+	"iframe",
+	"edgeLabel",
+]);
 
 export const jsonCanvasStyles = css`
-	.${c.wrapper} {
-		overflow: auto;
-		max-width: 100%;
-		max-height: 80dvh;
-		margin-top: calc(var(--baseline) * 1rem);
+	.${c.canvas} {
+		position: relative;
+	}
 
-		border: 1px solid var(--color-border);
-		border-radius: calc(1rem / 4);
-		padding: 4px;
+	.${c.vectorCanvas} {
+		position: absolute;
+		inset: 0;
+
+		pointer-events: none;
+	}
+
+	.${c.nodeContainer} {
+		position: absolute;
+		display: flex;
+		justify-content: stretch;
+		align-items: stretch;
+
+		border-style: solid;
+		border-width: var(--canvas-node-stroke-width);
+		border-radius: var(--canvas-node-radius, 3px);
+		box-shadow: 0 0 2px hsl(0deg 0% 0% / 0.2);
+		overflow: visible;
+	}
+
+	.${c.nodeBg} {
+		position: absolute;
+		inset: 0;
+
+		pointer-events: none;
+
+		opacity: var(--canvas-node-bg-opacity);
 	}
 
 	.${c.embed} {
+		width: 100%;
+		height: 100%;
 		padding: 4px 8px;
 		overflow: auto;
 	}
-	.${c.embed} > div > p {
+	.${c.embed} > p {
 		margin-block-start: calc(var(--baseline) * 0.5rem);
 	}
-	.${c.embed} > div > :first-child {
+	.${c.embed} > :first-child {
 		margin-block-start: 0;
+	}
+
+	.${c.groupNode} {
+		position: absolute;
+		top: -6px;
+		left: 0;
+		padding: 2px 0.5em;
+
+		border-radius: 3px;
+
+		transform: translateY(-100%);
+	}
+
+	.${c.iframe} {
+		width: 100%;
+		height: 100%;
+		border: none;
+	}
+
+	.${c.edgeLabel} {
+		position: absolute;
+		display: inline-block;
+		padding: 2px 0.5em;
+		font-size: 0.9rem;
+
+		background-color: var(--color-bg);
+		border-radius: 2px;
+		color: var(--color-fg);
+
+		transform: translate(-50%, -50%);
 	}
 `;
 
@@ -97,33 +161,7 @@ interface TextNodeProps {
 }
 
 function textNode({ node }: TextNodeProps) {
-	const containerStyle: StyleConstructor = {
-		width: node.width,
-		height: node.height,
-	};
-
-	// NOTE: Safari can't render `<foreignObject>` correctly.
-	// In this case, Safari renders an overflowing element at completely incorrect
-	// position and size, which makes the element invisible (outside viewport).
-	// https://github.com/mdn/content/issues/1319
-	// https://bugs.webkit.org/show_bug.cgi?id=90738
-	// https://bugs.webkit.org/show_bug.cgi?id=23113
-	return (
-		<foreignObject
-			x={node.x}
-			y={node.y}
-			width={node.width}
-			height={node.height}
-		>
-			<div
-				xmlns="http://www.w3.org/1999/xhtml"
-				style={constructStyle(containerStyle)}
-				class={c.embed}
-			>
-				{node.text}
-			</div>
-		</foreignObject>
-	);
+	return <div class={c.embed}>{node.text}</div>;
 }
 
 interface LinkNodeProps {
@@ -131,30 +169,13 @@ interface LinkNodeProps {
 }
 
 function linkNode({ node }: LinkNodeProps) {
-	const iframeStyles: StyleConstructor = {
-		width: node.width,
-		height: node.height,
-	};
-
-	// NOTE: Safari can't render `<foreignObject>` correctly.
-	// In this case, Safari renders an overflowing element at completely incorrect
-	// position and size, which makes the element invisible (outside viewport).
-	// https://github.com/mdn/content/issues/1319
-	// https://bugs.webkit.org/show_bug.cgi?id=90738
-	// https://bugs.webkit.org/show_bug.cgi?id=23113
 	return (
-		<foreignObject
-			x={node.x}
-			y={node.y}
+		<iframe
+			class={c.iframe}
+			src={node.url}
 			width={node.width}
 			height={node.height}
-		>
-			<iframe
-				xmlns="http://www.w3.org/1999/xhtml"
-				style={constructStyle(iframeStyles)}
-				src={node.url}
-			/>
-		</foreignObject>
+		/>
 	);
 }
 
@@ -174,18 +195,10 @@ function fileNode({ node }: FileNodeProps) {
 		case ".svg":
 		case ".webp": {
 			return (
-				<foreignObject
-					x={node.x}
-					y={node.y}
-					width={node.width}
-					height={node.height}
-				>
-					<img
-						xmlns="http://www.w3.org/1999/xhtml"
-						style="max-width:100%;max-height:100%;object-fit:contain;"
-						src={node.file}
-					/>
-				</foreignObject>
+				<img
+					style="max-width:100%;max-height:100%;object-fit:contain;"
+					src={node.file}
+				/>
 			);
 		}
 		case ".mkv":
@@ -194,18 +207,10 @@ function fileNode({ node }: FileNodeProps) {
 		case ".ogv":
 		case ".webm": {
 			return (
-				<foreignObject
-					x={node.x}
-					y={node.y}
-					width={node.width}
-					height={node.height}
-				>
-					<video
-						xmlns="http://www.w3.org/1999/xhtml"
-						style="max-width:100%;max-height:100%;object-fit:contain;"
-						src={node.file}
-					/>
-				</foreignObject>
+				<video
+					style="max-width:100%;max-height:100%;object-fit:contain;"
+					src={node.file}
+				/>
 			);
 		}
 		case ".flac":
@@ -215,156 +220,24 @@ function fileNode({ node }: FileNodeProps) {
 		case ".wav":
 		case ".3gp": {
 			return (
-				<foreignObject
-					x={node.x}
-					y={node.y}
-					width={node.width}
-					height={node.height}
-				>
-					<div
-						xmlns="http://www.w3.org/1999/xhtml"
-						style="width:100%;height:100%;display:grid;place-items:center;"
-					>
-						<audio src={node.file} />
-					</div>
-				</foreignObject>
+				<div style="width:100%;height:100%;display:grid;place-items:center;">
+					<audio src={node.file} />
+				</div>
 			);
 		}
 		default: {
 			return (
-				<foreignObject
-					x={node.x}
-					y={node.y}
+				<iframe
+					class={c.iframe}
+					src={node.file}
+					sandbox="allow-scripts"
+					loading="lazy"
 					width={node.width}
 					height={node.height}
-				>
-					<iframe
-						xmlns="http://www.w3.org/1999/xhtml"
-						style={`width: ${node.width}px;height: ${node.height}px;`}
-						src={node.file}
-						sandbox="allow-scripts"
-						loading="lazy"
-					/>
-				</foreignObject>
+				/>
 			);
 		}
 	}
-}
-
-type VerticalAlign = "top" | "center" | "bottom";
-type HorizontalAlign = "left" | "center" | "right";
-
-interface BoxTextProps {
-	label: string;
-
-	x?: number;
-	y?: number;
-
-	fontSize?: number;
-
-	color?: string;
-	background?: string;
-	radius?: number;
-	padding?: number;
-
-	vAlign?: VerticalAlign;
-	hAlign?: HorizontalAlign;
-}
-
-/**
- * Renders text with background and padding.
- * SVG does not have this functionality, so we need to roll our own...
- */
-function boxText(
-	{
-		label,
-		x = 0,
-		y = 0,
-		fontSize = 16,
-		color,
-		background,
-		radius = 0,
-		padding = 0,
-		vAlign = "center",
-		hAlign = "center",
-	}: BoxTextProps,
-) {
-	const safeWidth = label.length * fontSize * 10;
-	const safeHeight = label.split("\n").length * fontSize * 10;
-
-	const spanStyles: StyleConstructor = {
-		"font-size": fontSize + "px",
-		color,
-		"background-color": background,
-		padding,
-		"border-radius": radius,
-		// Make text selectable
-		"pointer-events": "auto",
-	};
-	let containerX: number;
-	switch (hAlign) {
-		case "left":
-			containerX = x;
-			break;
-		case "center":
-			containerX = x - safeWidth * 0.5;
-			break;
-		case "right":
-			containerX = x - safeWidth;
-			break;
-	}
-
-	let containerY: number;
-	switch (vAlign) {
-		case "top":
-			containerY = y;
-			break;
-		case "center":
-			containerY = y - safeHeight * 0.5;
-			break;
-		case "bottom":
-			containerY = y - safeHeight;
-			break;
-	}
-
-	const layoutStyles: StyleConstructor = {
-		width: "100%",
-		height: "100%",
-		display: "flex",
-		"justify-content": hAlign === "center"
-			? "center"
-			: hAlign === "right"
-			? "end"
-			: "start",
-		"align-items": vAlign === "center"
-			? "center"
-			: vAlign === "bottom"
-			? "end"
-			: "start",
-		// Prevent blank area from stealing user clicks
-		"pointer-events": "none",
-	};
-
-	return (
-		<foreignObject
-			x={containerX}
-			y={containerY}
-			width={safeWidth}
-			height={safeHeight}
-			style="pointer-events:none;"
-		>
-			<div
-				xmlns="http://www.w3.org/1999/xhtml"
-				style={constructStyle(layoutStyles)}
-			>
-				<span
-					style={constructStyle(spanStyles)}
-				>
-					{label}
-				</span>
-			</div>
-		</foreignObject>
-	);
 }
 
 interface GroupNodeProps {
@@ -380,19 +253,16 @@ function groupNode({ node }: GroupNodeProps) {
 		? canvasColorToCssColor(node.color)
 		: "var(--canvas-color-fallback)";
 
-	// TODO: Make fg color configurable
-	return boxText({
-		x: node.x,
-		y: node.y - 6,
-		background: color,
-		color: "var(--color-bg)",
-		padding: 4,
-		radius: 3,
-		fontSize: 20,
-		label: node.label,
-		hAlign: "left",
-		vAlign: "bottom",
-	});
+	return h("span", {
+		className: c.groupNode,
+		style: constructStyle({
+			"background-color": color,
+			// TODO: Make fg color configurable
+			color: "var(--color-bg)",
+		}),
+	}, [
+		node.label,
+	]);
 }
 
 interface NodeRendererProps {
@@ -458,18 +328,128 @@ function edgeArrow({ target, pointTo, size = 15, ...rest }: EdgeArrowProps) {
 	);
 }
 
+interface ComputedEdge {
+	edge: Edge;
+
+	fromSide: NodeSide;
+	toSide: NodeSide;
+
+	fromStart: Point2D;
+	toStart: Point2D;
+
+	fromPoint: Point2D;
+	toPoint: Point2D;
+
+	controlPoints: readonly [Point2D, Point2D];
+}
+
+function computeEdge(
+	edge: Edge,
+	nodes: Map<string, Node<unknown>>,
+	arrowSize: number,
+): ComputedEdge | null {
+	const fromNode = nodes.get(edge.fromNode);
+	if (!fromNode) {
+		logger().warn(
+			"Malformed JSONCanvas: " +
+				`Edge(id=${edge.id}) points to non-existing fromNode(id=${edge.fromNode})`,
+			{
+				edge,
+			},
+		);
+		return null;
+	}
+
+	const toNode = nodes.get(edge.toNode);
+	if (!toNode) {
+		logger().warn(
+			"Malformed JSONCanvas: " +
+				`Edge(id=${edge.id}) points to non-existing toNode(id=${edge.toNode})`,
+			{
+				edge,
+			},
+		);
+		return null;
+	}
+
+	const [fromSide, toSide] = getClosestSides(
+		fromNode,
+		edge.fromSide,
+		toNode,
+		edge.toSide,
+	);
+
+	const fromOffsetUnitVec = getDirV(fromSide);
+	const toOffsetUnitVec = getDirV(toSide);
+
+	// Not defined in spec or documents, but Obsidian Canvas uses
+	// different defaults. wtf
+	const fromEnd = edge.fromEnd ?? "none";
+	const toEnd = edge.toEnd ?? "arrow";
+
+	const fromPoint = getConnectionPoint(fromNode, fromSide);
+	const toPoint = getConnectionPoint(toNode, toSide);
+
+	// Subtract by 1 otherwise tiny gap appears.
+	const fromStart = fromEnd === "arrow"
+		? move(
+			fromPoint,
+			vecMul(fromOffsetUnitVec, [arrowSize - 1, arrowSize - 1]),
+		)
+		: fromPoint;
+	const toStart = toEnd === "arrow"
+		? move(
+			toPoint,
+			vecMul(toOffsetUnitVec, [arrowSize - 1, arrowSize - 1]),
+		)
+		: toPoint;
+
+	const center: Point2D = [
+		(toStart[0] + fromStart[0]) / 2,
+		(toStart[1] + fromStart[1]) / 2,
+	];
+
+	// Bezier control points.
+	// TODO: Improve Bezier control points: Most of curves looks nearly perfect,
+	//       but Obsidian seems to employ special handling when a connector
+	//       overlaps with a node.
+	const p1: Point2D = move(
+		fromStart,
+		vecMul(fromOffsetUnitVec, [
+			Math.abs(center[0] - fromStart[0]),
+			Math.abs(center[1] - fromStart[1]),
+		]),
+	);
+	const p2: Point2D = move(
+		toStart,
+		vecMul(toOffsetUnitVec, [
+			Math.abs(toStart[0] - center[0]),
+			Math.abs(toStart[1] - center[1]),
+		]),
+	);
+
+	return {
+		edge,
+		fromSide,
+		toSide,
+		fromStart,
+		toStart,
+		fromPoint,
+		toPoint,
+		controlPoints: [p1, p2],
+	};
+}
+
 export interface JSONCanvasProps {
 	className?: string;
 
 	data: JSONCanvas<Hast.Nodes>;
 
-	radius?: number;
-
 	arrowSize?: number;
 }
 
 export function jsonCanvas(
-	{ className, data, radius = 6, arrowSize = 20 }: JSONCanvasProps,
+	{ className, data, arrowSize = 20 }: JSONCanvasProps,
 ) {
 	const boundingBox = getBoundingBox(data);
 
@@ -480,6 +460,10 @@ export function jsonCanvas(
 		boundingBox.height,
 	].map((n) => n.toFixed(0)).join(" ");
 
+	// Convert JSONCanvas coordinates to HTML(CSS)'s one
+	const x = (v: number) => v - boundingBox.x;
+	const y = (v: number) => v - boundingBox.y;
+
 	/**
 	 * Edges refer nodes by ID. This map helps and optimizes its retrieving operation.
 	 * Without using `Map`, lookup takes `O(N)`.
@@ -488,196 +472,116 @@ export function jsonCanvas(
 		data.nodes?.map((node) => [node.id, node]),
 	);
 
-	return (
+	const computedEdges = data.edges?.map((edge) =>
+		computeEdge(edge, nodes, arrowSize)
+	).filter((edge): edge is ComputedEdge => !!edge);
+
+	return h("div", {
+		className: cx(className, c.canvas),
+		style: {
+			width: boundingBox.width + "px",
+			height: boundingBox.height + "px",
+		},
+	}, [
+		data.nodes?.map((node) => {
+			const color = node.color
+				? canvasColorToCssColor(node.color)
+				: "var(--canvas-color-fallback)";
+
+			return h("div", {
+				className: c.nodeContainer,
+				style: {
+					"border-color": color,
+					left: x(node.x) + "px",
+					top: y(node.y) + "px",
+					width: node.width + "px",
+					height: node.height + "px",
+				},
+			}, [
+				h("div", {
+					className: c.nodeBg,
+					style: {
+						"background-color": color,
+					},
+				}, []),
+				nodeRenderer({ node }),
+			]);
+		}),
 		<svg
-			className={className}
+			class={c.vectorCanvas}
 			xmlns="http://www.w3.org/2000/svg"
 			viewbox={viewBox}
-			width={boundingBox.width}
-			height={boundingBox.height}
-			data-original-width={boundingBox.width}
-			data-original-height={boundingBox.height}
+			style="width: 100%; height: 100%;"
 		>
-			<filter id="shadow">
-				<feDropShadow
-					dx="0.0"
-					dy="0.5"
-					stdDeviation="3"
-				/>
-			</filter>
-			{data.nodes?.map((node) => {
-				const color = node.color
-					? canvasColorToCssColor(node.color)
-					: "var(--canvas-color-fallback)";
-
-				return (
-					<g>
-						<rect
-							x={node.x}
-							y={node.y}
-							width={node.width}
-							height={node.height}
-							fill="var(--color-bg)"
-							rx={radius}
-							ry={radius}
-							stroke-width="var(--canvas-node-stroke-width)"
-							style="filter: url(#shadow);"
-						/>
-						<rect
-							x={node.x}
-							y={node.y}
-							width={node.width}
-							height={node.height}
-							fill={color}
-							fill-opacity="var(--canvas-node-bg-opacity)"
-							stroke={color}
-							stroke-width="var(--canvas-node-stroke-width)"
-							rx={radius}
-							ry={radius}
-						/>
-						{nodeRenderer({ node })}
-					</g>
-				);
-			})}
-			{data.edges?.map((edge) => {
-				const color = edge.color
-					? canvasColorToCssColor(edge.color)
-					: "var(--canvas-color-fallback)";
-
-				const fromNode = nodes.get(edge.fromNode);
-				if (!fromNode) {
-					logger().warn(
-						"Malformed JSONCanvas: " +
-							`Edge(id=${edge.id}) points to non-existing fromNode(id=${edge.fromNode})`,
-						{
-							edge,
-						},
-					);
-					return;
-				}
-
-				const toNode = nodes.get(edge.toNode);
-				if (!toNode) {
-					logger().warn(
-						"Malformed JSONCanvas: " +
-							`Edge(id=${edge.id}) points to non-existing toNode(id=${edge.toNode})`,
-						{
-							edge,
-						},
-					);
-					return;
-				}
-
-				const [fromSide, toSide] = getClosestSides(
-					fromNode,
-					edge.fromSide,
-					toNode,
-					edge.toSide,
-				);
-
-				const fromOffsetUnitVec = getDirV(fromSide);
-				const toOffsetUnitVec = getDirV(toSide);
-
-				// Not defined in spec or documents, but Obsidian Canvas uses
-				// different defaults. wtf
-				const fromEnd = edge.fromEnd ?? "none";
-				const toEnd = edge.toEnd ?? "arrow";
-
-				const fromPoint = getConnectionPoint(fromNode, fromSide);
-				const toPoint = getConnectionPoint(toNode, toSide);
-
-				// Subtract by 1 otherwise tiny gap appears.
-				const fromStart = fromEnd === "arrow"
-					? move(
+			{computedEdges?.map(
+				(
+					{
+						edge,
 						fromPoint,
-						vecMul(fromOffsetUnitVec, [arrowSize - 1, arrowSize - 1]),
-					)
-					: fromPoint;
-				const toStart = toEnd === "arrow"
-					? move(
+						fromSide,
+						fromStart,
+						toStart,
 						toPoint,
-						vecMul(toOffsetUnitVec, [arrowSize - 1, arrowSize - 1]),
-					)
-					: toPoint;
+						toSide,
+						controlPoints: [p1, p2],
+					},
+				) => {
+					const color = edge.color
+						? canvasColorToCssColor(edge.color)
+						: "var(--canvas-color-fallback)";
 
-				const center: Point2D = [
-					(toStart[0] + fromStart[0]) / 2,
-					(toStart[1] + fromStart[1]) / 2,
-				];
+					const d = [
+						`M ${fromStart[0]},${fromStart[1]}`,
+						`C ${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${toStart[0]},${toStart[1]}`,
+					].join(" ");
 
-				// Bezier control points.
-				// TODO: Improve Bezier control points: Most of curves looks nearly perfect,
-				//       but Obsidian seems to employ special handling when a connector
-				//       overlaps with a node.
-				const p1: Point2D = move(
-					fromStart,
-					vecMul(fromOffsetUnitVec, [
-						Math.abs(center[0] - fromStart[0]),
-						Math.abs(center[1] - fromStart[1]),
-					]),
-				);
-				const p2: Point2D = move(
-					toStart,
-					vecMul(toOffsetUnitVec, [
-						Math.abs(toStart[0] - center[0]),
-						Math.abs(toStart[1] - center[1]),
-					]),
-				);
+					return (
+						<g>
+							<path
+								d={d}
+								stroke={color}
+								stroke-width="var(--canvas-edge-stroke-width)"
+								fill="none"
+							/>
+							{edge.fromEnd === "arrow"
+								? (
+									edgeArrow({
+										target: fromPoint,
+										pointTo: fromSide,
+										fill: color,
+										size: arrowSize,
+									})
+								)
+								: null}
+							{edge.toEnd !== "none"
+								? (
+									edgeArrow({
+										target: toPoint,
+										pointTo: toSide,
+										fill: color,
+										size: arrowSize,
+									})
+								)
+								: null}
+						</g>
+					);
+				},
+			)}
+		</svg>,
+		computedEdges?.map(({ edge, controlPoints: [p1, p2] }) => {
+			if (!edge.label) {
+				return null;
+			}
 
-				const d = [
-					`M ${fromStart[0]},${fromStart[1]}`,
-					`C ${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${toStart[0]},${toStart[1]}`,
-				].join(" ");
-
-				return (
-					<g>
-						<path
-							d={d}
-							stroke={color}
-							stroke-width="var(--canvas-edge-stroke-width)"
-							fill="none"
-						/>
-						{edge.fromEnd === "arrow"
-							? (
-								edgeArrow({
-									target: fromPoint,
-									pointTo: fromSide,
-									fill: color,
-									size: arrowSize,
-								})
-							)
-							: null}
-						{edge.toEnd !== "none"
-							? (
-								edgeArrow({
-									target: toPoint,
-									pointTo: toSide,
-									fill: color,
-									size: arrowSize,
-								})
-							)
-							: null}
-						{edge.label
-							? (
-								boxText({
-									label: edge.label,
-									x: (p1[0] + p2[0]) * 0.5,
-									y: (p1[1] + p2[1]) * 0.5,
-									background: "var(--color-bg)",
-									color: "var(--color-fg)",
-									fontSize: 18,
-									padding: 4,
-									radius: 2,
-								})
-							)
-							: null}
-					</g>
-				);
-			})}
-		</svg>
-	);
-}
-
-export function wrappedJsonCanvas(props: JSONCanvasProps) {
-	return h("div", { class: c.wrapper }, jsonCanvas(props));
+			return h("span", {
+				className: c.edgeLabel,
+				style: {
+					left: x((p1[0] + p2[0]) * 0.5) + "px",
+					top: y((p1[1] + p2[1]) * 0.5) + "px",
+				},
+			}, [
+				edge.label,
+			]);
+		}),
+	]);
 }

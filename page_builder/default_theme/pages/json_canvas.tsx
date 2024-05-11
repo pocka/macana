@@ -28,7 +28,7 @@ const c = buildClasses("p-jc", [
 	"meta",
 	"title",
 	"canvas",
-	"svg",
+	"padding",
 ]);
 
 const ownStyles = css`
@@ -59,9 +59,9 @@ const ownStyles = css`
 		z-index: 1;
 	}
 
-	.${c.svg} {
+	.${c.padding} {
+		display: inline-flex;
 		padding: 8rem;
-		overflow: visible;
 	}
 `;
 
@@ -96,7 +96,9 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 							{pageMetadata({ context })}
 						</div>
 						<div class={c.canvas}>
-							{jsonCanvas({ className: c.svg, data: content })}
+							<div class={c.padding}>
+								{jsonCanvas({ data: content })}
+							</div>
 						</div>
 					</div>
 				),
