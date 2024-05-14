@@ -53,29 +53,3 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 		</html>
 	);
 }
-
-export function embedTemplate({ body, context, scripts = [] }: TemplateProps) {
-	const { language, document, assets, resolvePath } = context;
-
-	return (
-		<html lang={language}>
-			<head>
-				<meta charset="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<meta name="robot" content="noindex" />
-				<title>{document.metadata.title}</title>
-				<link
-					rel="stylesheet"
-					href={resolvePath(assets.globalCss).join("/")}
-				/>
-				<style>{"body{background-color: transparent}"}</style>
-			</head>
-			{h(
-				"body",
-				{},
-				body,
-				...scripts.map((script) => <script>{script}</script>),
-			)}
-		</html>
-	);
-}

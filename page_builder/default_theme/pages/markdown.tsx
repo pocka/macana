@@ -22,7 +22,7 @@ import { footer, footerStyles } from "../widgets/footer.tsx";
 import { title, titleStyles } from "../widgets/title.tsx";
 import { pageMetadata, pageMetadataScript } from "../widgets/page_metadata.tsx";
 
-import { embedTemplate, template } from "./template.tsx";
+import { template } from "./template.tsx";
 
 const c = buildClasses("p-md", [
 	"main",
@@ -111,22 +111,6 @@ export function markdownPage(
 				),
 				context,
 			}),
-		}),
-	]);
-}
-
-export interface MarkdownEmbedProps {
-	context: Readonly<BuildContext>;
-
-	content: Hast.Nodes;
-}
-
-export function markdownEmbed({ context, content }: MarkdownEmbedProps) {
-	return h(null, [
-		{ type: "doctype" },
-		embedTemplate({
-			context,
-			body: content,
 		}),
 	]);
 }

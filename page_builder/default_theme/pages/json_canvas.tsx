@@ -22,7 +22,7 @@ import { footer, footerStyles } from "../widgets/footer.tsx";
 import { pageMetadata, pageMetadataScript } from "../widgets/page_metadata.tsx";
 import { jsonCanvas, jsonCanvasStyles } from "../json_canvas/mod.tsx";
 
-import { embedTemplate, template } from "./template.tsx";
+import { template } from "./template.tsx";
 
 const c = buildClasses("p-jc", [
 	"meta",
@@ -104,16 +104,6 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 				),
 				context,
 			}),
-		}),
-	]);
-}
-
-export function jsonCanvasEmbed({ context, content }: JsonCanvasPageProps) {
-	return h(null, [
-		{ type: "doctype" },
-		embedTemplate({
-			context,
-			body: jsonCanvas({ data: content }),
 		}),
 	]);
 }
