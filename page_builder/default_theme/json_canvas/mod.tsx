@@ -157,21 +157,25 @@ function constructStyle(c: StyleConstructor): string {
 }
 
 interface TextNodeProps {
+	className?: string;
+
 	node: TextNode<Hast.Nodes>;
 }
 
-function textNode({ node }: TextNodeProps) {
-	return <div class={c.embed}>{node.text}</div>;
+function textNode({ node, className }: TextNodeProps) {
+	return <div class={cx(className, c.embed)}>{node.text}</div>;
 }
 
 interface LinkNodeProps {
+	className?: string;
+
 	node: LinkNode;
 }
 
-function linkNode({ node }: LinkNodeProps) {
+function linkNode({ node, className }: LinkNodeProps) {
 	return (
 		<iframe
-			class={c.iframe}
+			class={cx(className, c.iframe)}
 			src={node.url}
 			width={node.width}
 			height={node.height}
@@ -180,10 +184,12 @@ function linkNode({ node }: LinkNodeProps) {
 }
 
 interface FileNodeProps {
+	className?: string;
+
 	node: FileNode;
 }
 
-function fileNode({ node }: FileNodeProps) {
+function fileNode({ className, node }: FileNodeProps) {
 	const ext = extname(node.file);
 
 	switch (ext) {
@@ -196,6 +202,7 @@ function fileNode({ node }: FileNodeProps) {
 		case ".webp": {
 			return (
 				<img
+					class={className}
 					style="max-width:100%;max-height:100%;object-fit:contain;"
 					src={node.file}
 				/>
@@ -208,6 +215,7 @@ function fileNode({ node }: FileNodeProps) {
 		case ".webm": {
 			return (
 				<video
+					class={className}
 					style="max-width:100%;max-height:100%;object-fit:contain;"
 					src={node.file}
 				/>
@@ -220,7 +228,10 @@ function fileNode({ node }: FileNodeProps) {
 		case ".wav":
 		case ".3gp": {
 			return (
-				<div style="width:100%;height:100%;display:grid;place-items:center;">
+				<div
+					class={className}
+					style="width:100%;height:100%;display:grid;place-items:center;"
+				>
 					<audio src={node.file} />
 				</div>
 			);
@@ -228,7 +239,7 @@ function fileNode({ node }: FileNodeProps) {
 		default: {
 			return (
 				<iframe
-					class={c.iframe}
+					class={cx(className, c.iframe)}
 					src={node.file}
 					sandbox="allow-scripts"
 					loading="lazy"
@@ -267,14 +278,16 @@ function groupNode({ node }: GroupNodeProps) {
 
 interface NodeRendererProps {
 	node: Node<Hast.Nodes>;
+
+	scrollClassName?: string;
 }
 
-function nodeRenderer({ node }: NodeRendererProps) {
+function nodeRenderer({ node, scrollClassName }: NodeRendererProps) {
 	switch (node.type) {
 		case "text":
-			return textNode({ node });
+			return textNode({ className: scrollClassName, node });
 		case "link":
-			return linkNode({ node });
+			return linkNode({ className: scrollClassName, node });
 		case "file":
 			return fileNode({ node });
 		case "group":
@@ -446,10 +459,15 @@ export interface JSONCanvasProps {
 	data: JSONCanvas<Hast.Nodes>;
 
 	arrowSize?: number;
+
+	/**
+	 * Class to add to elements which are scrollable.
+	 */
+	scrollClassName?: string;
 }
 
 export function jsonCanvas(
-	{ className, data, arrowSize = 20 }: JSONCanvasProps,
+	{ className, data, arrowSize = 20, scrollClassName }: JSONCanvasProps,
 ) {
 	const boundingBox = getBoundingBox(data);
 
@@ -504,7 +522,7 @@ export function jsonCanvas(
 						"background-color": color,
 					},
 				}, []),
-				nodeRenderer({ node }),
+				nodeRenderer({ scrollClassName, node }),
 			]);
 		}),
 		<svg

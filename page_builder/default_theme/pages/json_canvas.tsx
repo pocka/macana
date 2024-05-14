@@ -19,7 +19,6 @@ import {
 	documentTreeStyles,
 } from "../widgets/document_tree.tsx";
 import { footer, footerStyles } from "../widgets/footer.tsx";
-import { pageMetadata, pageMetadataScript } from "../widgets/page_metadata.tsx";
 import { jsonCanvas, jsonCanvasStyles } from "../json_canvas/mod.tsx";
 
 import { template } from "./template.tsx";
@@ -29,15 +28,21 @@ const c = buildClasses("p-jc", [
 	"title",
 	"canvas",
 	"padding",
+	"controls",
+	"controlButton",
+	"scrollableChild",
 ]);
 
 const ownStyles = css`
 	.${c.meta} {
 		position: absolute;
-		left: 8px;
-		top: 8px;
-		padding: 4px;
-		border: 1px solid var(--color-border);
+		left: 0;
+		right: 0;
+		bottom: 0;
+		padding: 4px 1em;
+		border-block-start: 1px solid var(--color-border);
+		display: flex;
+		justify-content: space-between;
 
 		border-radius: 2px;
 		background-color: var(--color-bg-accent);
@@ -49,6 +54,35 @@ const ownStyles = css`
 		font-weight: normal;
 		font-size: 1rem;
 		line-height: 1.5;
+	}
+
+	.${c.controls} {
+		display: flex;
+		gap: 4px 0.25em;
+	}
+
+	.${c.controlButton} {
+		appearance: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 1.5rem;
+		height: 1.5rem;
+		aspect-ratio: 1 / 1;
+		border: 1px solid var(--color-border);
+		font-size: 0.9rem;
+
+		background: transparent;
+		border-radius: 2px;
+		color: var(--color-fg);
+		cursor: pointer;
+	}
+	.${c.controlButton}:hover {
+		background-color: var(--color-subtle-overlay);
+	}
+	.${c.controlButton}:active {
+		background-color: transparent;
+		color: var(--color-fg-sub);
 	}
 
 	.${c.canvas} {
@@ -73,6 +107,194 @@ export const jsonCanvasPageStyles = join(
 	ownStyles,
 );
 
+const ownScript = `
+let scale = 1.0;
+const SCALE_MIN = 0.1;
+const SCALE_MAX = 2.0;
+let tx = 0.0;
+let ty = 0.0;
+const DRAG_NONE = 0;
+const DRAG_IDLE = 1;
+const DRAG_DRAGGING = 2;
+let dragState = DRAG_NONE;
+let vx = 0;
+let vy = 0;
+let vw = 0;
+let vh = 0;
+
+for (const child of document.getElementsByClassName("${c.scrollableChild}")) {
+	if (child.scrollHeight !== child.clientHeight) {
+		child.addEventListener("wheel", ev => {
+			if (!ev.ctrlKey) {
+				ev.stopPropagation();
+			}
+		});
+	}
+}
+
+const container = document.getElementById("__macana_jc_c");
+if (container) {
+	const rect = container.getBoundingClientRect();
+	vx = rect.x;
+	vy = rect.y;
+	vw = rect.width;
+	vh = rect.height;
+
+	const ro = new ResizeObserver(entries => {
+		const rect = container.getBoundingClientRect();
+		vx = rect.x;
+		vy = rect.y;
+		vw = rect.width;
+		vh = rect.height;
+	});
+	ro.observe(container);
+
+	container.style.overflow = "hidden";
+
+	container.addEventListener("pointermove", ev => {
+		if (!(ev.buttons & 4 || dragState === DRAG_DRAGGING)) {
+			return;
+		}
+
+		ev.preventDefault();
+		ev.stopPropagation();
+
+		tx += ev.movementX / scale;
+		ty += ev.movementY / scale;
+		applyTransformToCanvas();
+	});
+
+	container.addEventListener("pointerdown", ev => {
+		if (dragState === DRAG_IDLE) {
+			ev.preventDefault();
+			ev.stopPropagation();
+			dragState = DRAG_DRAGGING;
+			syncCursor();
+		}
+	});
+
+	container.addEventListener("pointerup", ev => {
+		if (dragState === DRAG_DRAGGING) {
+			ev.preventDefault();
+			ev.stopPropagation();
+			dragState = DRAG_IDLE;
+			syncCursor();
+		}
+	});
+
+	container.addEventListener("wheel", ev => {
+		ev.preventDefault();
+		if (ev.ctrlKey) {
+			let deltaY = ev.deltaY;
+			switch (ev.deltaMode) {
+				case 1:
+					deltaY *= 15;
+					break;
+				case 2:
+					deltaY *= 100;
+					break;
+			}
+
+			const prevScale = scale;
+			scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, scale * (1 - deltaY * 0.01)));
+
+			if (vw > 0 && vh > 0) {
+				let offsetX = ev.offsetX;
+				let offsetY = ev.offsetY;
+				if (ev.target !== ev.currentTarget) {
+					offsetX = ev.clientX - vx;
+					offsetY = ev.clientY - vy;
+				}
+				const px = offsetX - vw * 0.5;
+				const py = offsetY - vh * 0.5;
+				tx += px / scale - px / prevScale;
+				ty += py / scale - py / prevScale;
+			}
+		} else {
+			tx -= ev.deltaX / scale;
+			ty -= ev.deltaY / scale;
+		}
+
+		applyTransformToCanvas();
+	}, { passive: false });
+}
+
+function syncCursor() {
+	const style = dragState === DRAG_IDLE ? "grab"
+		: dragState === DRAG_DRAGGING ? "grabbing"
+		: "auto";
+
+	document.body.style.cursor = style;
+}
+
+const canvas = document.getElementById("__macana_jc_t");
+if (canvas) {
+	if (vw > 0 && vh > 0) {
+		const rect = canvas.getBoundingClientRect();
+
+		scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.min(vw / rect.width, vh / rect.height)));
+	}
+
+	canvas.style.position = "absolute";
+	canvas.style.top = "50%";
+	canvas.style.left = "50%";
+}
+
+function applyTransformToCanvas() {
+	if (!canvas) {
+		return;
+	}
+
+	canvas.style.transform = "translate(-50%, -50%)"
+		+ \` scale(\${scale.toFixed(8)})\`
+		+ \` translate(\${tx}px,\${ty}px)\`;
+}
+
+const zoomInButton = document.getElementById("__macana_jc_in");
+if (zoomInButton) {
+	zoomInButton.style.display = "";
+	zoomInButton.addEventListener("click", ev => {
+		ev.preventDefault();
+		scale = Math.min(SCALE_MAX, scale + 0.1);
+		applyTransformToCanvas();
+	});
+}
+
+const zoomOutButton = document.getElementById("__macana_jc_out");
+if (zoomOutButton) {
+	zoomOutButton.style.display = "";
+	zoomOutButton.addEventListener("click", ev => {
+		ev.preventDefault();
+		scale = Math.max(SCALE_MIN, scale - 0.1);
+		applyTransformToCanvas();
+	});
+}
+
+document.addEventListener("keydown", ev => {
+	if (ev.key !== " ") {
+		return;
+	}
+	ev.preventDefault();
+	if (dragState === DRAG_NONE) {
+		dragState = DRAG_IDLE;
+		syncCursor();
+	}
+}, { passive: false });
+
+document.addEventListener("keyup", ev => {
+	if (ev.key !== " ") {
+		return;
+	}
+	ev.preventDefault();
+	if (dragState !== DRAG_NONE) {
+		dragState = DRAG_NONE;
+		syncCursor();
+	}
+}, { passive: false });
+
+applyTransformToCanvas();
+`.trim();
+
 export interface JsonCanvasPageProps {
 	context: Readonly<BuildContext>;
 
@@ -84,7 +306,7 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [pageMetadataScript, layoutScript, documentTreeScript],
+			scripts: [layoutScript, documentTreeScript, ownScript],
 			body: layout({
 				fullscreen: true,
 				nav: documentTree({ context }),
@@ -93,11 +315,29 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 					<div>
 						<div class={c.meta}>
 							<h1 class={c.title}>{context.document.metadata.title}</h1>
-							{pageMetadata({ context })}
+							<div class={c.controls}>
+								<button
+									id="__macana_jc_out"
+									class={c.controlButton}
+									style="display:none;"
+								>
+									<span>-</span>
+								</button>
+								<button
+									id="__macana_jc_in"
+									class={c.controlButton}
+									style="display:none;"
+								>
+									<span>+</span>
+								</button>
+							</div>
 						</div>
-						<div class={c.canvas}>
-							<div class={c.padding}>
-								{jsonCanvas({ data: content })}
+						<div id="__macana_jc_c" class={c.canvas}>
+							<div id="__macana_jc_t" class={c.padding}>
+								{jsonCanvas({
+									data: content,
+									scrollClassName: c.scrollableChild,
+								})}
 							</div>
 						</div>
 					</div>
