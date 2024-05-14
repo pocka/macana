@@ -90,6 +90,7 @@ const ownStyles = css`
 		inset: 0;
 
 		overflow: auto;
+		touch-action: none;
 		z-index: 1;
 	}
 
@@ -121,6 +122,10 @@ let vx = 0;
 let vy = 0;
 let vw = 0;
 let vh = 0;
+const TOUCH_NONE = 0;
+const TOUCH_PAN = 1;
+const TOUCH_ZOOM = 2;
+let touchState = { type: TOUCH_NONE };
 
 for (const child of document.getElementsByClassName("${c.scrollableChild}")) {
 	if (child.scrollHeight !== child.clientHeight) {
@@ -129,6 +134,17 @@ for (const child of document.getElementsByClassName("${c.scrollableChild}")) {
 				ev.stopPropagation();
 			}
 		});
+		child.addEventListener("touchstart", ev => {
+			ev.stopPropagation();
+		});
+		child.addEventListener("touchmove", ev => {
+			ev.stopPropagation();
+		});
+		child.addEventListener("touchend", ev => {
+			ev.stopPropagation();
+		});
+	} else {
+		child.style.touchAction = "none";
 	}
 }
 
@@ -217,6 +233,112 @@ if (container) {
 
 		applyTransformToCanvas();
 	}, { passive: false });
+
+	container.addEventListener("touchstart", ev => {
+		const firstTouch = ev.touches.item(0);
+		if (!firstTouch) {
+			return;
+		}
+
+		if (ev.touches.length >= 2) {
+			const dist = getAvgTouchDist(ev.touches);
+			if (dist === null) {
+				return;
+			}
+			touchState = {
+				type: TOUCH_ZOOM,
+				initialScale: scale,
+				initialDist: dist,
+			};
+			return;
+		}
+
+		touchState = {
+			type: TOUCH_PAN,
+			initialTouch: firstTouch,
+			initialX: tx,
+			initialY: ty,
+		};
+	});
+
+	container.addEventListener("touchend", ev => {
+		switch (ev.touches.length) {
+			case 0:
+				touchState = { type: TOUCH_NONE };
+				return;
+			case 1:
+				touchState = {
+					type: TOUCH_PAN,
+					initialTouch: ev.touches.item(0),
+					initialX: tx,
+					initialY: ty,
+				};
+				return;
+			case 2: {
+				const dist = getAvgTouchDist(ev.touches);
+				if (dist === null) {
+					return;
+				}
+
+				touchState = {
+					type: TOUCH_ZOOM,
+					initialScale: scale,
+					initialDist: dist,
+				};
+				return;
+			}
+		}
+	});
+
+	container.addEventListener("touchcancel", ev => {
+		touchState = { type: TOUCH_NONE };
+	});
+
+	container.addEventListener("touchmove", ev => {
+		switch (touchState.type) {
+			case TOUCH_PAN: {
+				const touch = ev.touches.item(0);
+				tx = touchState.initialX + (touch.clientX - touchState.initialTouch.clientX) / scale;
+				ty = touchState.initialY + (touch.clientY - touchState.initialTouch.clientY) / scale;
+				applyTransformToCanvas();
+				return;
+			}
+			case TOUCH_ZOOM: {
+				const dist = getAvgTouchDist(ev.touches);
+				if (dist === null) {
+					return;
+				}
+
+				scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, touchState.initialScale * (dist / touchState.initialDist)));
+				applyTransformToCanvas();
+				return;
+			}
+		}
+	});
+}
+
+function getAvgTouchDist(touches) {
+	let px = null;
+	let py = null;
+	let tx = 0;
+	let ty = 0;
+
+	for (let i = 0, touch; touch = touches.item(i); i++) {
+		if (px === null || py === null) {
+			px = touch.clientX;
+			py = touch.clientY;
+		}
+
+		tx += touch.clientX;
+		ty += touch.clientY;
+	}
+
+	const l = touches.length;
+	if (px === null || py === null || !l) {
+		return null;
+	}
+
+	return Math.sqrt(Math.pow(px - tx / l, 2) + Math.pow(py - ty / l, 2));
 }
 
 function syncCursor() {
