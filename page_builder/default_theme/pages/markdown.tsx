@@ -10,6 +10,7 @@ import type * as Hast from "../../../deps/esm.sh/hast/types.ts";
 import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 import type { TocItem } from "../hast/hast_util_toc_mut.ts";
+import { javascript } from "../script.ts";
 
 import { layout, layoutScript, layoutStyles } from "../widgets/layout.tsx";
 import { toc, tocStyles } from "../widgets/toc.tsx";
@@ -74,6 +75,61 @@ export const markdownPageStyles = join(
 	ownStyles,
 );
 
+const ownScript = javascript`
+	function enchanceToc() {
+		const toc = document.getElementById("__macana_md_toc");
+		const body = document.getElementById("__macana_md_body");
+		if (!toc || !body) {
+			return;
+		}
+
+		// <h1> is for page title, and it's not in ToC
+		const headings = Array.from(body.querySelectorAll("h2[id],h3[id],h4[id],h5[id],h6[id]"))
+			.map(heading => {
+				const styles = window.getComputedStyle(heading);
+				const marginTop = parseInt(styles.getPropertyValue("margin-top"));
+
+				return {
+					id: heading.id,
+					top: heading.offsetTop - marginTop,
+				};
+			})
+			.sort((a, b) => a.top - b.top);
+
+		const entries = toc.querySelectorAll("a[href^=\\"#\\"]");
+
+		let isSyncScheduled = false;
+
+		window.addEventListener("scroll", ev => {
+			if (isSyncScheduled) {
+				return;
+			}
+
+			isSyncScheduled = true;
+			requestIdleCallback(() => {
+				isSyncScheduled = false;
+
+				const scrollY = document.documentElement.scrollTop;
+
+				const pastHeadings = headings.filter(({ top }) => {
+					return top <= scrollY;
+				});
+
+				const active = pastHeadings[pastHeadings.length - 1];
+
+				entries.forEach(entry => {
+					const isActive = active && (entry.getAttribute("href") === ("#" + active.id));
+					entry.setAttribute("aria-current", isActive ? "true" : "false");
+				});
+			}, {
+				timeout: 1000,
+			})
+		}, { passive: true });
+	}
+
+	enchanceToc();
+`;
+
 export interface MarkdownPageProps {
 	context: Readonly<BuildContext>;
 
@@ -89,19 +145,24 @@ export function markdownPage(
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [pageMetadataScript, layoutScript, documentTreeScript],
+			scripts: [
+				pageMetadataScript,
+				layoutScript,
+				documentTreeScript,
+				ownScript,
+			],
 			body: layout({
 				nav: documentTree({ context }),
 				footer: footer({ copyright: context.copyright }),
 				main: (
-					<div class={c.main}>
+					<div id="__macana_md_body" class={c.main}>
 						<div>
 							{title({ children: context.document.metadata.title })}
 							{pageMetadata({ context })}
 						</div>
 						{tocItems.length > 0
 							? (
-								<div class={c.toc}>
+								<div id="__macana_md_toc" class={c.toc}>
 									{toc({ className: c.tocInner, toc: tocItems })}
 								</div>
 							)

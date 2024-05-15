@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-05-15T14:21:00+09:00
+updatedAt: 2024-05-15T20:41:00+09:00
 ---
 ## v1.0
 
@@ -31,7 +31,7 @@ updatedAt: 2024-05-15T14:21:00+09:00
 
 - [x] Use HTML elements for JSONCanvas file/text nodes
 - [x] Client script to retain open/close state of document tree
-- [ ] Client script to sync active table of contents entry to current scroll position
+- [x] Client script to sync active table of contents entry to current scroll position
 - [x] Client script to close site menu on navigation event
 - [x] Client script for JSONCanvas gestures and UI
 

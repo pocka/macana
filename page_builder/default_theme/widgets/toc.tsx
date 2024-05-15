@@ -34,6 +34,16 @@ export const tocStyles = css`
 
 		color: var(--color-fg-sub);
 	}
+	.${c.link}[aria-current] {
+		color: var(--color-fg);
+		text-decoration: underline;
+	}
+	.${c.link}[aria-current="false"] {
+		color: var(--color-fg-sub);
+		text-decoration: none;
+
+		opacity: 0.7;
+	}
 	.${c.link}:hover {
 		text-decoration: underline;
 	}
