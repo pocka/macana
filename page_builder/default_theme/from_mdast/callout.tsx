@@ -114,6 +114,9 @@ export const calloutStyles = join(
 	summary.${c.title} {
 		cursor: pointer;
 	}
+	summary.${c.title}::-webkit-details-marker {
+		display: none;
+	}
 	summary.${c.title}:hover {
 		background-color: var(--_macana-callout-overlay);
 	}
