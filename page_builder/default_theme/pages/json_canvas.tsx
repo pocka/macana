@@ -31,14 +31,20 @@ const c = buildClasses("p-jc", [
 	"controls",
 	"controlButton",
 	"scrollableChild",
+	"layout",
+	"keyShortcutTip",
+	"gestureEnabledContainer",
 ]);
 
 const ownStyles = css`
-	.${c.meta} {
+	.${c.layout} {
 		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.${c.meta} {
 		padding: 4px 1em;
 		border-block-start: 1px solid var(--color-border);
 		display: flex;
@@ -86,17 +92,44 @@ const ownStyles = css`
 	}
 
 	.${c.canvas} {
-		position: absolute;
-		inset: 0;
+		position: relative;
+		flex: 1;
 
 		overflow: auto;
 		touch-action: none;
 		z-index: 1;
 	}
+	.${c.canvas}:focus-visible {
+		box-shadow: inset 0 0 0 2px var(--color-primary);
+	}
+	.${c.gestureEnabledContainer}:focus-visible {
+		box-shadow: none;
+		outline: none;
+	}
 
 	.${c.padding} {
 		display: inline-flex;
 		padding: 8rem;
+	}
+
+	.${c.keyShortcutTip} {
+		display: none;
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		margin: 0;
+		padding: 2px 0.5em;
+		font-size: 0.9rem;
+		border: 2px solid var(--color-primary);
+
+		background-color: var(--color-bg-accent);
+		border-radius: 3px;
+		box-shadow: 1px 1px 2px hsl(0deg 0% 0% / 0.1);
+		color: var(--color-fg);
+	}
+
+	.${c.gestureEnabledContainer}:focus-visible .${c.keyShortcutTip} {
+		display: inline-block;
 	}
 `;
 
@@ -127,6 +160,10 @@ const TOUCH_PAN = 1;
 const TOUCH_ZOOM = 2;
 let touchState = { type: TOUCH_NONE };
 
+function clampScale(v) {
+	return Math.max(SCALE_MIN, Math.min(SCALE_MAX, v));
+}
+
 for (const child of document.getElementsByClassName("${c.scrollableChild}")) {
 	if (child.scrollHeight !== child.clientHeight) {
 		child.addEventListener("wheel", ev => {
@@ -150,6 +187,8 @@ for (const child of document.getElementsByClassName("${c.scrollableChild}")) {
 
 const container = document.getElementById("__macana_jc_c");
 if (container) {
+	container.classList.add("${c.gestureEnabledContainer}");
+
 	const rect = container.getBoundingClientRect();
 	vx = rect.x;
 	vy = rect.y;
@@ -166,6 +205,39 @@ if (container) {
 	ro.observe(container);
 
 	container.style.overflow = "hidden";
+
+	container.addEventListener("keydown", ev => {
+		if (ev.target !== ev.currentTarget) {
+			return;
+		}
+
+		switch (ev.key) {
+			case "-":
+				scale = clampScale(scale - 0.05);
+				break;
+			case "+":
+				scale = clampScale(scale + 0.05);
+				break;
+			case "ArrowLeft":
+				tx += 10 / scale;
+				break;
+			case "ArrowRight":
+				tx -= 10 / scale;
+				break;
+			case "ArrowUp":
+				ty += 10 / scale;
+				break;
+			case "ArrowDown":
+				ty -= 10 / scale;
+				break;
+			default:
+				return;
+		}
+
+		ev.preventDefault();
+		ev.stopPropagation();
+		applyTransformToCanvas();
+	});
 
 	container.addEventListener("pointermove", ev => {
 		if (!(ev.buttons & 4 || dragState === DRAG_DRAGGING)) {
@@ -212,7 +284,7 @@ if (container) {
 			}
 
 			const prevScale = scale;
-			scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, scale * (1 - deltaY * 0.01)));
+			scale = clampScale(scale * (1 - deltaY * 0.01));
 
 			if (vw > 0 && vh > 0) {
 				let offsetX = ev.offsetX;
@@ -309,7 +381,7 @@ if (container) {
 					return;
 				}
 
-				scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, touchState.initialScale * (dist / touchState.initialDist)));
+				scale = clampScale(touchState.initialScale * (dist / touchState.initialDist));
 				applyTransformToCanvas();
 				return;
 			}
@@ -354,7 +426,7 @@ if (canvas) {
 	if (vw > 0 && vh > 0) {
 		const rect = canvas.getBoundingClientRect();
 
-		scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.min(vw / rect.width, vh / rect.height)));
+		scale = clampScale(Math.min(vw / rect.width, vh / rect.height));
 	}
 
 	canvas.style.position = "absolute";
@@ -377,7 +449,7 @@ if (zoomInButton) {
 	zoomInButton.style.display = "";
 	zoomInButton.addEventListener("click", ev => {
 		ev.preventDefault();
-		scale = Math.min(SCALE_MAX, scale + 0.1);
+		scale = clampScale(scale + 0.1);
 		applyTransformToCanvas();
 	});
 }
@@ -387,7 +459,7 @@ if (zoomOutButton) {
 	zoomOutButton.style.display = "";
 	zoomOutButton.addEventListener("click", ev => {
 		ev.preventDefault();
-		scale = Math.max(SCALE_MIN, scale - 0.1);
+		scale = clampScale(scale - 0.1);
 		applyTransformToCanvas();
 	});
 }
@@ -434,7 +506,19 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 				nav: documentTree({ context }),
 				footer: footer({ copyright: context.copyright }),
 				main: (
-					<div>
+					<div class={c.layout}>
+						<div id="__macana_jc_c" class={c.canvas} tabindex="0">
+							<div id="__macana_jc_t" class={c.padding}>
+								{jsonCanvas({
+									data: content,
+									scrollClassName: c.scrollableChild,
+								})}
+							</div>
+							<p class={c.keyShortcutTip} aria-hidden="true">
+								Use arrow keys to move viewport, <kbd>-</kbd>{" "}
+								key to zoom-out and <kbd>+</kbd> key to zoom-in.
+							</p>
+						</div>
 						<div class={c.meta}>
 							<h1 class={c.title}>{context.document.metadata.title}</h1>
 							<div class={c.controls}>
@@ -452,14 +536,6 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 								>
 									<span>+</span>
 								</button>
-							</div>
-						</div>
-						<div id="__macana_jc_c" class={c.canvas}>
-							<div id="__macana_jc_t" class={c.padding}>
-								{jsonCanvas({
-									data: content,
-									scrollClassName: c.scrollableChild,
-								})}
 							</div>
 						</div>
 					</div>
