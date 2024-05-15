@@ -9,7 +9,7 @@
 
 import { s } from "../../../deps/esm.sh/hastscript/mod.ts";
 
-import { buildClasses, css } from "../css.ts";
+import { buildClasses, css, cx } from "../css.ts";
 
 function cls(
 	...classNames: readonly (string | null | false | undefined)[]
@@ -354,6 +354,47 @@ export function menu({ className, ...rest }: LucideIconProps) {
 			<line x1="4" x2="20" y1="12" y2="12" />
 			<line x1="4" x2="20" y1="6" y2="6" />
 			<line x1="4" x2="20" y1="18" y2="18" />
+		</svg>
+	);
+}
+
+export function zoomIn({ className, ...rest }: LucideIconProps = {}) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			{...rest}
+			class={cx(c.icon, className)}
+		>
+			<circle cx="11" cy="11" r="8" />
+			<line x1="21" x2="16.65" y1="21" y2="16.65" />
+			<line x1="11" x2="11" y1="8" y2="14" />
+			<line x1="8" x2="14" y1="11" y2="11" />
+		</svg>
+	);
+}
+
+export function zoomOut({ className, ...rest }: LucideIconProps = {}) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			{...rest}
+			class={cx(c.icon, className)}
+		>
+			<circle cx="11" cy="11" r="8" />
+			<line x1="21" x2="16.65" y1="21" y2="16.65" />
+			<line x1="8" x2="14" y1="11" y2="11" />
 		</svg>
 	);
 }

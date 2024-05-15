@@ -12,6 +12,7 @@ import type { JSONCanvas } from "../../../content_parser/json_canvas/types.ts";
 import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 
+import { lucideIconStyles, zoomIn, zoomOut } from "../icons/lucide.tsx";
 import { layout, layoutScript, layoutStyles } from "../widgets/layout.tsx";
 import {
 	documentTree,
@@ -34,6 +35,7 @@ const c = buildClasses("p-jc", [
 	"layout",
 	"keyShortcutTip",
 	"gestureEnabledContainer",
+	"scale",
 ]);
 
 const ownStyles = css`
@@ -64,7 +66,12 @@ const ownStyles = css`
 
 	.${c.controls} {
 		display: flex;
+		align-items: center;
 		gap: 4px 0.25em;
+		line-height: 1;
+		font-size: 0.9rem;
+
+		color: var(--color-fg-sub);
 	}
 
 	.${c.controlButton} {
@@ -75,8 +82,9 @@ const ownStyles = css`
 		width: 1.5rem;
 		height: 1.5rem;
 		aspect-ratio: 1 / 1;
-		border: 1px solid var(--color-border);
-		font-size: 0.9rem;
+		border: none;
+		padding: 0;
+		margin: 0;
 
 		background: transparent;
 		border-radius: 2px;
@@ -131,9 +139,18 @@ const ownStyles = css`
 	.${c.gestureEnabledContainer}:focus-visible .${c.keyShortcutTip} {
 		display: inline-block;
 	}
+
+	.${c.scale} {
+		display: inline-block;
+		min-width: 5ch;
+		font-variant-numeric: tabular-nums;
+
+		text-align: center;
+	}
 `;
 
 export const jsonCanvasPageStyles = join(
+	lucideIconStyles,
 	layoutStyles,
 	documentTreeStyles,
 	footerStyles,
@@ -143,7 +160,7 @@ export const jsonCanvasPageStyles = join(
 
 const ownScript = `
 let scale = 1.0;
-const SCALE_MIN = 0.1;
+const SCALE_MIN = 0.3;
 const SCALE_MAX = 2.0;
 let tx = 0.0;
 let ty = 0.0;
@@ -160,8 +177,14 @@ const TOUCH_PAN = 1;
 const TOUCH_ZOOM = 2;
 let touchState = { type: TOUCH_NONE };
 
-function clampScale(v) {
-	return Math.max(SCALE_MIN, Math.min(SCALE_MAX, v));
+const scaleLabel = document.getElementById("__macana_jc_scale");
+
+function setScale(v) {
+	scale = Math.max(SCALE_MIN, Math.min(SCALE_MAX, v));
+
+	if (scaleLabel) {
+		scaleLabel.textContent = Math.round(scale * 100) + "%";
+	}
 }
 
 for (const child of document.getElementsByClassName("${c.scrollableChild}")) {
@@ -213,10 +236,10 @@ if (container) {
 
 		switch (ev.key) {
 			case "-":
-				scale = clampScale(scale - 0.05);
+				setScale(scale - 0.05);
 				break;
 			case "+":
-				scale = clampScale(scale + 0.05);
+				setScale(scale + 0.05);
 				break;
 			case "ArrowLeft":
 				tx += 10 / scale;
@@ -284,7 +307,7 @@ if (container) {
 			}
 
 			const prevScale = scale;
-			scale = clampScale(scale * (1 - deltaY * 0.01));
+			setScale(scale * (1 - deltaY * 0.01));
 
 			if (vw > 0 && vh > 0) {
 				let offsetX = ev.offsetX;
@@ -381,7 +404,7 @@ if (container) {
 					return;
 				}
 
-				scale = clampScale(touchState.initialScale * (dist / touchState.initialDist));
+				setScale(touchState.initialScale * (dist / touchState.initialDist));
 				applyTransformToCanvas();
 				return;
 			}
@@ -426,7 +449,7 @@ if (canvas) {
 	if (vw > 0 && vh > 0) {
 		const rect = canvas.getBoundingClientRect();
 
-		scale = clampScale(Math.min(vw / rect.width, vh / rect.height));
+		setScale(Math.min(vw / rect.width, vh / rect.height));
 	}
 
 	canvas.style.position = "absolute";
@@ -444,22 +467,25 @@ function applyTransformToCanvas() {
 		+ \` translate(\${tx}px,\${ty}px)\`;
 }
 
+const controls = document.getElementById("__macana_jc_cs");
+if (controls) {
+	controls.style.display = "";
+}
+
 const zoomInButton = document.getElementById("__macana_jc_in");
 if (zoomInButton) {
-	zoomInButton.style.display = "";
 	zoomInButton.addEventListener("click", ev => {
 		ev.preventDefault();
-		scale = clampScale(scale + 0.1);
+		setScale(scale + 0.1);
 		applyTransformToCanvas();
 	});
 }
 
 const zoomOutButton = document.getElementById("__macana_jc_out");
 if (zoomOutButton) {
-	zoomOutButton.style.display = "";
 	zoomOutButton.addEventListener("click", ev => {
 		ev.preventDefault();
-		scale = clampScale(scale - 0.1);
+		setScale(scale - 0.1);
 		applyTransformToCanvas();
 	});
 }
@@ -514,27 +540,30 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 									scrollClassName: c.scrollableChild,
 								})}
 							</div>
-							<p class={c.keyShortcutTip} aria-hidden="true">
+							<p class={c.keyShortcutTip}>
 								Use arrow keys to move viewport, <kbd>-</kbd>{" "}
 								key to zoom-out and <kbd>+</kbd> key to zoom-in.
 							</p>
 						</div>
 						<div class={c.meta}>
 							<h1 class={c.title}>{context.document.metadata.title}</h1>
-							<div class={c.controls}>
+							<div id="__macana_jc_cs" class={c.controls} style="display:none;">
 								<button
 									id="__macana_jc_out"
 									class={c.controlButton}
-									style="display:none;"
+									title="Zoom out"
 								>
-									<span>-</span>
+									{zoomOut()}
 								</button>
+								<span id="__macana_jc_scale" class={c.scale} aria-live="polite">
+									100%
+								</span>
 								<button
 									id="__macana_jc_in"
 									class={c.controlButton}
-									style="display:none;"
+									title="Zoom in"
 								>
-									<span>+</span>
+									{zoomIn()}
 								</button>
 							</div>
 						</div>
