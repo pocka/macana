@@ -128,17 +128,20 @@ export interface DefaultThemeBuilderConstructorParameters {
 	/**
 	 * Path to the SVG file to use as a favicon from the root directory (FileSystem Reader).
 	 */
-	faviconSvg?: readonly string[];
+	faviconSvg?: readonly string[] | Uint8Array;
 
 	/**
 	 * Path to the PNG file to use as a favicon from the root directory (FileSystem Reader).
 	 */
-	faviconPng?: readonly string[];
+	faviconPng?: readonly string[] | Uint8Array;
 
 	/**
 	 * Path to the website's logo or icon image from the root directory (FileSystem Reader).
 	 */
-	siteLogo?: readonly string[];
+	siteLogo?: readonly string[] | {
+		ext: string;
+		binary: Uint8Array;
+	};
 }
 
 /**
@@ -150,9 +153,12 @@ export interface DefaultThemeBuilderConstructorParameters {
  */
 export class DefaultThemeBuilder implements PageBuilder {
 	#copyright: string;
-	#faviconSvg?: readonly string[];
-	#faviconPng?: readonly string[];
-	#siteLogo?: readonly string[];
+	#faviconSvg?: readonly string[] | Uint8Array;
+	#faviconPng?: readonly string[] | Uint8Array;
+	#siteLogo?: readonly string[] | {
+		ext: string;
+		binary: Uint8Array;
+	};
 	#siteName: string;
 
 	constructor(
@@ -195,27 +201,51 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const root = await fileSystemReader.getRootDirectory();
 
 		if (this.#faviconSvg) {
-			assets.faviconSvg = this.#faviconSvg;
-			await fileSystemWriter.write(
-				assets.faviconSvg,
-				await (await root.openFile(this.#faviconSvg)).read(),
-			);
+			if (this.#faviconSvg instanceof Uint8Array) {
+				assets.faviconSvg = [".assets", "favicon.svg"];
+				await fileSystemWriter.write(
+					assets.faviconSvg,
+					this.#faviconSvg,
+				);
+			} else {
+				assets.faviconSvg = this.#faviconSvg;
+				await fileSystemWriter.write(
+					assets.faviconSvg,
+					await (await root.openFile(this.#faviconSvg)).read(),
+				);
+			}
 		}
 
 		if (this.#faviconPng) {
-			assets.faviconPng = this.#faviconPng;
-			await fileSystemWriter.write(
-				assets.faviconPng,
-				await (await root.openFile(this.#faviconPng)).read(),
-			);
+			if (this.#faviconPng instanceof Uint8Array) {
+				assets.faviconPng = [".assets", "favicon.png"];
+				await fileSystemWriter.write(
+					assets.faviconPng,
+					this.#faviconPng,
+				);
+			} else {
+				assets.faviconPng = this.#faviconPng;
+				await fileSystemWriter.write(
+					assets.faviconPng,
+					await (await root.openFile(this.#faviconPng)).read(),
+				);
+			}
 		}
 
 		if (this.#siteLogo) {
-			assets.siteLogo = this.#siteLogo;
-			await fileSystemWriter.write(
-				assets.siteLogo,
-				await (await root.openFile(this.#siteLogo)).read(),
-			);
+			if (this.#siteLogo instanceof Array) {
+				assets.siteLogo = this.#siteLogo;
+				await fileSystemWriter.write(
+					assets.siteLogo,
+					await (await root.openFile(this.#siteLogo)).read(),
+				);
+			} else {
+				assets.siteLogo = [".assets", `logo${this.#siteLogo.ext}`];
+				await fileSystemWriter.write(
+					assets.siteLogo,
+					this.#siteLogo.binary,
+				);
+			}
 		}
 
 		const defaultPage = [...documentTree.defaultDocument.path, ""].join("/");

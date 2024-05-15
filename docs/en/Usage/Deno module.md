@@ -1,5 +1,5 @@
-Macana is primarily designed as a TypeScript module for Deno.
-With this approach, you write your build script and import Macana from that file.
+Macana is initially designed as a TypeScript module for Deno.
+While this is tedious, you can tweak more options compared to the CLI.
 
 ## System requirements
 

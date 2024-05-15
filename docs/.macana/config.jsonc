@@ -1,0 +1,39 @@
+{
+	"input": {
+		"path": "../"
+	},
+	"output": {
+		"path": "../.dist"
+	},
+	"documents": {
+		"defaultLanguage": "en-US",
+		"languages": {
+			"en": {
+				"title": "English",
+				"lang": "en-US"
+			},
+			// Just for demonstration.
+			"ja": {
+				"title": "日本語",
+				"lang": "ja"
+			}
+		},
+		// This Vault enables "Shortest Path When Possible" option.
+		"resolveShortestPathWhenPossible": true
+	},
+	"metadata": {
+		"name": "Macana",
+		// Append your copyright text for your forked build.
+		"copyright": "© 2024 Shota FUJI. CC BY 4.0.",
+		"favicon": {
+			// Just using logo vector image.
+			"svg": "../Assets/logo.svg",
+			"png": "../Assets/logo-64x64.png"
+		},
+		"logoImage": "../Assets/logo.svg"
+	},
+	"markdown": {
+		// Some pages have creation/update date in YAML frontmatter.
+		"yamlFrontmatter": true
+	}
+}

@@ -71,7 +71,7 @@ You can inspect (call-tree, memory, etc) using V8 Inspector Protocol via `--insp
 Read more about the flag [here](https://dotland.deno.dev/manual@v1.33.1/basics/debugging_your_code).
 
 ```
-$ deno run --inspect-brk --allow-read=docs --allow-write=docs/.dist docs/build.ts
+$ deno run --inspect-brk --allow-read=docs --allow-write=docs/.dist cli.ts --config docs/.macana/config.jsonc
 ```
 
 The above command prints Inspector URL to your terminal. Open the URL with a debugger client supporting V8 Inspector Protocol, and hit the record button.
