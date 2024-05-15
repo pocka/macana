@@ -10,6 +10,7 @@ import type { Document, DocumentDirectory } from "../../../types.ts";
 
 import { buildClasses, css, join } from "../css.ts";
 import type { BuildContext } from "../context.ts";
+import { javascript } from "../script.ts";
 import * as icons from "../icons/lucide.tsx";
 
 const c = buildClasses("w-dt", [
@@ -90,52 +91,56 @@ const enum StorageKey {
 	OpenedPaths = "__macana_doctree_0",
 }
 
-export const documentTreeScript = `
-function loadSavedTreeState() {
-	const data = window.sessionStorage.getItem("${StorageKey.OpenedPaths}");
-	if (!data) {
-		return []
-	}
+export const documentTreeScript = javascript`
+	function enchanceDocumentTree() {
+		function loadSavedTreeState() {
+			const data = window.sessionStorage.getItem("${StorageKey.OpenedPaths}");
+			if (!data) {
+				return []
+			}
 
-	const parsed = JSON.parse(data)
-	if (!Array.isArray(parsed)) {
-		return []
-	}
+			const parsed = JSON.parse(data)
+			if (!Array.isArray(parsed)) {
+				return []
+			}
 
-	return parsed.filter(path => typeof path === "string");
-}
-
-let saved = new Set();
-try {
-	saved = new Set(loadSavedTreeState());
-} catch (error) {
-	console.warn("Failed to restore tree state", { error });
-}
-
-for (const dir of Array.from(document.getElementsByClassName("${c.directory}"))) {
-	const path = dir.dataset.macanaPath;
-	if (typeof path !== "string") {
-		continue;
-	}
-
-	if (saved.has(path)) {
-		dir.open = true;
-	}
-
-	dir.addEventListener("toggle", () => {
-		if (dir.open) {
-			saved.add(path);
-		} else {
-			saved.delete(path);
+			return parsed.filter(path => typeof path === "string");
 		}
 
-		window.sessionStorage.setItem(
-			"${StorageKey.OpenedPaths}",
-			JSON.stringify(Array.from(saved.values()))
-		);
-	});
-}
-`.trim();
+		let saved = new Set();
+		try {
+			saved = new Set(loadSavedTreeState());
+		} catch (error) {
+			console.warn("Failed to restore tree state", { error });
+		}
+
+		for (const dir of Array.from(document.getElementsByClassName("${c.directory}"))) {
+			const path = dir.dataset.macanaPath;
+			if (typeof path !== "string") {
+				continue;
+			}
+
+			if (saved.has(path)) {
+				dir.open = true;
+			}
+
+			dir.addEventListener("toggle", () => {
+				if (dir.open) {
+					saved.add(path);
+				} else {
+					saved.delete(path);
+				}
+
+				window.sessionStorage.setItem(
+					"${StorageKey.OpenedPaths}",
+					JSON.stringify(Array.from(saved.values()))
+				);
+			});
+		}
+	}
+
+	enchanceDocumentTree();
+`;
 
 export interface DocumentTreeProps {
 	context: Readonly<BuildContext>;

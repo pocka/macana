@@ -8,6 +8,7 @@ import { h, type Result } from "../../../deps/esm.sh/hastscript/mod.ts";
 
 import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
+import { javascript } from "../script.ts";
 
 import * as lucide from "../icons/lucide.tsx";
 
@@ -28,22 +29,22 @@ const c = buildClasses("w-l", [
 	"fullscreenLayout",
 ]);
 
-export const layoutScript = `
-window.addEventListener("pageshow", (ev) => {
-	const check = document.getElementById("__macana_menu_open");
-	if (!check) {
-		return;
-	}
-
-	if (ev.persisted) {
-		const isMenuLayout = getComputedStyle(check).getPropertyValue("--_layout-menu");
-		if (isMenuLayout) {
-			document.documentElement.focus();
-			check.checked = false;
+export const layoutScript = javascript`
+	window.addEventListener("pageshow", (ev) => {
+		const check = document.getElementById("__macana_menu_open");
+		if (!check) {
+			return;
 		}
-	}
-});
-`.trim();
+
+		if (ev.persisted) {
+			const isMenuLayout = getComputedStyle(check).getPropertyValue("--_layout-menu");
+			if (isMenuLayout) {
+				document.documentElement.focus();
+				check.checked = false;
+			}
+		}
+	});
+`;
 
 export const layoutStyles = join(
 	lucide.lucideIconStyles,
