@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-05-25T00:22:00+09:00
+updatedAt: 2024-05-26T13:08:00+09:00
 ---
 ## v1.0
 
@@ -23,7 +23,7 @@ updatedAt: 2024-05-25T00:22:00+09:00
 
 - [x] CLI for opinionated build
 - [x] JSON/JSONC config for CLI
-- [ ] Usage document for CLI
+- [x] Usage document for CLI
 - [ ] Wikilink internal hash reference
 - [ ] Option to set base URL or path
 

@@ -1,5 +1,5 @@
 Macana is initially designed as a TypeScript module for Deno.
-While this is tedious, you can tweak more options compared to the CLI.
+While this is tedious, you can tweak more options compared to the [CLI usage](./CLI).
 
 ## System requirements
 
