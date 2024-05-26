@@ -76,26 +76,6 @@ function isJSONCanvas(
 	return x.content.kind === "json_canvas";
 }
 
-/**
- * @param from - **Directory** to resolve from.
- */
-function toRelativePath(
-	path: readonly string[],
-	from: readonly string[],
-): readonly string[] {
-	return [
-		...Array.from({ length: from.length }, () => ".."),
-		...path,
-	];
-}
-
-function toRelativePathString(
-	path: readonly string[],
-	from: readonly string[],
-): string {
-	return toRelativePath(path, from).join("/");
-}
-
 interface InnerBuildParameters {
 	item: DocumentDirectory | Document;
 
@@ -142,6 +122,11 @@ export interface DefaultThemeBuilderConstructorParameters {
 		ext: string;
 		binary: Uint8Array;
 	};
+
+	/**
+	 * URL or path to base at.
+	 */
+	baseURL?: URL | string;
 }
 
 /**
@@ -160,9 +145,10 @@ export class DefaultThemeBuilder implements PageBuilder {
 		binary: Uint8Array;
 	};
 	#siteName: string;
+	#baseURL?: URL | string;
 
 	constructor(
-		{ copyright, faviconSvg, faviconPng, siteLogo, siteName }:
+		{ copyright, faviconSvg, faviconPng, siteLogo, siteName, baseURL }:
 			DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
@@ -170,6 +156,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		this.#faviconSvg = faviconSvg;
 		this.#siteLogo = siteLogo;
 		this.#siteName = siteName;
+		this.#baseURL = baseURL;
 	}
 
 	async build(
@@ -248,7 +235,10 @@ export class DefaultThemeBuilder implements PageBuilder {
 			}
 		}
 
-		const defaultPage = [...documentTree.defaultDocument.path, ""].join("/");
+		const defaultPage = this.#resolveURL([
+			...documentTree.defaultDocument.path,
+			"",
+		], []);
 		const redirectHtml = toHtml(indexRedirect({ redirectTo: defaultPage }));
 		await fileSystemWriter.write(
 			["index.html"],
@@ -320,7 +310,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 								return {
 									...node,
-									file: toRelativePathString(file.path, context.document.path),
+									file: context.resolveURL(file.path),
 								};
 							}
 
@@ -398,6 +388,8 @@ export class DefaultThemeBuilder implements PageBuilder {
 		{ item, tree, parentLanguage, pathPrefix = [], buildParameters, assets }:
 			InnerBuildParameters,
 	): Promise<void> {
+		const resolveURL = this.#resolveURL;
+
 		const { fileSystemWriter } = buildParameters;
 
 		if ("file" in item) {
@@ -410,9 +402,8 @@ export class DefaultThemeBuilder implements PageBuilder {
 				assets,
 				websiteTitle: this.#siteName,
 				copyright: this.#copyright,
-				resolvePath(to) {
-					// This page builder transforms path to "Foo/Bar.md" to "Foo/Bar/(index.html)"
-					return toRelativePath(to, item.path);
+				resolveURL(to) {
+					return resolveURL(to, item.path);
 				},
 				copyFile(file) {
 					writeTasks.push(
@@ -464,7 +455,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 											return {
 												...node,
-												file: toRelativePathString(file.path, item.path),
+												file: context.resolveURL(file.path),
 											};
 										}
 
@@ -551,4 +542,27 @@ export class DefaultThemeBuilder implements PageBuilder {
 			})
 		));
 	}
+
+	#resolveURL = (to: readonly string[], from: readonly string[]): string => {
+		if (!this.#baseURL) {
+			return [
+				...Array.from({ length: from.length }, () => ".."),
+				...to,
+			].join("/");
+		}
+
+		if (this.#baseURL instanceof URL) {
+			return new URL(to.join("/"), this.#baseURL).toString();
+		}
+
+		const url = new URL(
+			to.join("/"),
+			new URL(this.#baseURL, "macana://placeholder"),
+		);
+		if (url.protocol === "macana:") {
+			return url.pathname;
+		}
+
+		return url.toString();
+	};
 }

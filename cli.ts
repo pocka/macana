@@ -133,6 +133,7 @@ export async function run(
 			"logo-image",
 			"doc-ext",
 			"lang",
+			"base-url",
 		],
 		boolean: [
 			"help",
@@ -358,12 +359,25 @@ export async function run(
 			};
 		}
 
+		const baseURL = flags["base-url"] || configFile.output?.baseURL;
+		try {
+			if (baseURL) {
+				new URL(baseURL, "macana://placeholder");
+			}
+		} catch (error) {
+			throw new Error(
+				`baseURL is not valid URL nor path: ${String(error)}`,
+				{ cause: error },
+			);
+		}
+
 		const pageBuilder = new DefaultThemeBuilder({
 			siteName,
 			copyright,
 			faviconSvg,
 			faviconPng,
 			siteLogo,
+			baseURL,
 		});
 
 		const documentTree = await treeBuilder.build({
@@ -464,6 +478,10 @@ ${title("Options")}:
     Path to the output directory. Macana creates the target directory if it does not
     exist at the path. Use slash ("/") for path separator regardless of platform.
     Corresponding config key is ${p("output.path")} (${t("string")}).
+
+  --base-url <PATH OR URL>
+    URL or path to base at.
+    Corresponding config key is ${p("output.baseURL")} (${t("string")}).
 
   --copyright <TEXT>
     Copyright text to display on the generated website.

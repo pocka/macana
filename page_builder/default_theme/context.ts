@@ -35,10 +35,10 @@ export interface BuildContext {
 	copyright: string;
 
 	/**
-	 * Resolves the given path as an absolute path from the document root to
-	 * relative path from the current document.
+	 * Returns full URL, absolute path or relative path from the current
+	 * document depends on a base URL.
 	 */
-	resolvePath(to: readonly string[]): readonly string[];
+	resolveURL(path: readonly string[]): string;
 
 	/**
 	 * Copy file to the output directory.

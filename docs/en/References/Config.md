@@ -20,6 +20,17 @@ Path needs to be relative and resolved from the config file.
 Path to the output directory.
 Path needs to be relative and resolved from the config file.
 
+### `output.baseURL`
+
+- Type: `string` (URL or path)
+- CLI: `--base-url <URL OR PATH>` option
+- Example: `"/foo/"`, `"https://example.com/"`
+
+Base URL for the generated website.
+
+Path part needs to end with trailing slash: otherwise the last segment will be omitted.
+For example, link for the `Foo.md` under `--base-url /bar/baz` will look like `/bar/Foo/`.
+
 ### `output.precompress`
 
 - Type: `boolean`

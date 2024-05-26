@@ -17,7 +17,7 @@ export interface TemplateProps {
 }
 
 export function template({ body, context, scripts = [] }: TemplateProps) {
-	const { language, document, websiteTitle, assets, resolvePath } = context;
+	const { language, document, websiteTitle, assets, resolveURL } = context;
 
 	return (
 		<html lang={language}>
@@ -27,20 +27,20 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 				<title>{document.metadata.title} - {websiteTitle}</title>
 				<link
 					rel="stylesheet"
-					href={resolvePath(assets.globalCss).join("/")}
+					href={resolveURL(assets.globalCss)}
 				/>
 				{assets.faviconSvg && (
 					<link
 						rel="icon"
 						type="image/svg+xml"
-						href={resolvePath(assets.faviconSvg).join("/")}
+						href={resolveURL(assets.faviconSvg)}
 					/>
 				)}
 				{assets.faviconPng && (
 					<link
 						rel="icon"
 						type="image/png"
-						href={resolvePath(assets.faviconPng).join("/")}
+						href={resolveURL(assets.faviconPng)}
 					/>
 				)}
 			</head>

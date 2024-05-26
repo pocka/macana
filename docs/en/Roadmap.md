@@ -26,7 +26,7 @@ updatedAt: 2024-05-26T18:50:00+09:00
 - [x] JSON/JSONC config for CLI
 - [x] Usage document for CLI
 - [x] Wikilink internal hash reference
-- [ ] Option to set base URL or path
+- [x] Option to set base URL or path
 
 ## v0.1.1
 

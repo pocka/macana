@@ -100,9 +100,9 @@ function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
 		? "#" + document.content.getHash(fragments)
 		: "";
 
-	const path = context.resolvePath([...document.path, ""]);
+	const path = context.resolveURL([...document.path, ""]);
 
-	return path.join("/") + hash;
+	return path + hash;
 }
 
 export function linkHandlers(

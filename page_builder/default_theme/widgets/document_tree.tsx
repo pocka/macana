@@ -170,7 +170,7 @@ interface NodeProps {
 
 function node({ currentPath, value, context }: NodeProps) {
 	if ("file" in value) {
-		const path = context.resolvePath([
+		const url = context.resolveURL([
 			...value.path.map((segment) => encodeURIComponent(segment)),
 			// For trailing slash
 			"",
@@ -183,7 +183,7 @@ function node({ currentPath, value, context }: NodeProps) {
 			<li lang={value.metadata.language ?? undefined} class={c.document}>
 				<a
 					className={c.link}
-					href={path.join("/")}
+					href={url}
 					aria-current={isCurrent ? "page" : undefined}
 				>
 					{value.metadata.title}

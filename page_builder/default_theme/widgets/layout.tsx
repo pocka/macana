@@ -279,7 +279,7 @@ export function layout({
 }: LayoutProps) {
 	const {
 		assets,
-		resolvePath,
+		resolveURL,
 		documentTree: { defaultDocument },
 		websiteTitle,
 	} = context;
@@ -302,14 +302,14 @@ export function layout({
 			<header class={c.appbar}>
 				<a
 					class={c.homeLink}
-					href={resolvePath([...defaultDocument.path, ""]).join("/")}
+					href={resolveURL([...defaultDocument.path, ""])}
 					title={defaultDocument.metadata.title}
 					lang={defaultDocument.metadata.language}
 				>
 					{assets.siteLogo && (
 						<img
 							class={c.logoImage}
-							src={resolvePath(assets.siteLogo).join("/")}
+							src={resolveURL(assets.siteLogo)}
 							width={32}
 							height={32}
 						/>

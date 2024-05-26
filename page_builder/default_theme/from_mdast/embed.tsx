@@ -39,7 +39,7 @@ function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
 
 	context.copyFile(file);
 
-	return context.resolvePath(file.path).join("/");
+	return context.resolveURL(file.path);
 }
 
 export interface EmbedHandlersParameters {
