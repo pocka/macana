@@ -32,6 +32,22 @@ export { ofmToHastHandlers } from "./obsidian_markdown/mdast_util_ofm.ts";
 export { ofmHtml } from "./obsidian_markdown/hast_util_ofm_html.ts";
 export type { CalloutType } from "./obsidian_markdown/mdast_util_ofm_callout.ts";
 
+function getFrontMatterBooleanValue(
+	frontmatter: Record<string, unknown>,
+	key: string,
+): boolean | undefined {
+	if (!(key in frontmatter)) {
+		return undefined;
+	}
+
+	const value = frontmatter[key];
+	if (typeof value !== "boolean") {
+		return undefined;
+	}
+
+	return value;
+}
+
 function getFrontMatterValue(
 	frontmatter: Record<string, unknown>,
 	key: string,
@@ -274,6 +290,10 @@ export class ObsidianMarkdownParser
 			getFrontMatterValue(frontmatter.attrs, "language");
 		const createdAt = getFrontMatterDate(frontmatter.attrs, "createdAt");
 		const updatedAt = getFrontMatterDate(frontmatter.attrs, "updatedAt");
+		const isDefaultDocument = getFrontMatterBooleanValue(
+			frontmatter.attrs,
+			"defaultDocument",
+		);
 
 		return {
 			documentMetadata: {
@@ -283,6 +303,8 @@ export class ObsidianMarkdownParser
 				language: lang || documentMetadata.language,
 				createdAt: createdAt || documentMetadata.createdAt,
 				updatedAt: updatedAt || documentMetadata.updatedAt,
+				isDefaultDocument: isDefaultDocument ||
+					documentMetadata.isDefaultDocument,
 			},
 			documentContent: await ok(frontmatter.body, {
 				getDocumentToken,
