@@ -25,6 +25,9 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<title>{document.metadata.title} - {websiteTitle}</title>
+				{document.metadata.description && (
+					<meta name="description" content={document.metadata.description} />
+				)}
 				<link
 					rel="stylesheet"
 					href={resolveURL(assets.globalCss)}

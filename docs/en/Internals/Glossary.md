@@ -16,6 +16,7 @@ Properties describing a *document* or a *document directory* required for genera
 - *Document name*
 - *Document title*
 - Whether the document is the default document of Vault
+- Description (optional)
 - Language (optional)
 - Creation date-time (optional)
 - Update date-time (optional)

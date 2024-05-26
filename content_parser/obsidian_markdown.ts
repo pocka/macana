@@ -88,23 +88,6 @@ export type ObsidianMarkdownDocument = DocumentContent<
 export interface ObsidianMarkdownParserOptions {
 	/**
 	 * Whether to enable reading of YAML frontmatter.
-	 *
-	 * ## `title`
-	 *
-	 * Use property value as a document title.
-	 *
-	 * ## `name`
-	 *
-	 * Use property value as a document name.
-	 *
-	 * ## `lang` / `language`
-	 *
-	 * Use property value as a document language.
-	 *
-	 * ## `createdAt` / `updatedAt`
-	 *
-	 * Use property values as corresponding metadata dates.
-	 *
 	 * @default false
 	 */
 	frontmatter?: boolean;
@@ -286,6 +269,7 @@ export class ObsidianMarkdownParser
 
 		const name = getFrontMatterValue(frontmatter.attrs, "name");
 		const title = getFrontMatterValue(frontmatter.attrs, "title");
+		const description = getFrontMatterValue(frontmatter.attrs, "description");
 		const lang = getFrontMatterValue(frontmatter.attrs, "lang") ||
 			getFrontMatterValue(frontmatter.attrs, "language");
 		const createdAt = getFrontMatterDate(frontmatter.attrs, "createdAt");
@@ -300,6 +284,7 @@ export class ObsidianMarkdownParser
 				...documentMetadata,
 				name: name || documentMetadata.name,
 				title: title || documentMetadata.title,
+				description: description || documentMetadata.description,
 				language: lang || documentMetadata.language,
 				createdAt: createdAt || documentMetadata.createdAt,
 				updatedAt: updatedAt || documentMetadata.updatedAt,

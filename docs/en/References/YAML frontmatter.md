@@ -26,6 +26,12 @@ You should avoid reaching to this field.
 Title of the document.
 By default, file name is used as a title.
 
+## `description`
+
+- Type: `description`
+
+Description text of the document.
+
 ## `lang`
 
 - Type: `string`

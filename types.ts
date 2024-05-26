@@ -69,6 +69,11 @@ export interface DocumentMetadata {
 	readonly name: string;
 
 	/**
+	 * Description of the document.
+	 */
+	readonly description?: string;
+
+	/**
 	 * Human-readable text representing a title of the *document*.
 	 * Although there is no restriction on available characters, you should avoid using
 	 * control characters.
