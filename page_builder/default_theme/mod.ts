@@ -328,6 +328,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 								const { document, fragments } = context.documentTree
 									.exchangeToken(
 										node.file,
+										target,
 									);
 
 								return {
@@ -470,6 +471,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 										if (isDocumentToken(node.file)) {
 											const { document, fragments } = tree.exchangeToken(
 												node.file,
+												item,
 											);
 
 											return {

@@ -525,7 +525,7 @@ export class DefaultTreeBuilder implements TreeBuilder {
 			nodes,
 			defaultDocument,
 			defaultLanguage: this.#defaultLanguage,
-			exchangeToken: ((token) => {
+			exchangeToken: ((token, importer) => {
 				if (isAssetToken(token)) {
 					const found = assetTokensToFiles.get(token);
 					if (!found) {
@@ -545,7 +545,9 @@ export class DefaultTreeBuilder implements TreeBuilder {
 						);
 					}
 
-					const doc = pathToDocuments.get(ref.internalPath);
+					const doc = ref.internalPath
+						? pathToDocuments.get(ref.internalPath)
+						: importer;
 					if (!doc) {
 						throw new Error(
 							`DefaultTreeBuilder: No document at the path ${ref.internalPath}, referenced by token ${token}`,

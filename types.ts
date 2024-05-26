@@ -159,7 +159,7 @@ export interface DocumentTree {
 	 * Get a document in exchange for the token.
 	 * Throws an error if the token is invalid or target document is missing.
 	 */
-	exchangeToken(token: DocumentToken): {
+	exchangeToken(token: DocumentToken, importer?: Document): {
 		document: Document;
 		fragments: readonly string[];
 	};

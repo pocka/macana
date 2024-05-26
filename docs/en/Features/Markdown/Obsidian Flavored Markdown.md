@@ -22,12 +22,14 @@ To use this link style, surround the target file name without file extension or 
 - [[Overview]]
 - [[Overview#Arbitrary document tree]]
 - [[GitHub Flavored Markdown#^alert-callout-compat]]
+- [[#Block identifier]]
 ```
 
 - [[Overview|Alternative Title]]
 - [[Overview]]
 - [[Overview#Arbitrary document tree]]
 - [[GitHub Flavored Markdown#^alert-callout-compat]]
+- [[#Block identifier]]
 
 ### Block identifier
 

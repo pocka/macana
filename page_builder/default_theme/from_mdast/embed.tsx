@@ -79,6 +79,7 @@ export function embedHandlers(
 			if (hasDocumentToken(node)) {
 				const { document, fragments } = context.documentTree.exchangeToken(
 					node.data.macanaDocumentToken,
+					context.document,
 				);
 
 				const hast = buildDocumentContent(document, fragments);

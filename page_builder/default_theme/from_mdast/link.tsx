@@ -93,6 +93,7 @@ function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
 
 	const { document, fragments } = context.documentTree.exchangeToken(
 		node.data.macanaDocumentToken,
+		context.document,
 	);
 
 	const hash = fragments.length > 0
