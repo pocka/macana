@@ -73,11 +73,7 @@ export const globalStyles = css`
 
 	/* Elements */
 	html {
-		font-family: "Inter", sans-serif;
-	}
-
-	html[lang="ja"] {
-		font-family: "Inter", "Noto Sans JP", sans-serif;
+		font-family: sans-serif;
 	}
 
 	body {
@@ -91,30 +87,5 @@ export const globalStyles = css`
 	::before,
 	::after {
 		box-sizing: border-box;
-	}
-
-	h1:hover > a[data-hash-link],
-	h2:hover > a[data-hash-link],
-	h3:hover > a[data-hash-link],
-	h4:hover > a[data-hash-link],
-	h5:hover > a[data-hash-link],
-	h6:hover > a[data-hash-link] {
-		opacity: 1;
-	}
-
-	a[data-hash-link] {
-		display: inline-block;
-		margin-left: -1em;
-		padding-right: 0.3em;
-
-		text-decoration: none;
-
-		opacity: 0;
-	}
-	a[data-hash-link]:hover {
-		text-decoration: underline;
-	}
-	a[data-hash-link]:focus {
-		opacity: 1;
 	}
 `;
