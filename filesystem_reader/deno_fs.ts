@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SEPARATOR } from "../deps/deno.land/std/path/mod.ts";
+import { relative, SEPARATOR } from "../deps/deno.land/std/path/mod.ts";
 
 import { logger } from "../logger.ts";
 
@@ -216,6 +216,23 @@ export class DenoFsReader implements FileSystemReader {
 		};
 
 		return root;
+	}
+
+	/**
+	 * This method MAY require "read" permission for CWD.
+	 */
+	fromFsPath(path: string): readonly string[] {
+		const rel = relative(this.#root, path).split(SEPARATOR);
+
+		return rel.filter((segment) => {
+			if (segment === "..") {
+				throw new Error(
+					"DenoFsReader: Access to outside the reader root directory.",
+				);
+			}
+
+			return segment !== ".";
+		});
 	}
 
 	#constructParents(

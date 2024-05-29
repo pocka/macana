@@ -31,6 +31,17 @@ Base URL for the generated website.
 Path part needs to end with trailing slash: otherwise the last segment will be omitted.
 For example, link for the `Foo.md` under `--base-url /bar/baz` will look like `/bar/Foo/`.
 
+### `output.userCSS`
+
+- Type: `string` (file path)
+- CLI: `--user-css <PATH>` option
+
+Path to the user provided CSS file.
+Path needs to be relative and inside the vault, and will be resolved from the config file.
+
+Assets referenced in the CSS file are automatically included in the final output, such as font file.
+Referenced assets needs to be relative and inside the vault too.
+
 ### `output.precompress`
 
 - Type: `boolean`

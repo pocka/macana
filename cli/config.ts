@@ -17,6 +17,8 @@ export interface MacanaConfig {
 		precompress?: boolean;
 
 		baseURL?: string;
+
+		userCSS?: string;
 	};
 
 	metadata?: {
@@ -77,6 +79,7 @@ function configParser(configFilePath: string): parser.Parser<MacanaConfig> {
 			path: fsPathParser,
 			baseURL: parser.string({ nonEmpty: true, trim: true }),
 			precompress: parser.boolean,
+			userCSS: fsPathParser,
 		}),
 		metadata: parser.object({
 			name: parser.string({ nonEmpty: true }),

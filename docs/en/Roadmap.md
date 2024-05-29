@@ -1,6 +1,6 @@
 ---
 createdAt: 2024-04-15T23:00:00+09:00
-updatedAt: 2024-05-29T15:00:00+09:00
+updatedAt: 2024-05-29T22:50:00+09:00
 ---
 ## v1.0
 
@@ -16,8 +16,8 @@ updatedAt: 2024-05-29T15:00:00+09:00
 ## v0.2
 
 - [x] Option for OpenGraph attributes
-- [ ] Custom fonts per language
-- [ ] User provided global CSS
+- [x] Custom fonts per language
+- [x] User provided global CSS
 - [ ] Headings down levelling option (render `# Foo` as `<h2>Foo</h2>`)
 - [ ] 404 page
 

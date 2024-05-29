@@ -135,6 +135,7 @@ export async function run(
 			"lang",
 			"base-url",
 			"og-image",
+			"user-css",
 		],
 		boolean: [
 			"help",
@@ -393,6 +394,11 @@ export async function run(
 			}
 		}
 
+		const userCSSInput = flags["user-css"] || configFile.output?.userCSS;
+		const userCSS = userCSSInput
+			? fileSystemReader.fromFsPath(userCSSInput)
+			: undefined;
+
 		const pageBuilder = new DefaultThemeBuilder({
 			siteName,
 			copyright,
@@ -403,6 +409,7 @@ export async function run(
 			openGraph: ogImage && {
 				image: ogImage,
 			},
+			userCSS,
 		});
 
 		const documentTree = await treeBuilder.build({
@@ -503,6 +510,13 @@ ${title("Options")}:
     Path to the output directory. Macana creates the target directory if it does not
     exist at the path. Use slash ("/") for path separator regardless of platform.
     Corresponding config key is ${p("output.path")} (${t("string")}).
+
+  --user-css <PATH>
+    Path to the user provided CSS. This CSS contents will be appended to the final CSS:
+    this CSS can override every styles. The target file MUST be inside ${
+		b("VAULT_PATH")
+	}.
+    Corresponding config key is ${p("output.userCSS")} (${t("string")}).
 
   --base-url <PATH OR URL>
     URL or path to base at.

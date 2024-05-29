@@ -26,12 +26,14 @@ import {
 } from "../../content_parser/obsidian_markdown.ts";
 import type { JSONCanvasDocument } from "../../content_parser/json_canvas.ts";
 import * as jsonCanvas from "../../content_parser/json_canvas/utils.ts";
+import type { FileSystemWriter } from "../../filesystem_writer/interface.ts";
 import type {
 	AssetToken,
 	Document,
 	DocumentDirectory,
 	DocumentToken,
 	DocumentTree,
+	RootDirectoryReader,
 } from "../../types.ts";
 
 import * as css from "./css.ts";
@@ -124,6 +126,11 @@ export interface DefaultThemeBuilderConstructorParameters {
 	};
 
 	/**
+	 * Path to the user provided CSS file.
+	 */
+	userCSS?: readonly string[];
+
+	/**
 	 * URL or path to base at.
 	 */
 	baseURL?: URL | string;
@@ -154,6 +161,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 	#siteName: string;
 	#baseURL?: URL | string;
 	#openGraph: DefaultThemeBuilderConstructorParameters["openGraph"];
+	#userCSS?: readonly string[];
 
 	constructor(
 		{
@@ -164,6 +172,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 			siteName,
 			baseURL,
 			openGraph,
+			userCSS,
 		}: DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
@@ -173,6 +182,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		this.#siteName = siteName;
 		this.#baseURL = baseURL;
 		this.#openGraph = openGraph;
+		this.#userCSS = userCSS;
 	}
 
 	async build(
@@ -180,14 +190,23 @@ export class DefaultThemeBuilder implements PageBuilder {
 	) {
 		const start = performance.now();
 
+		const root = await fileSystemReader.getRootDirectory();
+
+		const baseStyles = css.join(
+			globalStyles,
+			fromMdastStyles,
+			markdownPageStyles,
+			jsonCanvasPageStyles,
+			jsonCanvasRendererStyles,
+		);
+
+		const userCss = await this.#loadUserCSSAndCopyAssets(
+			root,
+			fileSystemWriter,
+		);
+
 		const styles = css.serialize(
-			css.join(
-				globalStyles,
-				fromMdastStyles,
-				markdownPageStyles,
-				jsonCanvasPageStyles,
-				jsonCanvasRendererStyles,
-			),
+			userCss ? css.join(baseStyles, userCss) : baseStyles,
 		);
 
 		const minCss = csso.minify(styles);
@@ -200,8 +219,6 @@ export class DefaultThemeBuilder implements PageBuilder {
 			assets.globalCss,
 			new TextEncoder().encode(minCss.css),
 		);
-
-		const root = await fileSystemReader.getRootDirectory();
 
 		if (this.#faviconSvg) {
 			if (this.#faviconSvg instanceof Uint8Array) {
@@ -573,6 +590,44 @@ export class DefaultThemeBuilder implements PageBuilder {
 			})
 		));
 	}
+
+	#loadUserCSSAndCopyAssets = async (
+		root: RootDirectoryReader,
+		writer: FileSystemWriter,
+	): Promise<css.Css | null> => {
+		if (!this.#userCSS) {
+			return null;
+		}
+
+		const userCSS = this.#userCSS;
+
+		const file = await root.openFile(userCSS);
+		const code = new TextDecoder().decode(await file.read());
+
+		const assets = css.getAssets(code);
+
+		const convertPath = (from: string) => {
+			return [
+				...userCSS.slice(0, -1),
+				...from.split("/").filter((segment) => segment !== "."),
+			];
+		};
+
+		for (const asset of assets.paths) {
+			const path = convertPath(asset);
+
+			await writer.write(
+				path,
+				await (await root.openFile(path)).read(),
+			);
+		}
+
+		return css.fromString(
+			assets.replace((path) =>
+				this.#resolveURL(convertPath(path), [".assets"])
+			),
+		);
+	};
 
 	#resolveURL = (to: readonly string[], from: readonly string[]): string => {
 		if (!this.#baseURL) {

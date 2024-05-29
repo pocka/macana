@@ -1,0 +1,17 @@
+/* SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@font-face {
+	font-family: "DIN";
+	src: url("din1451alt.ttf");
+}
+
+header {
+	font-family: "DIN", sans-serif;
+}
+
+header span {
+	margin-top: 0.125em;
+	line-height: 1;
+}

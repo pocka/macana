@@ -17,7 +17,7 @@
 		}
 	},
 	"tasks": {
-		"build-docs": "deno run --allow-read=docs --allow-write=docs/.dist cli.ts --config docs/.macana/config.jsonc",
+		"build-docs": "deno run --allow-read=. --allow-write=docs/.dist cli.ts --config docs/.macana/config.jsonc",
 		"serve-docs": "cd docs/.dist && deno run --allow-read=. --allow-net https://deno.land/std/http/file_server.ts ."
 	}
 }

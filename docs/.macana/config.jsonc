@@ -3,7 +3,8 @@
 		"path": "../"
 	},
 	"output": {
-		"path": "../.dist"
+		"path": "../.dist",
+		"userCSS": "../Assets/user.css"
 	},
 	"documents": {
 		"defaultLanguage": "en-US",
