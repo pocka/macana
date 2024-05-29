@@ -127,6 +127,13 @@ export interface DefaultThemeBuilderConstructorParameters {
 	 * URL or path to base at.
 	 */
 	baseURL?: URL | string;
+
+	openGraph?: {
+		image: {
+			ext: string;
+			data: Uint8Array;
+		};
+	};
 }
 
 /**
@@ -146,10 +153,18 @@ export class DefaultThemeBuilder implements PageBuilder {
 	};
 	#siteName: string;
 	#baseURL?: URL | string;
+	#openGraph: DefaultThemeBuilderConstructorParameters["openGraph"];
 
 	constructor(
-		{ copyright, faviconSvg, faviconPng, siteLogo, siteName, baseURL }:
-			DefaultThemeBuilderConstructorParameters,
+		{
+			copyright,
+			faviconSvg,
+			faviconPng,
+			siteLogo,
+			siteName,
+			baseURL,
+			openGraph,
+		}: DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
 		this.#faviconPng = faviconPng;
@@ -157,6 +172,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		this.#siteLogo = siteLogo;
 		this.#siteName = siteName;
 		this.#baseURL = baseURL;
+		this.#openGraph = openGraph;
 	}
 
 	async build(
@@ -233,6 +249,21 @@ export class DefaultThemeBuilder implements PageBuilder {
 					this.#siteLogo.binary,
 				);
 			}
+		}
+
+		const baseURL = this.#baseURL &&
+			new URL(this.#baseURL, "macana://placeholder");
+		const isOpenGraphReady = baseURL && baseURL.protocol !== "macana:";
+
+		if (isOpenGraphReady && this.#openGraph) {
+			assets.openGraphImage = [
+				".assets",
+				`opengraph${this.#openGraph.image.ext}`,
+			];
+			await fileSystemWriter.write(
+				assets.openGraphImage,
+				this.#openGraph.image.data,
+			);
 		}
 
 		const defaultPage = this.#resolveURL([

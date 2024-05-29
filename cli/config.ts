@@ -30,6 +30,10 @@ export interface MacanaConfig {
 		copyright?: string;
 
 		logoImage?: string;
+
+		openGraph?: {
+			image?: string;
+		};
 	};
 
 	documents?: {
@@ -82,6 +86,9 @@ function configParser(configFilePath: string): parser.Parser<MacanaConfig> {
 			}),
 			copyright: parser.string(),
 			logoImage: fsPathParser,
+			openGraph: parser.object({
+				image: fsPathParser,
+			}),
 		}),
 		documents: parser.object({
 			defaultLanguage: parser.string({ nonEmpty: true }),

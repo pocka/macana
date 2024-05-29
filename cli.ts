@@ -134,6 +134,7 @@ export async function run(
 			"doc-ext",
 			"lang",
 			"base-url",
+			"og-image",
 		],
 		boolean: [
 			"help",
@@ -359,16 +360,37 @@ export async function run(
 			};
 		}
 
+		let isFullBaseURL = false;
 		const baseURL = flags["base-url"] || configFile.output?.baseURL;
 		try {
 			if (baseURL) {
-				new URL(baseURL, "macana://placeholder");
+				const url = new URL(baseURL, "macana://placeholder");
+				// If the `baseURL` is valid full URL, it overrides the "macana://placeholder" and
+				// `protocol` would be one of the given URL.
+				isFullBaseURL = url.protocol !== "macana:";
 			}
 		} catch (error) {
 			throw new Error(
 				`baseURL is not valid URL nor path: ${String(error)}`,
 				{ cause: error },
 			);
+		}
+
+		let ogImage: { ext: string; data: Uint8Array } | undefined = undefined;
+		const ogImagePath = flags["og-image"] ||
+			configFile.metadata?.openGraph?.image;
+		if (ogImagePath) {
+			log.debug(`metadata.openGraph.image = "${ogImagePath}"`);
+			if (isFullBaseURL) {
+				ogImage = {
+					ext: path.extname(ogImagePath),
+					data: Deno.readFileSync(ogImagePath),
+				};
+			} else {
+				log.warn(
+					"Open Graph image is set but base URL is not full URL: ignoring `metadata.openGraph.image` field.",
+				);
+			}
 		}
 
 		const pageBuilder = new DefaultThemeBuilder({
@@ -378,6 +400,9 @@ export async function run(
 			faviconPng,
 			siteLogo,
 			baseURL,
+			openGraph: ogImage && {
+				image: ogImage,
+			},
 		});
 
 		const documentTree = await treeBuilder.build({

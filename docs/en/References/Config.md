@@ -87,6 +87,17 @@ Copyright text to show in the generated website.
 Path to an image file to use as a website logo.
 Path needs to be relative and resolved from the config file.
 
+### `metadata.openGraph.image`
+
+- Type: `string` (file path)
+- CLI: `--og-image <PATH>` option
+
+Path to an image file to use as an [Open Graph](https://ogp.me/) image (`og:image`).
+Path needs to be relative and resolved from the config file.
+
+Macana sets Open Graph attributes only when the value of [[#`output.baseURL`]] is full URL string.
+Path only strings and such are not considered as Open Graph ready base URL.
+
 ## Document options
 ### `documents.defaultLanguage`
 

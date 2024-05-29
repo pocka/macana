@@ -30,7 +30,10 @@
 			"svg": "../Assets/logo.svg",
 			"png": "../Assets/logo-64x64.png"
 		},
-		"logoImage": "../Assets/logo.svg"
+		"logoImage": "../Assets/logo.svg",
+		"openGraph": {
+			"image": "../Assets/opengraph.png"
+		}
 	},
 	"markdown": {
 		// Some pages have creation/update date in YAML frontmatter.

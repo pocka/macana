@@ -46,6 +46,35 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 						href={resolveURL(assets.faviconPng)}
 					/>
 				)}
+				{assets.openGraphImage && (
+					h(null, [
+						<meta name="og:title" content={document.metadata.title} />,
+						<meta name="og:type" content="article" />,
+						<meta
+							name="og:image"
+							content={resolveURL(assets.openGraphImage)}
+						/>,
+						<meta name="og:url" content={resolveURL([...document.path, ""])} />,
+						document.metadata.description && (
+							<meta
+								name="og:description"
+								content={document.metadata.description}
+							/>
+						),
+						document.metadata.createdAt && (
+							<meta
+								name="article:published_time"
+								content={document.metadata.createdAt.toISOString()}
+							/>
+						),
+						document.metadata.updatedAt && (
+							<meta
+								name="article:modified_time"
+								content={document.metadata.updatedAt.toISOString()}
+							/>
+						),
+					])
+				)}
 			</head>
 			{h(
 				"body",
