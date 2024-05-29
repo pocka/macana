@@ -59,7 +59,7 @@ $ deno fmt
 The most straightforward way to run the tests is to run this command on the repository root:
 
 ```
-$ deno test --allow-read=. --allow-write=./filesystem_writer/.test
+$ deno test --allow-read=. --allow-write=./internal/filesystem_writer/.test
 ```
 
 - If you omit the `--allow-read=.` permission, tests performing actual file I/O will be skipped.
@@ -71,7 +71,7 @@ You can inspect (call-tree, memory, etc) using V8 Inspector Protocol via `--insp
 Read more about the flag [here](https://dotland.deno.dev/manual@v1.33.1/basics/debugging_your_code).
 
 ```
-$ deno run --inspect-brk --allow-read=docs --allow-write=docs/.dist cli.ts --config docs/.macana/config.jsonc
+$ deno run --inspect-brk --allow-read=. --allow-write=docs/.dist cli.ts --config docs/.macana/config.jsonc
 ```
 
 The above command prints Inspector URL to your terminal. Open the URL with a debugger client supporting V8 Inspector Protocol, and hit the record button.

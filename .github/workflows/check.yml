@@ -30,8 +30,8 @@ jobs:
           path: ${{ env.DENO_DIR }}
           key: check-${{ hashFiles('deno.lock') }}
       - name: Run unit tests
-        run: "deno test --allow-read=. --allow-write=./filesystem_writer/.test"
+        run: "deno test --allow-read=. --allow-write=./internal/filesystem_writer/.test"
       - name: Lint
         run: "deno lint"
       - name: Perform type-check
-        run: "deno check cli.ts"
+        run: "deno check mod.ts cli.ts"

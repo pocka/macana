@@ -1,3 +1,6 @@
+> [!note]
+> Module endpoint will be changed at v0.2 release.
+
 Macana is initially designed as a TypeScript module for Deno.
 While this is tedious, you can tweak more options compared to the [CLI usage](./CLI).
 
@@ -385,7 +388,7 @@ Otherwise FileSystem Reader cannot access to the files.
 Since all of these are plain simple JavaScript / TypeScript, you can simply run `deno run` with minimum permission flags.
 
 ```
-$ deno run --allow-read=<YOUR VAULT> --allow-write=<OUTPUT DIR> build.ts
+$ deno run --allow-read=. --allow-write=<OUTPUT DIR> build.ts
 ```
 
 If you do not want to type this lengthy command every time you build, define it as a Deno task.
@@ -394,7 +397,7 @@ If you do not want to type this lengthy command every time you build, define it 
 // deno.jsonc
 {
   "tasks": {
-    "build": "deno run --allow-read=<YOUR VAULT> --allow-write=<OUTPUT DIR> build.ts"
+    "build": "deno run --allow-read=. --allow-write=<OUTPUT DIR> build.ts"
   }
 }
 ```

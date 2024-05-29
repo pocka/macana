@@ -8,24 +8,24 @@ import * as colors from "./deps/deno.land/std/fmt/colors.ts";
 import * as jsonc from "./deps/deno.land/std/jsonc/mod.ts";
 import * as path from "./deps/deno.land/std/path/mod.ts";
 
-import { DenoFsReader } from "./filesystem_reader/deno_fs.ts";
-import { DenoFsWriter } from "./filesystem_writer/deno_fs.ts";
-import { noOverwrite } from "./filesystem_writer/no_overwrite.ts";
-import { precompress as precompressMiddleware } from "./filesystem_writer/precompress.ts";
+import { DenoFsReader } from "./internal/filesystem_reader/deno_fs.ts";
+import { DenoFsWriter } from "./internal/filesystem_writer/deno_fs.ts";
+import { noOverwrite } from "./internal/filesystem_writer/no_overwrite.ts";
+import { precompress as precompressMiddleware } from "./internal/filesystem_writer/precompress.ts";
 import {
 	DefaultTreeBuilder,
 	fileExtensions,
 	ignoreDotfiles,
 	langDir,
 	removeExtFromMetadata,
-} from "./tree_builder/default_tree_builder.ts";
-import type { ContentParser } from "./content_parser/interface.ts";
-import { oneof } from "./content_parser/oneof.ts";
-import { ObsidianMarkdownParser } from "./content_parser/obsidian_markdown.ts";
-import { JSONCanvasParser } from "./content_parser/json_canvas.ts";
-import { DefaultThemeBuilder } from "./page_builder/default_theme/mod.ts";
+} from "./internal/tree_builder/default_tree_builder.ts";
+import type { ContentParser } from "./internal/content_parser/interface.ts";
+import { oneof } from "./internal/content_parser/oneof.ts";
+import { ObsidianMarkdownParser } from "./internal/content_parser/obsidian_markdown.ts";
+import { JSONCanvasParser } from "./internal/content_parser/json_canvas.ts";
+import { DefaultThemeBuilder } from "./internal/page_builder/default_theme/mod.ts";
 
-import * as config from "./cli/config.ts";
+import * as config from "./internal/cli/config.ts";
 
 function prettyLogFormatter(
 	useColors: boolean,
@@ -458,14 +458,31 @@ function help(isColorEnabled: boolean): string {
 macana/cli.ts - Generate static website from Obsidian Vault.
 
 ${title("Usage")}:
-  deno run --allow-read=<VAULT_PATH>,<CONFIG_PATH> --allow-write=<OUTDIR> macana/cli.ts --config <CONFIG_PATH>
+  deno run --allow-read=.,<CONFIG_PATH> --allow-write=<OUTDIR> macana/cli.ts --config <CONFIG_PATH>
 
-  deno run --allow-read=<VAULT_PATH> --allow-write=<OUTDIR> macana/cli.ts [OPTIONS] <VAULT_PATH>
+  deno run --allow-read=. --allow-write=<OUTDIR> macana/cli.ts [OPTIONS] <VAULT_PATH>
 
 ${title("Arguments")}:
   VAULT_PATH
     Path to the Vault directory. This is required if "--config" option is not present.
     Corresponding config key is ${p("input.path")} (${t("string")}).
+
+${title("Permissions")}:
+  ${b("read")}
+    Macana requires file system read permission for the current directory, ${
+		b("VAULT_PATH")
+	}
+    and ${b("CONFIG_PATH")} (if ${
+		b("--config")
+	} option is set). Permission for the current
+    directory is required due to a technical limitation: there is no way to resolve a relative
+    path without accessing CWD in Deno.
+
+  ${b("write")}
+    Macana requires file system write permission for ${
+		b("OUTDIR")
+	} in order to write
+    generated website files.
 
 ${title("Options")}:
   -h, --help
@@ -595,18 +612,18 @@ ${title("Examples")}:
   Generate website from Vault located at "./vault/", with config file "./macana.json" then
   write it under "./out".
 
-    deno run --allow-read=vault,macana.json --allow-write=out macana/cli.ts ./macana.json
+    deno run --allow-read=.,macana.json --allow-write=out macana/cli.ts ./macana.json
 
 
   Same as the above, but the config file is at "./vault/.macana/config.json".
 
-    deno run --allow-read=vault --allow-write=out macana/cli.ts ./vault/.macana/config.json
+    deno run --allow-read=. --allow-write=out macana/cli.ts ./vault/.macana/config.json
 
 
   Generate website without using config file.
 
     deno run \\
-      --allow-read=vault --allow-write=out \\
+      --allow-read=. --allow-write=out \\
       macana/cli.ts \\
       --out ./out \\
       --name "Foo Bar" \\
