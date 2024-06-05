@@ -16,7 +16,7 @@ import { type OfmWikilink } from "../../../../lib/mdast_util_ofm_wikilink/mod.ts
 
 import { buildClasses, css, join } from "../css.ts";
 import * as lucide from "../icons/lucide.tsx";
-import type { BuildContext } from "../context.ts";
+import type { DocumentBuildContext } from "../context.ts";
 
 import { hasDocumentToken } from "./utils.ts";
 
@@ -60,7 +60,7 @@ interface LinkHandlersOptions {
 	 */
 	openExternalLinkInBlank?: boolean;
 
-	context: BuildContext;
+	context: DocumentBuildContext;
 }
 
 function link(
@@ -86,7 +86,11 @@ function link(
 	]);
 }
 
-function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
+function getUrl(
+	url: string,
+	node: Mdast.Node,
+	context: DocumentBuildContext,
+): string {
 	if (!hasDocumentToken(node)) {
 		return url;
 	}

@@ -6,14 +6,14 @@
 
 import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
 
-import type { BuildContext } from "../context.ts";
+import type { DocumentBuildContext } from "../context.ts";
 
 import { datetime, datetimeScript } from "./datetime.tsx";
 
 export const pageMetadataScript = datetimeScript;
 
 export interface PageMetadataProps {
-	context: BuildContext;
+	context: DocumentBuildContext;
 }
 
 export function pageMetadata(

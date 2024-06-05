@@ -41,7 +41,7 @@ import type {
 
 import * as css from "./css.ts";
 import { globalStyles } from "./global_styles.ts";
-import type { Assets, BuildContext } from "./context.ts";
+import type { Assets, DocumentBuildContext } from "./context.ts";
 
 import {
 	fromMdast,
@@ -54,6 +54,7 @@ import {
 } from "./json_canvas/mod.tsx";
 import { indexRedirect } from "./pages/index_redirect.tsx";
 import { markdownPage, markdownPageStyles } from "./pages/markdown.tsx";
+import { notFoundPage, notFoundPageStyles } from "./pages/not_found.tsx";
 import { jsonCanvasPage, jsonCanvasPageStyles } from "./pages/json_canvas.tsx";
 
 export type { BuildContext } from "./context.ts";
@@ -141,6 +142,10 @@ export interface DefaultThemeBuilderConstructorParameters {
 			data: Uint8Array;
 		};
 	};
+
+	notFoundPage?: {
+		filename: string;
+	};
 }
 
 /**
@@ -162,6 +167,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 	#baseURL?: URL | string;
 	#openGraph: DefaultThemeBuilderConstructorParameters["openGraph"];
 	#userCSS?: readonly string[];
+	#notFoundPage: DefaultThemeBuilderConstructorParameters["notFoundPage"];
 
 	constructor(
 		{
@@ -173,6 +179,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 			baseURL,
 			openGraph,
 			userCSS,
+			notFoundPage,
 		}: DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
@@ -183,6 +190,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		this.#baseURL = baseURL;
 		this.#openGraph = openGraph;
 		this.#userCSS = userCSS;
+		this.#notFoundPage = notFoundPage;
 	}
 
 	async build(
@@ -198,6 +206,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 			markdownPageStyles,
 			jsonCanvasPageStyles,
 			jsonCanvasRendererStyles,
+			notFoundPageStyles,
 		);
 
 		const userCss = await this.#loadUserCSSAndCopyAssets(
@@ -293,6 +302,48 @@ export class DefaultThemeBuilder implements PageBuilder {
 			new TextEncoder().encode(redirectHtml),
 		);
 
+		if (this.#notFoundPage) {
+			if (this.#baseURL) {
+				const resolveURL = this.#resolveURL;
+
+				const writeTasks: Promise<unknown>[] = [];
+
+				const html = toHtml(notFoundPage({
+					context: {
+						documentTree,
+						language: documentTree.defaultLanguage,
+						assets,
+						websiteTitle: this.#siteName,
+						copyright: this.#copyright,
+						resolveURL(to) {
+							return resolveURL(to, []);
+						},
+						copyFile(file) {
+							writeTasks.push(
+								file.read().then((bytes) => {
+									fileSystemWriter.write(file.path, bytes);
+								}),
+							);
+						},
+					},
+				}));
+
+				await Promise.all(writeTasks);
+
+				await fileSystemWriter.write(
+					[this.#notFoundPage.filename],
+					new TextEncoder().encode(html),
+				);
+			} else {
+				logger().warn(
+					"Skipping Not Found page generation due to base URL not specified",
+					{
+						filename: this.#notFoundPage.filename,
+					},
+				);
+			}
+		}
+
 		await Promise.all(documentTree.nodes.map((item) =>
 			this.#build({
 				item,
@@ -311,7 +362,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 	}
 
 	#buildEmbed(
-		context: BuildContext,
+		context: DocumentBuildContext,
 		target: Document,
 		fragments: readonly string[] = [],
 	): Hast.Nodes {
@@ -443,7 +494,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		if ("file" in item) {
 			const writeTasks: Promise<unknown>[] = [];
 
-			const context: BuildContext = {
+			const context: DocumentBuildContext = {
 				document: item,
 				documentTree: tree,
 				language: item.metadata.language || parentLanguage,

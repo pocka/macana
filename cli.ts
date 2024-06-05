@@ -136,6 +136,7 @@ export async function run(
 			"base-url",
 			"og-image",
 			"user-css",
+			"not-found-filename",
 		],
 		boolean: [
 			"help",
@@ -399,6 +400,18 @@ export async function run(
 			? fileSystemReader.fromFsPath(userCSSInput)
 			: undefined;
 
+		const notFoundPageDisabled =
+			configFile.output?.notFoundPage?.enabled === false;
+		if (notFoundPageDisabled) {
+			log.debug("Not Found page generation is disabled");
+		}
+
+		const notFoundPageFilename = flags["not-found-filename"] ||
+			configFile.output?.notFoundPage?.filename || "404.html";
+		if (!notFoundPageDisabled && notFoundPageFilename) {
+			log.debug(`output.notFoundPage.filename = "${notFoundPageFilename}"`);
+		}
+
 		const pageBuilder = new DefaultThemeBuilder({
 			siteName,
 			copyright,
@@ -410,6 +423,9 @@ export async function run(
 				image: ogImage,
 			},
 			userCSS,
+			notFoundPage: notFoundPageDisabled ? undefined : {
+				filename: notFoundPageFilename,
+			},
 		});
 
 		const documentTree = await treeBuilder.build({
@@ -534,6 +550,16 @@ ${title("Options")}:
 		b("VAULT_PATH")
 	}.
     Corresponding config key is ${p("output.userCSS")} (${t("string")}).
+
+  --not-found-filename <FILENAME>
+    File name of Not Found page. Macana generates Not Found page only if ${
+		b("--base-url")
+	}
+    is set.
+    [default: 404.html]
+    Corresponding config key is ${p("output.notFoundPage.filename")} (${
+		t("string")
+	}).
 
   --base-url <PATH OR URL>
     URL or path to base at.

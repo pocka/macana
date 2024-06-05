@@ -6,26 +6,29 @@
 
 import { type Child, h } from "../../../../deps/esm.sh/hastscript/mod.ts";
 
-import type { BuildContext } from "../context.ts";
+import type { BuildContext, DocumentBuildContext } from "../context.ts";
 
 export interface TemplateProps {
 	body: Child;
 
-	context: Readonly<BuildContext>;
+	context: Readonly<BuildContext | DocumentBuildContext>;
 
 	scripts?: readonly string[];
 }
 
 export function template({ body, context, scripts = [] }: TemplateProps) {
-	const { language, document, websiteTitle, assets, resolveURL } = context;
+	const { language, websiteTitle, assets, resolveURL } = context;
+	const document = "document" in context ? context.document : null;
 
 	return (
 		<html lang={language}>
 			<head>
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<title>{document.metadata.title} - {websiteTitle}</title>
-				{document.metadata.description && (
+				{document
+					? <title>{document.metadata.title} - {websiteTitle}</title>
+					: <title>{websiteTitle}</title>}
+				{document?.metadata.description && (
 					<meta name="description" content={document.metadata.description} />
 				)}
 				<link
@@ -46,7 +49,7 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 						href={resolveURL(assets.faviconPng)}
 					/>
 				)}
-				{assets.openGraphImage && (
+				{document && assets.openGraphImage && (
 					h(null, [
 						<meta name="og:title" content={document.metadata.title} />,
 						<meta name="og:type" content="article" />,

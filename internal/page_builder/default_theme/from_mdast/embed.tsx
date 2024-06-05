@@ -13,7 +13,7 @@ import { type State } from "../../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
 import { type OfmWikilinkEmbed } from "../../../../lib/mdast_util_ofm_wikilink/mod.ts";
 import type { Document } from "../../../types.ts";
 
-import type { BuildContext } from "../context.ts";
+import type { DocumentBuildContext } from "../context.ts";
 
 import { hasAssetToken, hasDocumentToken } from "./utils.ts";
 
@@ -30,7 +30,11 @@ function sizeProperties(node: Mdast.Node): { width?: number; height?: number } {
 	};
 }
 
-function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
+function getUrl(
+	url: string,
+	node: Mdast.Node,
+	context: DocumentBuildContext,
+): string {
 	if (!hasAssetToken(node)) {
 		return url;
 	}
@@ -43,7 +47,7 @@ function getUrl(url: string, node: Mdast.Node, context: BuildContext): string {
 }
 
 export interface EmbedHandlersParameters {
-	context: BuildContext;
+	context: DocumentBuildContext;
 
 	buildDocumentContent(
 		document: Document,

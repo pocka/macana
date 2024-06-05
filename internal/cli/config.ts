@@ -19,6 +19,12 @@ export interface MacanaConfig {
 		baseURL?: string;
 
 		userCSS?: string;
+
+		notFoundPage?: {
+			enabled?: boolean;
+
+			filename?: string;
+		};
 	};
 
 	metadata?: {
@@ -80,6 +86,10 @@ function configParser(configFilePath: string): parser.Parser<MacanaConfig> {
 			baseURL: parser.string({ nonEmpty: true, trim: true }),
 			precompress: parser.boolean,
 			userCSS: fsPathParser,
+			notFoundPage: parser.object({
+				enabled: parser.boolean,
+				filename: parser.string({ nonEmpty: true, trim: true }),
+			}),
 		}),
 		metadata: parser.object({
 			name: parser.string({ nonEmpty: true }),

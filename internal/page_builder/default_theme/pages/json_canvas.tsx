@@ -9,7 +9,7 @@ import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
 
 import type { JSONCanvas } from "../../../content_parser/json_canvas/types.ts";
 
-import type { BuildContext } from "../context.ts";
+import type { DocumentBuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 import { javascript } from "../script.ts";
 
@@ -521,7 +521,7 @@ const ownScript = javascript`
 `;
 
 export interface JsonCanvasPageProps {
-	context: Readonly<BuildContext>;
+	context: Readonly<DocumentBuildContext>;
 
 	content: JSONCanvas<Hast.Nodes>;
 }

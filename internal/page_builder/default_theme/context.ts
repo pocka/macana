@@ -9,11 +9,6 @@ export interface Assets {
 }
 
 export interface BuildContext {
-	/**
-	 * The document currently building.
-	 */
-	document: Document;
-
 	documentTree: DocumentTree;
 
 	/**
@@ -45,4 +40,11 @@ export interface BuildContext {
 	 * Copy file to the output directory.
 	 */
 	copyFile(file: FileReader): void;
+}
+
+export interface DocumentBuildContext extends BuildContext {
+	/**
+	 * The document currently building.
+	 */
+	document: Document;
 }

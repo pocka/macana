@@ -9,7 +9,7 @@ import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
 
 import type { TocItem } from "../../../../lib/hast_util_toc/mod.ts";
 
-import type { BuildContext } from "../context.ts";
+import type { DocumentBuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";
 import { javascript } from "../script.ts";
 
@@ -132,7 +132,7 @@ const ownScript = javascript`
 `;
 
 export interface MarkdownPageProps {
-	context: Readonly<BuildContext>;
+	context: Readonly<DocumentBuildContext>;
 
 	content: Hast.Nodes;
 

@@ -11,7 +11,7 @@ import { ofmHtml } from "../../../../lib/hast_util_ofm_html/mod.ts";
 import { ofmToHastHandlers } from "../../../../lib/mdast_util_ofm/mod.ts";
 
 import { buildClasses, css, join as joinCss } from "../css.ts";
-import { type BuildContext } from "../context.ts";
+import { type DocumentBuildContext } from "../context.ts";
 
 import { calloutHandlers, calloutStyles } from "./callout.tsx";
 import { embedHandlers, type EmbedHandlersParameters } from "./embed.tsx";
@@ -145,7 +145,7 @@ export const fromMdastStyles = joinCss(
 
 export interface FromMdastParameters
 	extends Pick<EmbedHandlersParameters, "buildDocumentContent"> {
-	context: BuildContext;
+	context: DocumentBuildContext;
 }
 
 export function fromMdast(

@@ -9,7 +9,7 @@ import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
 import type { Document, DocumentDirectory } from "../../../types.ts";
 
 import { buildClasses, css, join } from "../css.ts";
-import type { BuildContext } from "../context.ts";
+import type { BuildContext, DocumentBuildContext } from "../context.ts";
 import { javascript } from "../script.ts";
 import * as icons from "../icons/lucide.tsx";
 
@@ -143,7 +143,7 @@ export const documentTreeScript = javascript`
 `;
 
 export interface DocumentTreeProps {
-	context: Readonly<BuildContext>;
+	context: Readonly<BuildContext | DocumentBuildContext>;
 }
 
 export function documentTree({ context }: DocumentTreeProps) {
@@ -152,7 +152,9 @@ export function documentTree({ context }: DocumentTreeProps) {
 			{context.documentTree.nodes.map((entry) => (
 				node({
 					value: entry,
-					currentPath: context.document.path,
+					currentPath: "document" in context
+						? context.document.path
+						: undefined,
 					context,
 				})
 			))}
@@ -163,9 +165,9 @@ export function documentTree({ context }: DocumentTreeProps) {
 interface NodeProps {
 	value: Document | DocumentDirectory;
 
-	currentPath: readonly string[];
+	currentPath?: readonly string[];
 
-	context: Readonly<BuildContext>;
+	context: Readonly<BuildContext | DocumentBuildContext>;
 }
 
 function node({ currentPath, value, context }: NodeProps) {
@@ -176,7 +178,8 @@ function node({ currentPath, value, context }: NodeProps) {
 			"",
 		]);
 
-		const isCurrent = value.path.length === context.document.path.length &&
+		const isCurrent = "document" in context &&
+			value.path.length === context.document.path.length &&
 			value.path.every((x, i) => context.document.path[i] === x);
 
 		return (
@@ -192,7 +195,7 @@ function node({ currentPath, value, context }: NodeProps) {
 		);
 	}
 
-	const defaultOpened = currentPath[0] === value.metadata.name;
+	const defaultOpened = currentPath && currentPath[0] === value.metadata.name;
 
 	return (
 		<li lang={value.metadata.language ?? undefined}>
@@ -210,7 +213,7 @@ function node({ currentPath, value, context }: NodeProps) {
 					{value.entries.map((entry) => (
 						node({
 							value: entry,
-							currentPath: currentPath.slice(1),
+							currentPath: currentPath?.slice(1),
 							context,
 						})
 					))}

@@ -42,6 +42,21 @@ Path needs to be relative and inside the vault, and will be resolved from the co
 Assets referenced in the CSS file are automatically included in the final output, such as font file.
 Referenced assets needs to be relative and inside the vault too.
 
+### `output.notFoundPage.enabled`
+
+- Type: `boolean`
+- Default: `true` if `output.baseURL` is full URL or absolute path, otherwise `false`
+
+Enable generation of Not Found page.
+
+### `output.notFoundPage.filename`
+
+- Type: `string` (file name)
+- CLI: `--not-found-filename <FILENAME>` option
+- Default: `404.html`
+
+Filename of generated Not Found page.
+
 ### `output.precompress`
 
 - Type: `boolean`
