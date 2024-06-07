@@ -147,6 +147,7 @@ export async function run(
 			"disable-markdown",
 			"disable-jsoncanvas",
 			"markdown-frontmatter",
+			"markdown-downlevel-headings",
 			"shortest-path-when-possible",
 		],
 		alias: {
@@ -279,6 +280,12 @@ export async function run(
 			log.debug("markdown.yamlFrontmatter = true");
 		}
 
+		const downlevelHeadings = flags["markdown-downlevel-headings"] ||
+			configFile.markdown?.downlevelHeadings;
+		if (downlevelHeadings) {
+			log.debug("markdown.downlevelHeadings = true");
+		}
+
 		const jsonCanvasDisabled = flags["disable-jsoncanvas"] ||
 			configFile.jsonCanvas?.enabled === false;
 		if (jsonCanvasDisabled) {
@@ -287,9 +294,10 @@ export async function run(
 
 		const parsers: readonly ContentParser[] = [
 			jsonCanvasDisabled ? null : new JSONCanvasParser(),
-			markdownDisabled
-				? null
-				: new ObsidianMarkdownParser({ frontmatter: yamlFrontmatter }),
+			markdownDisabled ? null : new ObsidianMarkdownParser({
+				frontmatter: yamlFrontmatter,
+				downlevel: downlevelHeadings,
+			}),
 		].filter((p): p is NonNullable<typeof p> => !!p);
 
 		if (parsers.length === 0) {
@@ -630,6 +638,12 @@ ${title("Options")}:
   --markdown-frontmatter
     Parse YAML frontmatter in Markdown files.
     Corresponding config key is ${p("markdown.yamlFrontmatter")} (${
+		t("boolean")
+	}).
+
+  --markdown-downlevel-headings
+    Increase Markdown headings level by 1 (e.g. "# Foo" -> "## Foo").
+    Corresponding config key is ${p("markdown.downlevelHeadings")} (${
 		t("boolean")
 	}).
 

@@ -18,7 +18,7 @@ updatedAt: 2024-05-29T22:50:00+09:00
 - [x] Option for OpenGraph attributes
 - [x] Custom fonts per language
 - [x] User provided global CSS
-- [ ] Headings down levelling option (render `# Foo` as `<h2>Foo</h2>`)
+- [x] Headings down levelling option (render `# Foo` as `<h2>Foo</h2>`)
 - [x] 404 page
 
 ## v0.1.2

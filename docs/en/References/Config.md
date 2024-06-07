@@ -171,6 +171,15 @@ You can disable this from CLI via `--disable-markdown` flag.
 
 Enable parsing of YAML frontmatter in Markdown documents.
 
+### `markdown.downlevelHeadings`
+
+- Type: `boolean`
+- CLI: `--markdown-downlevel-headings` flag
+
+Transform Markdown headings by down-levelling (incrementing level) by 1.
+
+Use this option if you prefer to write level 1 headings in your document: Macana inserts `<h1>` with document title so headings conflict with that without the `markdown.downlevelHeadings` option.
+
 ## JSONCanvas options
 
 ### `jsonCanvas.enabled`

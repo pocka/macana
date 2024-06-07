@@ -18,6 +18,7 @@ import {
 import { macanaMarkAssets } from "./obsidian_markdown/mdast_util_macana_mark_assets.ts";
 import { macanaMarkDocumentToken } from "./obsidian_markdown/mdast_util_macana_mark_document_token.ts";
 import { autoHeadingIdFromMarkdown } from "../../lib/mdast_util_auto_heading_id/mod.ts";
+import { downlevelHeadings } from "../../lib/mdast_util_downlevel_headings/mod.ts";
 
 import { logger } from "../logger.ts";
 
@@ -87,6 +88,12 @@ export interface ObsidianMarkdownParserOptions {
 	 * @default false
 	 */
 	frontmatter?: boolean;
+
+	/**
+	 * Whether to down-level headings by 1.
+	 * @default false
+	 */
+	downlevel?: boolean;
 }
 
 /**
@@ -209,11 +216,16 @@ async function ok(
 		ParseParameters,
 		"getAssetToken" | "getDocumentToken" | "fileReader"
 	>,
+	{ downlevel }: Pick<ObsidianMarkdownParserOptions, "downlevel">,
 ): Promise<ObsidianMarkdownDocument> {
 	const mdast = await parseMarkdown(markdown, {
 		getDocumentToken,
 		getAssetToken,
 	});
+
+	if (downlevel) {
+		downlevelHeadings(mdast);
+	}
 
 	return {
 		kind: "obsidian_markdown",
@@ -241,9 +253,14 @@ async function ok(
 export class ObsidianMarkdownParser
 	implements ContentParser<ObsidianMarkdownDocument> {
 	#frontmatter: boolean;
+	#downlevel: boolean;
 
-	constructor({ frontmatter = false }: ObsidianMarkdownParserOptions = {}) {
+	constructor(
+		{ frontmatter = false, downlevel = false }: ObsidianMarkdownParserOptions =
+			{},
+	) {
 		this.#frontmatter = frontmatter;
+		this.#downlevel = downlevel;
 	}
 
 	async parse(
@@ -253,12 +270,16 @@ export class ObsidianMarkdownParser
 		const bytes = await fileReader.read();
 
 		if (!this.#frontmatter) {
-			return ok(bytes, { getDocumentToken, getAssetToken, fileReader });
+			return ok(bytes, { getDocumentToken, getAssetToken, fileReader }, {
+				downlevel: this.#downlevel,
+			});
 		}
 
 		const decoded = new TextDecoder().decode(bytes);
 		if (!testFrontmatter(decoded)) {
-			return ok(bytes, { getDocumentToken, getAssetToken, fileReader });
+			return ok(bytes, { getDocumentToken, getAssetToken, fileReader }, {
+				downlevel: this.#downlevel,
+			});
 		}
 
 		const frontmatter = yamlFrontmatter.extract(decoded);
@@ -291,6 +312,8 @@ export class ObsidianMarkdownParser
 				getDocumentToken,
 				getAssetToken,
 				fileReader,
+			}, {
+				downlevel: this.#downlevel,
 			}),
 		};
 	}

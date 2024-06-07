@@ -60,6 +60,8 @@ export interface MacanaConfig {
 		enabled?: boolean;
 
 		yamlFrontmatter?: boolean;
+
+		downlevelHeadings?: boolean;
 	};
 
 	jsonCanvas?: {
@@ -122,6 +124,7 @@ function configParser(configFilePath: string): parser.Parser<MacanaConfig> {
 		markdown: parser.object({
 			enabled: parser.boolean,
 			yamlFrontmatter: parser.boolean,
+			downlevelHeadings: parser.boolean,
 		}),
 		jsonCanvas: parser.object({
 			enabled: parser.boolean,
