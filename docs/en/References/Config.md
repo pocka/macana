@@ -124,6 +124,16 @@ Path needs to be relative and resolved from the config file.
 Macana sets Open Graph attributes only when the value of [[#`output.baseURL`]] is full URL string.
 Path only strings and such are not considered as Open Graph ready base URL.
 
+### `metadata.thirdPartyNotices`
+
+- Type: `string[]` (array of file path)
+- CLI: `--notice <PATH>` option
+
+Path(s) to notice text to include in `third-party-notices.txt`.
+Path needs to be relative and resolved from the config file.
+
+Use this option if you include third-party assets such as fonts and images.
+
 ## Document options
 ### `documents.defaultLanguage`
 

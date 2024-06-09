@@ -6,6 +6,7 @@ export interface Assets {
 	faviconPng?: readonly string[];
 	siteLogo?: readonly string[];
 	openGraphImage?: readonly string[];
+	thirdPartyNotices: readonly string[];
 }
 
 export interface BuildContext {

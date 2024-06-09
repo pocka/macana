@@ -154,7 +154,7 @@ export function markdownPage(
 			],
 			body: layout({
 				nav: documentTree({ context }),
-				footer: footer({ copyright: context.copyright }),
+				footer: footer({ context }),
 				main: (
 					<div id="__macana_md_body" class={c.main}>
 						<div>

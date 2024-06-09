@@ -56,6 +56,7 @@ import { indexRedirect } from "./pages/index_redirect.tsx";
 import { markdownPage, markdownPageStyles } from "./pages/markdown.tsx";
 import { notFoundPage, notFoundPageStyles } from "./pages/not_found.tsx";
 import { jsonCanvasPage, jsonCanvasPageStyles } from "./pages/json_canvas.tsx";
+import { thirdPartyNoticeTxt } from "./pages/third_party_notice.ts";
 
 export type { BuildContext } from "./context.ts";
 
@@ -146,6 +147,8 @@ export interface DefaultThemeBuilderConstructorParameters {
 	notFoundPage?: {
 		filename: string;
 	};
+
+	additionalNoticeFiles?: readonly (readonly string[])[];
 }
 
 /**
@@ -168,6 +171,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 	#openGraph: DefaultThemeBuilderConstructorParameters["openGraph"];
 	#userCSS?: readonly string[];
 	#notFoundPage: DefaultThemeBuilderConstructorParameters["notFoundPage"];
+	#additionalNoticeFiles: readonly (readonly string[])[];
 
 	constructor(
 		{
@@ -180,6 +184,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 			openGraph,
 			userCSS,
 			notFoundPage,
+			additionalNoticeFiles,
 		}: DefaultThemeBuilderConstructorParameters,
 	) {
 		this.#copyright = copyright;
@@ -191,6 +196,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		this.#openGraph = openGraph;
 		this.#userCSS = userCSS;
 		this.#notFoundPage = notFoundPage;
+		this.#additionalNoticeFiles = additionalNoticeFiles ?? [];
 	}
 
 	async build(
@@ -222,6 +228,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		const assets: Assets = {
 			globalCss: [".assets", "global.css"],
+			thirdPartyNotices: ["third-party-notices.txt"],
 		};
 
 		await fileSystemWriter.write(
@@ -292,6 +299,8 @@ export class DefaultThemeBuilder implements PageBuilder {
 			);
 		}
 
+		const textEncoder = new TextEncoder();
+
 		const defaultPage = this.#resolveURL([
 			...documentTree.defaultDocument.path,
 			"",
@@ -299,7 +308,20 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const redirectHtml = toHtml(indexRedirect({ redirectTo: defaultPage }));
 		await fileSystemWriter.write(
 			["index.html"],
-			new TextEncoder().encode(redirectHtml),
+			textEncoder.encode(redirectHtml),
+		);
+
+		const additionalNotices = await Promise.all(
+			this.#additionalNoticeFiles.map(async (path) => {
+				const file = await root.openFile(path);
+
+				return new TextDecoder().decode(await file.read());
+			}),
+		);
+
+		await fileSystemWriter.write(
+			assets.thirdPartyNotices,
+			textEncoder.encode(thirdPartyNoticeTxt(additionalNotices)),
 		);
 
 		if (this.#notFoundPage) {
@@ -332,7 +354,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 				await fileSystemWriter.write(
 					[this.#notFoundPage.filename],
-					new TextEncoder().encode(html),
+					textEncoder.encode(html),
 				);
 			} else {
 				logger().warn(

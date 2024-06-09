@@ -535,7 +535,7 @@ export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
 			body: layout({
 				fullscreen: true,
 				nav: documentTree({ context }),
-				footer: footer({ copyright: context.copyright }),
+				footer: footer({ context }),
 				main: (
 					<div class={c.layout}>
 						<div id="__macana_jc_c" class={c.canvas} tabindex="0">

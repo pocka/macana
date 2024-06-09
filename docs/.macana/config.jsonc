@@ -34,7 +34,8 @@
 		"logoImage": "../Assets/logo.svg",
 		"openGraph": {
 			"image": "../Assets/opengraph.png"
-		}
+		},
+		"thirdPartyNotices": ["../Assets/Licenses/AlteDin1451.txt"]
 	},
 	"markdown": {
 		// Some pages have creation/update date in YAML frontmatter.

@@ -4,52 +4,52 @@
 
 /** @jsx h */
 
-import { Child, h } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
 
 import { buildClasses, css } from "../css.ts";
+import { type BuildContext } from "../context.ts";
 
 const c = buildClasses("w-fo", [
 	"root",
 	"copyright",
-	"links",
+	null,
+	"thirdPartyNotices",
 ]);
 
 export const footerStyles = css`
 	.${c.root} {
 		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 2em;
+		flex-direction: column;
+		justify-content: start;
+		align-items: end;
+		gap: 4px;
+		font-size: 0.8rem;
 	}
 
 	.${c.copyright} {
-		font-size: 0.8em;
+		font-size: 1em;
 	}
 
-	.${c.links} {
-		font-size: 0.9em;
-		display: flex;
-		gap: 0.25em 0.5em;
-		justify-content: start;
-		align-items: start;
+	.${c.thirdPartyNotices} {
+		color: var(--color-fg-sub);
+		text-decoration: underline;
 	}
 `;
 
 export interface FooterProps {
-	copyright: Child;
-
-	children?: Child;
+	context: BuildContext;
 }
 
-export function footer({ copyright, children }: FooterProps) {
+export function footer({ context }: FooterProps) {
 	return (
 		<div class={c.root}>
-			<small class={c.copyright}>{copyright}</small>
-			{children && (
-				<div class={c.links}>
-					{children}
-				</div>
-			)}
+			<small class={c.copyright}>{context.copyright}</small>
+			<a
+				class={c.thirdPartyNotices}
+				href={context.resolveURL(context.assets.thirdPartyNotices)}
+			>
+				Third party notices
+			</a>
 		</div>
 	);
 }

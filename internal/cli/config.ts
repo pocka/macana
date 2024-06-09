@@ -42,6 +42,8 @@ export interface MacanaConfig {
 		openGraph?: {
 			image?: string;
 		};
+
+		thirdPartyNotices?: readonly string[];
 	};
 
 	documents?: {
@@ -104,6 +106,7 @@ function configParser(configFilePath: string): parser.Parser<MacanaConfig> {
 			openGraph: parser.object({
 				image: fsPathParser,
 			}),
+			thirdPartyNotices: parser.arrayOf(fsPathParser),
 		}),
 		documents: parser.object({
 			defaultLanguage: parser.string({ nonEmpty: true }),

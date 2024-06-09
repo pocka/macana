@@ -152,6 +152,20 @@ export const boolean: Parser<boolean> = (x, ctx) => {
 	return x;
 };
 
+export function arrayOf<T>(parser: Parser<T>): Parser<readonly T[]> {
+	return (x, ctx) => {
+		if (!Array.isArray(x)) {
+			throw new UnexpectedFieldTypeError(ctx, "array", typeof x);
+		}
+
+		return x.map((v, i) =>
+			parser(v, {
+				fieldPath: [...ctx.fieldPath, i.toString(10)],
+			})
+		);
+	};
+}
+
 export function map<A, B>(parser: Parser<A>, fn: (a: A) => B): Parser<B> {
 	return (x, ctx) => {
 		return fn(parser(x, ctx));

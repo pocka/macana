@@ -137,6 +137,7 @@ export async function run(
 			"og-image",
 			"user-css",
 			"not-found-filename",
+			"notice",
 		],
 		boolean: [
 			"help",
@@ -150,6 +151,7 @@ export async function run(
 			"markdown-downlevel-headings",
 			"shortest-path-when-possible",
 		],
+		collect: ["notice"],
 		alias: {
 			help: ["h"],
 		},
@@ -408,6 +410,16 @@ export async function run(
 			? fileSystemReader.fromFsPath(userCSSInput)
 			: undefined;
 
+		const additionalNoticeFilesInput = [
+			...(configFile.metadata?.thirdPartyNotices ?? []),
+			...flags["notice"],
+		];
+		const additionalNoticeFiles = additionalNoticeFilesInput.length > 0
+			? additionalNoticeFilesInput.map((input) =>
+				fileSystemReader.fromFsPath(input)
+			)
+			: undefined;
+
 		const notFoundPageDisabled =
 			configFile.output?.notFoundPage?.enabled === false;
 		if (notFoundPageDisabled) {
@@ -434,6 +446,7 @@ export async function run(
 			notFoundPage: notFoundPageDisabled ? undefined : {
 				filename: notFoundPageFilename,
 			},
+			additionalNoticeFiles,
 		});
 
 		const documentTree = await treeBuilder.build({
@@ -558,6 +571,15 @@ ${title("Options")}:
 		b("VAULT_PATH")
 	}.
     Corresponding config key is ${p("output.userCSS")} (${t("string")}).
+
+  --notice <PATH>
+    Path to an additional notice text file to include in third party notices text.
+    You can use this option multiple times. The target file MUST be inside ${
+		b("VAULT_PATH")
+	}.
+    Corresponding config key is ${p("metadata.thirdPartyNotices")} (${
+		t("string[]")
+	}).
 
   --not-found-filename <FILENAME>
     File name of Not Found page. Macana generates Not Found page only if ${

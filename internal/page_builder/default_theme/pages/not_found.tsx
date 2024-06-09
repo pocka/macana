@@ -82,7 +82,7 @@ export function notFoundPage({ context }: NotFoundPageProps) {
 			body: layout({
 				context,
 				nav: documentTree({ context }),
-				footer: footer({ copyright: context.copyright }),
+				footer: footer({ context }),
 				main: (
 					<div class={c.container}>
 						<div class={c.layout}>
