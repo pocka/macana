@@ -27,19 +27,19 @@ Read the following sections if you're not sure what these lines are doing.
 
 ```ts
 // build.ts
-import { DenoFsReader } from "https://deno.land/x/macana@v0.1.2/filesystem_reader/deno_fs.ts";
-import { DenoFsWriter } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/deno_fs.ts";
 import {
+	DenoFsReader,
+	DenoFsWriter,
 	DefaultTreeBuilder,
 	fileExtensions,
 	ignoreDotfiles,
 	removeExtFromMetadata,
 	defaultDocumentAt,
-} from "https://deno.land/x/macana@v0.1.2/tree_builder/default_tree_builder.ts";
-import { ObsidianMarkdownParser } from "https://deno.land/x/macana@v0.1.2/content_parser/obsidian_markdown.ts";
-import { JSONCanvasParser } from "https://deno.land/x/macana@v0.1.2/content_parser/json_canvas.ts";
-import { oneof } from "https://deno.land/x/macana@v0.1.2/content_parser/oneof.ts";
-import { DefaultThemeBuilder } from "https://deno.land/x/macana@v0.1.2/page_builder/default_theme/mod.ts";
+	ObsidianMarkdownParser,
+	JSONCanvasParser,
+	oneof,
+	DefaultThemeBuilder,
+} from "https://deno.land/x/macana@v0.2.0/mod.ts"
 
 const fileSystemReader = new DenoFsReader(new URL("./contents", import.meta.url));
 
@@ -85,19 +85,19 @@ await pageBuilder.build({
 > If you prefer code instead of paragraphs...
 > 
 > ```ts
-> import { DenoFsReader } from "https://deno.land/x/macana@v0.1.2/filesystem_reader/deno_fs.ts";
-> import { DenoFsWriter } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/deno_fs.ts";
 > import {
+> 	DenoFsReader,
+> 	DenoFsWriter,
 > 	DefaultTreeBuilder,
 > 	fileExtensions,
 > 	ignoreDotfiles,
 > 	removeExtFromMetadata,
 > 	defaultDocumentAt,
-> } from "https://deno.land/x/macana@v0.1.2/tree_builder/default_tree_builder.ts";
-> import { ObsidianMarkdownParser } from "https://deno.land/x/macana@v0.1.2/content_parser/obsidian_markdown.ts";
-> import { JSONCanvasParser } from "https://deno.land/x/macana@v0.1.2/content_parser/json_canvas.ts";
-> import { oneof } from "https://deno.land/x/macana@v0.1.2/content_parser/oneof.ts";
-> import { DefaultThemeBuilder } from "https://deno.land/x/macana@v0.1.2/page_builder/default_theme/mod.ts";
+> 	ObsidianMarkdownParser,
+> 	JSONCanvasParser,
+> 	oneof,
+> 	DefaultThemeBuilder,
+> } from "https://deno.land/x/macana@v0.2.0/mod.ts"
 > 
 > // Treat `contents/` directory as a Vault.
 > // By resolving from `import.meta.url`, `contents/` directory next to this
@@ -200,7 +200,7 @@ Macana uses abstraction layer for file I/O.
 FileSystem Reader provides listing directory and reading file contents capability.
 
 ```ts
-import { DenoFsReader } from "https://deno.land/x/macana@v0.1.2/filesystem_reader/deno_fs.ts";
+import { DenoFsReader } from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 const fileSystemReader = new DenoFsReader(new URL("./contents", import.meta.url));
 
@@ -225,7 +225,7 @@ $ deno run --allow-read=contents build.ts
 FileSystem Writer provides capability to write to files and create directories.
 
 ```ts
-import { DenoFsWriter } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/deno_fs.ts";
+import { DenoFsWriter } from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 const fileSystemWriter = new DenoFsWriter(new URL("./.dist", import.meta.url));
 
@@ -253,8 +253,7 @@ Macana exports some useful function to wrap the FileSystem Writer for additional
 The resulted file formats are compatible with [Caddy](https://caddyserver.com/)'s [`precompressed`](https://caddyserver.com/docs/caddyfile/directives/file_server#syntax) directive.
 
 ```ts
-import { DenoFsWriter } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/deno_fs.ts";
-import { precompress } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/precompress.ts";
+import { DenoFsWriter, precompress } from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 const fileSystemWriter = precompress()(
 	new DenoFsWriter(new URL("./.dist", import.meta.url))
@@ -278,8 +277,7 @@ await fileSystemWriter.write(["index.js"], text);
 In addition to that, if it detects the writes to different content to the same file, it aborts the build in order to prevent producing inconsistent build output.
 
 ```ts
-import { DenoFsWriter } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/deno_fs.ts";
-import { noOverwrite } from "https://deno.land/x/macana@v0.1.2/filesystem_writer/no_overwrite.ts";
+import { DenoFsWriter, noOverwrite } from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 const fileSystemWriter = noOverwrite(
 	new DenoFsWriter(new URL("./.dist", import.meta.url))
@@ -304,10 +302,12 @@ In order not to constrain too much on what you can do, Macana does very little b
 Uses filename as a title as-is, first found document as a default document, tries to parse every file as a document, etc.
 
 ```ts
-import { DefaultTreeBuilder } from "https://deno.land/x/macana@v0.1.2/tree_builder/default_tree_builder.ts";
-import { ObsidianMarkdownParser } from "https://deno.land/x/macana@v0.1.2/content_parser/obsidian_markdown.ts";
-import { JSONCanvasParser } from "https://deno.land/x/macana@v0.1.2/content_parser/json_canvas.ts";
-import { oneof } from "https://deno.land/x/macana@v0.1.2/content_parser/oneof.ts";
+import {
+	DefaultTreeBuilder,
+	ObsidianMarkdownParser,
+	JSONCanvasParser,
+	oneof
+} from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 // This works, but you may (probably) want to tune it further
 const treeBuilder = new DefaultTreeBuilder({
@@ -341,7 +341,7 @@ import {
 	// Use file timestamps as creation/update date
 	// (does not work with Git, though)
 	useFileSystemTimestamps,
-} from "https://deno.land/x/macana@v0.1.2/tree_builder/default_tree_builder.ts";
+} from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 const treeBuilder = new DefaultTreeBuilder({
 	defaultLanguage: "en",
@@ -362,7 +362,7 @@ Page Builder builds HTML and other assets from a document tree.
 If you don't like how Macana's default theme builder works, write your own.
 
 ```ts
-import { DefaultThemeBuilder } from "https://deno.land/x/macana@v0.1.2/page_builder/default_theme/mod.ts";
+import { DefaultThemeBuilder } from "https://deno.land/x/macana@v0.2.0/mod.ts";
 
 const pageBuilder = new DefaultThemeBuilder({
 	siteName: "<YOUR WEBSITE TITLE>",
