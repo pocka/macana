@@ -1,6 +1,3 @@
-> [!note]
-> Module endpoint will be changed at v0.2 release.
-
 Macana is initially designed as a TypeScript module for Deno.
 While this is tedious, you can tweak more options compared to the [CLI usage](./CLI).
 
