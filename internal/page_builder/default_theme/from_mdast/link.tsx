@@ -63,21 +63,26 @@ interface LinkHandlersOptions {
 	context: DocumentBuildContext;
 }
 
+interface LinkTarget {
+	href: string;
+	external: boolean;
+}
+
 function link(
-	urlOrPath: string,
+	target: LinkTarget,
 	children: Hast.ElementContent[],
 	{ openExternalLinkInBlank }: LinkHandlersOptions,
 ) {
-	if (!isExternal(urlOrPath)) {
+	if (!target.external) {
 		return h("a", {
 			class: c.anchor,
-			href: urlOrPath,
+			href: target.href,
 		}, children);
 	}
 
 	return h("a", {
 		class: c.anchor,
-		href: urlOrPath,
+		href: target.href,
 		target: openExternalLinkInBlank ? "_blank" : undefined,
 		rel: openExternalLinkInBlank ? "noopener" : undefined,
 	}, [
@@ -86,13 +91,16 @@ function link(
 	]);
 }
 
-function getUrl(
+function getLinkTarget(
 	url: string,
 	node: Mdast.Node,
 	context: DocumentBuildContext,
-): string {
+): LinkTarget {
 	if (!hasDocumentToken(node)) {
-		return url;
+		return {
+			href: url,
+			external: isExternal(url),
+		};
 	}
 
 	const { document, fragments } = context.documentTree.exchangeToken(
@@ -106,7 +114,10 @@ function getUrl(
 
 	const path = context.resolveURL([...document.path, ""]);
 
-	return path + hash;
+	return {
+		href: path + hash,
+		external: false,
+	};
 }
 
 export function linkHandlers(
@@ -114,7 +125,7 @@ export function linkHandlers(
 ): Handlers {
 	return {
 		link(state, node: Mdast.Link) {
-			return link(getUrl(node.url, node, context), state.all(node), {
+			return link(getLinkTarget(node.url, node, context), state.all(node), {
 				openExternalLinkInBlank,
 				context,
 			});
@@ -125,7 +136,7 @@ export function linkHandlers(
 				throw new Error(`Orphaned link reference: id=${node.identifier}`);
 			}
 
-			return link(getUrl(def.url, node, context), state.all(node), {
+			return link(getLinkTarget(def.url, node, context), state.all(node), {
 				openExternalLinkInBlank,
 				context,
 			});
@@ -133,7 +144,7 @@ export function linkHandlers(
 		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
 		//                   which Deno does not support. APIs also don't accept type parameters.
 		ofmWikilink(_state: State, node: OfmWikilink) {
-			return link(getUrl(node.target, node, context), [{
+			return link(getLinkTarget(node.target, node, context), [{
 				type: "text",
 				value: node.label ?? node.target,
 			}], { openExternalLinkInBlank, context });
