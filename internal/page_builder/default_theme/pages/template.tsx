@@ -33,7 +33,7 @@ export function template(
 		md5.update(binary);
 
 		const name = md5.toString("hex");
-		const path = [".assets", `${name}.js`];
+		const path = ["_assets", `${name}.js`];
 
 		context.writeFile(path, binary);
 

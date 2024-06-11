@@ -227,7 +227,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 		const minCss = csso.minify(styles);
 
 		const assets: Assets = {
-			globalCss: [".assets", "global.css"],
+			globalCss: ["_assets", "global.css"],
 			thirdPartyNotices: ["third-party-notices.txt"],
 		};
 
@@ -238,7 +238,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		if (this.#faviconSvg) {
 			if (this.#faviconSvg instanceof Uint8Array) {
-				assets.faviconSvg = [".assets", "favicon.svg"];
+				assets.faviconSvg = ["_assets", "favicon.svg"];
 				await fileSystemWriter.write(
 					assets.faviconSvg,
 					this.#faviconSvg,
@@ -254,7 +254,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		if (this.#faviconPng) {
 			if (this.#faviconPng instanceof Uint8Array) {
-				assets.faviconPng = [".assets", "favicon.png"];
+				assets.faviconPng = ["_assets", "favicon.png"];
 				await fileSystemWriter.write(
 					assets.faviconPng,
 					this.#faviconPng,
@@ -276,7 +276,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 					await (await root.openFile(this.#siteLogo)).read(),
 				);
 			} else {
-				assets.siteLogo = [".assets", `logo${this.#siteLogo.ext}`];
+				assets.siteLogo = ["_assets", `logo${this.#siteLogo.ext}`];
 				await fileSystemWriter.write(
 					assets.siteLogo,
 					this.#siteLogo.binary,
@@ -290,7 +290,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		if (isOpenGraphReady && this.#openGraph) {
 			assets.openGraphImage = [
-				".assets",
+				"_assets",
 				`opengraph${this.#openGraph.image.ext}`,
 			];
 			await fileSystemWriter.write(
@@ -713,7 +713,7 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 		return css.fromString(
 			assets.replace((path) =>
-				this.#resolveURL(convertPath(path), [".assets"])
+				this.#resolveURL(convertPath(path), ["_assets"])
 			),
 		);
 	};
