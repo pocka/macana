@@ -526,7 +526,9 @@ export interface JsonCanvasPageProps {
 	content: JSONCanvas<Hast.Nodes>;
 }
 
-export function jsonCanvasPage({ content, context }: JsonCanvasPageProps) {
+export function jsonCanvasPage(
+	{ content, context }: JsonCanvasPageProps,
+) {
 	return h(null, [
 		{ type: "doctype" },
 		template({

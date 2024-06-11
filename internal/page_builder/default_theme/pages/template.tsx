@@ -5,6 +5,7 @@
 /** @jsx h */
 
 import { type Child, h } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { Md5 } from "../../../../deps/deno.land/std/hash/md5.ts";
 
 import type { BuildContext, DocumentBuildContext } from "../context.ts";
 
@@ -19,6 +20,21 @@ export interface TemplateProps {
 export function template({ body, context, scripts = [] }: TemplateProps) {
 	const { language, websiteTitle, assets, resolveURL } = context;
 	const document = "document" in context ? context.document : null;
+
+	const scriptHrefs = scripts.map((script) => {
+		const binary = new TextEncoder().encode(script);
+
+		const md5 = new Md5();
+
+		md5.update(binary);
+
+		const name = md5.toString("hex");
+		const path = [".assets", `${name}.js`];
+
+		context.writeFile(path, binary);
+
+		return context.resolveURL(path);
+	});
 
 	return (
 		<html lang={language}>
@@ -78,12 +94,12 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 						),
 					])
 				)}
+				{scriptHrefs.map((href) => <script src={href} type="module" defer />)}
 			</head>
 			{h(
 				"body",
 				{},
 				body,
-				...scripts.map((script) => <script>{script}</script>),
 			)}
 		</html>
 	);

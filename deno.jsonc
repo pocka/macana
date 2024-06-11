@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: CC0-1.0
 {
 	// Local $DENO_DIR on CI
-	"exclude": [".deno"],
+	"exclude": [".deno", "docs/.dist"],
 	"compilerOptions": {
 		"noUnusedLocals": true
 	},

@@ -41,6 +41,11 @@ export interface BuildContext {
 	 * Copy file to the output directory.
 	 */
 	copyFile(file: FileReader): void;
+
+	/**
+	 * Write file to the given path.
+	 */
+	writeFile(path: readonly string[], contents: Uint8Array): void;
 }
 
 export interface DocumentBuildContext extends BuildContext {

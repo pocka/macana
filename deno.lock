@@ -4,6 +4,8 @@
     "https://deno.land/std/encoding/base64.ts": "https://deno.land/std@0.221.0/encoding/base64.ts"
   },
   "remote": {
+    "https://deno.land/std@0.119.0/encoding/hex.ts": "5bc7df19af498c315cdaba69e2fce1b2aef5fc57344e8c21c08991aa8505a260",
+    "https://deno.land/std@0.119.0/hash/md5.ts": "957791b9052b40cfa211eeb755a76ad6ad12177387ba84b47c4bc8be4edd60c8",
     "https://deno.land/std@0.159.0/encoding/ascii85.ts": "f2b9cb8da1a55b3f120d3de2e78ac993183a4fd00dfa9cb03b51cf3a75bc0baa",
     "https://deno.land/std@0.221.0/assert/_constants.ts": "a271e8ef5a573f1df8e822a6eb9d09df064ad66a4390f21b3e31f820a38e0975",
     "https://deno.land/std@0.221.0/assert/_diff.ts": "4bf42969aa8b1a33aaf23eb8e478b011bfaa31b82d85d2ff4b5c4662d8780d2b",

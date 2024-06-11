@@ -330,25 +330,32 @@ export class DefaultThemeBuilder implements PageBuilder {
 
 				const writeTasks: Promise<unknown>[] = [];
 
-				const html = toHtml(notFoundPage({
-					context: {
-						documentTree,
-						language: documentTree.defaultLanguage,
-						assets,
-						websiteTitle: this.#siteName,
-						copyright: this.#copyright,
-						resolveURL(to) {
-							return resolveURL(to, []);
+				const html = toHtml(
+					notFoundPage({
+						context: {
+							documentTree,
+							language: documentTree.defaultLanguage,
+							assets,
+							websiteTitle: this.#siteName,
+							copyright: this.#copyright,
+							resolveURL(to) {
+								return resolveURL(to, []);
+							},
+							copyFile(file) {
+								writeTasks.push(
+									file.read().then((bytes) => {
+										fileSystemWriter.write(file.path, bytes);
+									}),
+								);
+							},
+							writeFile(path, contents) {
+								writeTasks.push(
+									fileSystemWriter.write(path, contents),
+								);
+							},
 						},
-						copyFile(file) {
-							writeTasks.push(
-								file.read().then((bytes) => {
-									fileSystemWriter.write(file.path, bytes);
-								}),
-							);
-						},
-					},
-				}));
+					}),
+				);
 
 				await Promise.all(writeTasks);
 
@@ -533,6 +540,11 @@ export class DefaultThemeBuilder implements PageBuilder {
 						}),
 					);
 				},
+				writeFile(path, contents) {
+					writeTasks.push(
+						fileSystemWriter.write(path, contents),
+					);
+				},
 			};
 
 			if (isObsidianMarkdown(item) || isJSONCanvas(item)) {
@@ -602,10 +614,12 @@ export class DefaultThemeBuilder implements PageBuilder {
 							},
 						);
 
-						const html = toHtml(jsonCanvasPage({
-							content,
-							context,
-						}));
+						const html = toHtml(
+							jsonCanvasPage({
+								content,
+								context,
+							}),
+						);
 
 						writeTasks.push(
 							fileSystemWriter.write([
@@ -630,11 +644,13 @@ export class DefaultThemeBuilder implements PageBuilder {
 						});
 						const toc = tocMut(hast);
 
-						const html = toHtml(markdownPage({
-							context,
-							content: styleMarkdownContent(hast),
-							tocItems: toc,
-						}));
+						const html = toHtml(
+							markdownPage({
+								context,
+								content: styleMarkdownContent(hast),
+								tocItems: toc,
+							}),
+						);
 
 						writeTasks.push(
 							fileSystemWriter.write([
