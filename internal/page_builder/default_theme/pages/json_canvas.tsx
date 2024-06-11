@@ -533,7 +533,8 @@ export function jsonCanvasPage(
 		{ type: "doctype" },
 		template({
 			context,
-			scripts: [layoutScript, documentTreeScript, ownScript],
+			scripts: [layoutScript, documentTreeScript],
+			inlineScripts: [ownScript],
 			body: layout({
 				fullscreen: true,
 				nav: documentTree({ context }),

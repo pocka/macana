@@ -15,9 +15,13 @@ export interface TemplateProps {
 	context: Readonly<BuildContext | DocumentBuildContext>;
 
 	scripts?: readonly string[];
+
+	inlineScripts?: readonly string[];
 }
 
-export function template({ body, context, scripts = [] }: TemplateProps) {
+export function template(
+	{ body, context, scripts = [], inlineScripts = [] }: TemplateProps,
+) {
 	const { language, websiteTitle, assets, resolveURL } = context;
 	const document = "document" in context ? context.document : null;
 
@@ -100,6 +104,7 @@ export function template({ body, context, scripts = [] }: TemplateProps) {
 				"body",
 				{},
 				body,
+				...inlineScripts.map((script) => <script>{script}</script>),
 			)}
 		</html>
 	);
