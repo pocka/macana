@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Shota FUJI <pockawoooh@gmail.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import type { Document, DocumentTree, FileReader } from "../../types.ts";
 
 export interface Assets {
