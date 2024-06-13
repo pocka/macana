@@ -6,3 +6,7 @@ Source: https://github.com/pocka/macana
 Files: docs/*
 Copyright: 2024 Shota FUJI <pockawoooh@gmail.com>
 License: CC-BY-4.0
+
+Files: NOTICE
+Copyright: 2024 Shota FUJI <pockawoooh@gmail.com>
+License: CC0-1.0
