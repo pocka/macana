@@ -18,8 +18,6 @@ import {
 
 export function mathHandlers(): Handlers {
 	return {
-		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
-		//                   which Deno does not support. APIs also don't accept type parameters.
 		math(_state: State, node: Math & Mdast.Literal): Raw & Hast.Literal {
 			return {
 				type: "raw",
