@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/hast-util-raw@9.0.2";
+export * from "npm:hast-util-raw@~9.0.2";

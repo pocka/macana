@@ -49,11 +49,7 @@ function setSizeToNode(node: Mdast.Node, width: number, height: number | null) {
 		node.data.height = height;
 	}
 
-	// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
-	//                   which Deno does not support. APIs also don't accept type parameters.
 	node.data.hProperties = {
-		// @ts-expect-error: unist-related libraries heavily relies on ambient module declarations,
-		//                   which Deno does not support. APIs also don't accept type parameters.
 		...node.data.hProperties ?? {},
 		width,
 		height: typeof height === "number" ? height : undefined,

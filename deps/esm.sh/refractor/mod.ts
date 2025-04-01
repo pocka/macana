@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/refractor@4.8.1/lib/all.js";
+export * from "npm:refractor@~4.8.1/lib/all.js";

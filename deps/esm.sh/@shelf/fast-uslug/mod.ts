@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/@shelf/fast-uslug@1.0.0";
+export * from "npm:@shelf/fast-uslug@~1.0.0";

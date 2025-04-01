@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/terser@5.31.0";
+export * from "npm:terser@~5.31.0";

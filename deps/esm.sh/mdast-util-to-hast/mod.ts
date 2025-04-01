@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/mdast-util-to-hast@13.1.0";
+export * from "npm:mdast-util-to-hast@~13.1.0";

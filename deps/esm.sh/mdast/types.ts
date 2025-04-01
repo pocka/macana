@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/@types/mdast@4.0.3/index.d.ts";
+export * from "npm:@types/mdast@~4.0.3/index.d.ts";

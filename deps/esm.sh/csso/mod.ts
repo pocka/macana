@@ -2,6 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import * as csso from "https://esm.sh/v135/csso@5.0.5/dist/csso.esm.js";
+import * as csso from "npm:csso@~5.0.5";
 
 export const minify: (css: string) => { css: string } = csso.minify;

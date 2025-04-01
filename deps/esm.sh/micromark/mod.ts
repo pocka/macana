@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/micromark@4.0.0";
+export * from "npm:micromark@~4.0.0";

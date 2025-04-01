@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from "https://esm.sh/v135/mdast-util-heading-range@4.0.0";
+export * from "npm:mdast-util-heading-range@~4.0.0";
