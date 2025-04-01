@@ -11,10 +11,7 @@ import {
 	gfmHtml,
 	type HtmlOptions,
 } from "../../deps/npm/micromark-extension-gfm/mod.ts";
-import {
-	math,
-	mathHtml,
-} from "../../deps/npm/micromark-extension-math/mod.ts";
+import { math, mathHtml } from "../../deps/npm/micromark-extension-math/mod.ts";
 
 import {
 	ofmBlockIdentifier,
