@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { assertObjectMatch } from "../../deps/deno.land/std/assert/mod.ts";
-import { h } from "../../deps/esm.sh/hastscript/mod.ts";
+import { h } from "../../deps/npm/hastscript/mod.ts";
 
 import { tocMut } from "./mod.ts";
 

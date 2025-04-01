@@ -4,9 +4,9 @@
 
 /** @jsx h */
 
-import type * as Mdast from "../../../../deps/esm.sh/mdast/types.ts";
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
-import { type Handlers } from "../../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Mdast from "../../../../deps/npm/mdast/types.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
+import { type Handlers } from "../../../../deps/npm/mdast-util-to-hast/mod.ts";
 
 import { buildClasses, css, join } from "../css.ts";
 import * as icons from "../icons/lucide.tsx";

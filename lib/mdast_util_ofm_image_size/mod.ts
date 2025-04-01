@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { SKIP, visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
+import type * as Mdast from "../../deps/npm/mdast/types.ts";
+import type { Extension } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
+import { SKIP, visit } from "../../deps/npm/unist-util-visit/mod.ts";
 
 import type { OfmWikilinkEmbed } from "../mdast_util_ofm_wikilink/mod.ts";
 

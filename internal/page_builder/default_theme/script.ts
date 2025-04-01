@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { minify_sync } from "../../../deps/esm.sh/terser/mod.ts";
+import { minify_sync } from "../../../deps/npm/terser/mod.ts";
 
 /**
  * Tagged template literal function for JavaScript code.

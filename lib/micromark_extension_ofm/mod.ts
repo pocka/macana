@@ -5,16 +5,16 @@
 import {
 	combineExtensions,
 	combineHtmlExtensions,
-} from "../../deps/esm.sh/micromark-util-combine-extensions/mod.ts";
+} from "../../deps/npm/micromark-util-combine-extensions/mod.ts";
 import {
 	gfm,
 	gfmHtml,
 	type HtmlOptions,
-} from "../../deps/esm.sh/micromark-extension-gfm/mod.ts";
+} from "../../deps/npm/micromark-extension-gfm/mod.ts";
 import {
 	math,
 	mathHtml,
-} from "../../deps/esm.sh/micromark-extension-math/mod.ts";
+} from "../../deps/npm/micromark-extension-math/mod.ts";
 
 import {
 	ofmBlockIdentifier,
@@ -36,7 +36,7 @@ import {
 import type {
 	Extension,
 	HtmlExtension,
-} from "../../deps/esm.sh/micromark-util-types/types.ts";
+} from "../../deps/npm/micromark-util-types/types.ts";
 
 export function ofm(): Extension {
 	return combineExtensions([

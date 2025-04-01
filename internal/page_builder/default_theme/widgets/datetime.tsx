@@ -4,7 +4,7 @@
 
 /** @jsx h */
 
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
 
 export const datetimeScript = `
 document.querySelectorAll("[data-macana-datetime]").forEach(el => {

@@ -7,7 +7,7 @@
 
 /** @jsx s */
 
-import { s } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { s } from "../../../../deps/npm/hastscript/mod.ts";
 
 import { buildClasses, css, cx } from "../css.ts";
 

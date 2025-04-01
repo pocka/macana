@@ -4,9 +4,9 @@
 
 import { assertObjectMatch } from "../../deps/deno.land/std/assert/mod.ts";
 
-import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import { fromMarkdown } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { toHast } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Mdast from "../../deps/npm/mdast/types.ts";
+import { fromMarkdown } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
+import { toHast } from "../../deps/npm/mdast-util-to-hast/mod.ts";
 
 import { autoHeadingId, autoHeadingIdFromMarkdown } from "./mod.ts";
 

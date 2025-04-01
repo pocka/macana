@@ -4,7 +4,7 @@
 
 /** @jsx h */
 
-import { type Child, h } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { type Child, h } from "../../../../deps/npm/hastscript/mod.ts";
 
 import { buildClasses, css } from "../css.ts";
 

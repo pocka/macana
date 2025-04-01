@@ -4,8 +4,8 @@
 
 import { assertObjectMatch } from "../../deps/deno.land/std/assert/mod.ts";
 
-import { fromMarkdown } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { toHast } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import { fromMarkdown } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
+import { toHast } from "../../deps/npm/mdast-util-to-hast/mod.ts";
 
 import { ofmWikilink } from "../micromark_extension_ofm_wikilink/mod.ts";
 import { ofmWikilinkFromMarkdown } from "../mdast_util_ofm_wikilink/mod.ts";

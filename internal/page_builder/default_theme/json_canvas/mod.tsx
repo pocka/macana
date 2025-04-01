@@ -5,8 +5,8 @@
 /** @jsx s */
 
 import { extname } from "../../../../deps/deno.land/std/path/mod.ts";
-import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
-import { h, s } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import type * as Hast from "../../../../deps/npm/hast/types.ts";
+import { h, s } from "../../../../deps/npm/hastscript/mod.ts";
 
 import { logger } from "../../../logger.ts";
 import type {

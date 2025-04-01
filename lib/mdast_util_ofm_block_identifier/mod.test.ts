@@ -4,7 +4,7 @@
 
 import { assertObjectMatch } from "../../deps/deno.land/std/assert/mod.ts";
 
-import { fromMarkdown } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
+import { fromMarkdown } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
 
 import { ofmBlockIdentifierFromMarkdown } from "./mod.ts";
 import { ofmBlockIdentifier } from "../micromark_extension_ofm_block_identifier/mod.ts";

@@ -4,11 +4,11 @@
 
 import { test as testFrontmatter } from "../../deps/deno.land/std/front_matter/test.ts";
 import * as yamlFrontmatter from "../../deps/deno.land/std/front_matter/yaml.ts";
-import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import { fromMarkdown } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { toString } from "../../deps/esm.sh/mdast-util-to-string/mod.ts";
-import { headingRange } from "../../deps/esm.sh/mdast-util-heading-range/mod.ts";
-import { find as findNode } from "../../deps/esm.sh/unist-util-find/mod.ts";
+import type * as Mdast from "../../deps/npm/mdast/types.ts";
+import { fromMarkdown } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
+import { toString } from "../../deps/npm/mdast-util-to-string/mod.ts";
+import { headingRange } from "../../deps/npm/mdast-util-heading-range/mod.ts";
+import { find as findNode } from "../../deps/npm/unist-util-find/mod.ts";
 
 import { ofm } from "../../lib/micromark_extension_ofm/mod.ts";
 import {

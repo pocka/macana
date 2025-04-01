@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
+import type { Extension } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
 
 export function ofmHighlightFromMarkdown(): Extension {
 	return {

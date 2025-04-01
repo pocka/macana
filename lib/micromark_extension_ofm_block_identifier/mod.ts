@@ -8,12 +8,12 @@ import type {
 	HtmlExtension,
 	State,
 	Token,
-} from "../../deps/esm.sh/micromark-util-types/types.ts";
-import { codes } from "../../deps/esm.sh/micromark-util-symbol/mod.ts";
+} from "../../deps/npm/micromark-util-types/types.ts";
+import { codes } from "../../deps/npm/micromark-util-symbol/mod.ts";
 import {
 	asciiAlphanumeric,
 	markdownLineEndingOrSpace,
-} from "../../deps/esm.sh/micromark-util-character/mod.ts";
+} from "../../deps/npm/micromark-util-character/mod.ts";
 
 const enum TokenTypeMap {
 	block = "ofmBlockIdentifier",

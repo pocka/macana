@@ -5,10 +5,10 @@
 /** @jsx h */
 
 import { extname } from "../../../../deps/deno.land/std/path/mod.ts";
-import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
-import type * as Mdast from "../../../../deps/esm.sh/mdast/types.ts";
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
-import { type State } from "../../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Hast from "../../../../deps/npm/hast/types.ts";
+import type * as Mdast from "../../../../deps/npm/mdast/types.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
+import { type State } from "../../../../deps/npm/mdast-util-to-hast/mod.ts";
 
 import { type OfmWikilinkEmbed } from "../../../../lib/mdast_util_ofm_wikilink/mod.ts";
 import type { Document } from "../../../types.ts";

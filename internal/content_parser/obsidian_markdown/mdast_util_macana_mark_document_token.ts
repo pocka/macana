@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { extname } from "../../../deps/deno.land/std/path/mod.ts";
-import type * as Mdast from "../../../deps/esm.sh/mdast/types.ts";
-import { SKIP, visit } from "../../../deps/esm.sh/unist-util-visit/mod.ts";
-import { definitions } from "../../../deps/esm.sh/mdast-util-definitions/mod.ts";
+import type * as Mdast from "../../../deps/npm/mdast/types.ts";
+import { SKIP, visit } from "../../../deps/npm/unist-util-visit/mod.ts";
+import { definitions } from "../../../deps/npm/mdast-util-definitions/mod.ts";
 
 import type { ParseParameters } from "../interface.ts";
 import type { DocumentToken } from "../../types.ts";

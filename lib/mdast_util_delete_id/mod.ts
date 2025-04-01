@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import { visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
+import type * as Mdast from "../../deps/npm/mdast/types.ts";
+import { visit } from "../../deps/npm/unist-util-visit/mod.ts";
 
 /**
  * This mutates given tree.

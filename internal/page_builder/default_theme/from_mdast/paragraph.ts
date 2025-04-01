@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Mdast from "../../../../deps/esm.sh/mdast/types.ts";
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
-import { type Handlers } from "../../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import type * as Mdast from "../../../../deps/npm/mdast/types.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
+import { type Handlers } from "../../../../deps/npm/mdast-util-to-hast/mod.ts";
 
 import { buildClasses, css } from "../css.ts";
 

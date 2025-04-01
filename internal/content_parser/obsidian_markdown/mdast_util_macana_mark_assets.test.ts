@@ -7,8 +7,8 @@ import {
 	assertObjectMatch,
 } from "../../../deps/deno.land/std/assert/mod.ts";
 
-import type * as Mdast from "../../../deps/esm.sh/mdast/types.ts";
-import { fromMarkdown } from "../../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
+import type * as Mdast from "../../../deps/npm/mdast/types.ts";
+import { fromMarkdown } from "../../../deps/npm/mdast-util-from-markdown/mod.ts";
 
 import { macanaMarkAssets } from "./mdast_util_macana_mark_assets.ts";
 import { ofmWikilink } from "../../../lib/micromark_extension_ofm_wikilink/mod.ts";

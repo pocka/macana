@@ -4,7 +4,7 @@
 
 /** @jsx h */
 
-import { type Child, h } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { type Child, h } from "../../../../deps/npm/hastscript/mod.ts";
 import { Md5 } from "../../../../deps/deno.land/std/hash/md5.ts";
 
 import type { BuildContext, DocumentBuildContext } from "../context.ts";

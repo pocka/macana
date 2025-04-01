@@ -4,7 +4,7 @@
 
 /** @jsx h */
 
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
 
 import type { BuildContext } from "../context.ts";
 import { buildClasses, css, join } from "../css.ts";

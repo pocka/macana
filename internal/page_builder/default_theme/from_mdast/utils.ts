@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Mdast from "../../../../deps/esm.sh/mdast/types.ts";
+import type * as Mdast from "../../../../deps/npm/mdast/types.ts";
 
 import type { AssetToken, DocumentToken } from "../../../types.ts";
 

@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { gfmFromMarkdown } from "../../deps/esm.sh/mdast-util-gfm/mod.ts";
-import { mathFromMarkdown } from "../../deps/esm.sh/mdast-util-math/mod.ts";
+import type { Extension } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
+import { gfmFromMarkdown } from "../../deps/npm/mdast-util-gfm/mod.ts";
+import { mathFromMarkdown } from "../../deps/npm/mdast-util-math/mod.ts";
 
 import {
 	ofmBlockIdentifierFromMarkdown,

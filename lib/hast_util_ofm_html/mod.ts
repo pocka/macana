@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Hast from "../../deps/esm.sh/hast/types.ts";
-import { raw } from "../../deps/esm.sh/hast-util-raw/mod.ts";
-import { remove } from "../../deps/esm.sh/unist-util-remove/mod.ts";
+import type * as Hast from "../../deps/npm/hast/types.ts";
+import { raw } from "../../deps/npm/hast-util-raw/mod.ts";
+import { remove } from "../../deps/npm/unist-util-remove/mod.ts";
 
 const stripTags = ["script", "style", "title"];
 

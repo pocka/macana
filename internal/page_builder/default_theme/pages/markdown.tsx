@@ -4,8 +4,8 @@
 
 /** @jsx h */
 
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
-import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
+import type * as Hast from "../../../../deps/npm/hast/types.ts";
 
 import type { TocItem } from "../../../../lib/hast_util_toc/mod.ts";
 

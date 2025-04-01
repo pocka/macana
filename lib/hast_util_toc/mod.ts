@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Hast from "../../deps/esm.sh/hast/types.ts";
-import { SKIP, visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
-import { fastUslug } from "../../deps/esm.sh/@shelf/fast-uslug/mod.ts";
-import { isElement } from "../../deps/esm.sh/hast-util-is-element/mod.ts";
-import { toString } from "../../deps/esm.sh/hast-util-to-string/mod.ts";
+import type * as Hast from "../../deps/npm/hast/types.ts";
+import { SKIP, visit } from "../../deps/npm/unist-util-visit/mod.ts";
+import { fastUslug } from "../../deps/npm/@shelf/fast-uslug/mod.ts";
+import { isElement } from "../../deps/npm/hast-util-is-element/mod.ts";
+import { toString } from "../../deps/npm/hast-util-to-string/mod.ts";
 
 export interface TocItem<Node = Hast.ElementContent[]> {
 	id: string;

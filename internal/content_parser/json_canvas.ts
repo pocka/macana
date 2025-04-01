@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { extname } from "../../deps/deno.land/std/path/mod.ts";
-import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
+import type * as Mdast from "../../deps/npm/mdast/types.ts";
 
 import type { ContentParser, ParseParameters } from "./interface.ts";
 import type { DocumentContent } from "../types.ts";

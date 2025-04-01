@@ -4,12 +4,12 @@
 
 /** @jsx h */
 
-import { visit } from "../../../../deps/esm.sh/unist-util-visit/mod.ts";
-import type * as Mdast from "../../../../deps/esm.sh/mdast/types.ts";
-import type * as Hast from "../../../../deps/esm.sh/hast/types.ts";
-import { refractor } from "../../../../deps/esm.sh/refractor/mod.ts";
-import { h } from "../../../../deps/esm.sh/hastscript/mod.ts";
-import { type Handlers } from "../../../../deps/esm.sh/mdast-util-to-hast/mod.ts";
+import { visit } from "../../../../deps/npm/unist-util-visit/mod.ts";
+import type * as Mdast from "../../../../deps/npm/mdast/types.ts";
+import type * as Hast from "../../../../deps/npm/hast/types.ts";
+import { refractor } from "../../../../deps/npm/refractor/mod.ts";
+import { h } from "../../../../deps/npm/hastscript/mod.ts";
+import { type Handlers } from "../../../../deps/npm/mdast-util-to-hast/mod.ts";
 
 import { buildClasses, css } from "../css.ts";
 

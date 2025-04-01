@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type * as Mdast from "../../deps/esm.sh/mdast/types.ts";
-import type { Extension } from "../../deps/esm.sh/mdast-util-from-markdown/mod.ts";
-import { SKIP, visit } from "../../deps/esm.sh/unist-util-visit/mod.ts";
-import type { State } from "../../deps/esm.sh/mdast-util-to-hast/mod.ts";
-import type * as Hast from "../../deps/esm.sh/hast/types.ts";
+import type * as Mdast from "../../deps/npm/mdast/types.ts";
+import type { Extension } from "../../deps/npm/mdast-util-from-markdown/mod.ts";
+import { SKIP, visit } from "../../deps/npm/unist-util-visit/mod.ts";
+import type { State } from "../../deps/npm/mdast-util-to-hast/mod.ts";
+import type * as Hast from "../../deps/npm/hast/types.ts";
 
 export interface OfmCallout extends Mdast.Node {
 	type: "ofmCallout";

@@ -12,15 +12,15 @@ import type {
 	State,
 	Token,
 	Tokenizer,
-} from "../../deps/esm.sh/micromark-util-types/types.ts";
+} from "../../deps/npm/micromark-util-types/types.ts";
 import {
 	codes,
 	constants,
 	types,
-} from "../../deps/esm.sh/micromark-util-symbol/mod.ts";
-import { classifyCharacter } from "../../deps/esm.sh/micromark-util-classify-character/mod.ts";
-import { splice } from "../../deps/esm.sh/micromark-util-chunked/mod.ts";
-import { resolveAll } from "../../deps/esm.sh/micromark-util-resolve-all/mod.ts";
+} from "../../deps/npm/micromark-util-symbol/mod.ts";
+import { classifyCharacter } from "../../deps/npm/micromark-util-classify-character/mod.ts";
+import { splice } from "../../deps/npm/micromark-util-chunked/mod.ts";
+import { resolveAll } from "../../deps/npm/micromark-util-resolve-all/mod.ts";
 
 const enum TokenTypeMap {
 	sequenceTemporary = "ofmHighlightSequenceTemporary",

@@ -4,7 +4,7 @@
 
 import { assertEquals } from "../../deps/deno.land/std/assert/mod.ts";
 
-import { micromark } from "../../deps/esm.sh/micromark/mod.ts";
+import { micromark } from "../../deps/npm/micromark/mod.ts";
 
 import { ofmWikilink, ofmWikilinkHtml } from "./mod.ts";
 
