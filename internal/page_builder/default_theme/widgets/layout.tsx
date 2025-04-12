@@ -94,7 +94,7 @@ export const layoutStyles = join(
 
 			background-color: var(--color-bg-accent);
 			z-index: 150;
-			overflow-y: scroll;
+			overflow-y: auto;
 			overflow-x: hidden;
 			overscroll-behavior-y: contain;
 
