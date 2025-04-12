@@ -70,6 +70,7 @@ export const documentTreeStyles = join(
 
 	.${c.directory} {
 		display: flex;
+		flex-direction: column;
 	}
 
 	.${c.document} {
