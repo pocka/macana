@@ -36,7 +36,7 @@ import {
 	JSONCanvasParser,
 	oneof,
 	DefaultThemeBuilder,
-} from "https://deno.land/x/macana@v0.2.3/mod.ts"
+} from "https://deno.land/x/macana@v0.2.4/mod.ts"
 
 const fileSystemReader = new DenoFsReader(new URL("./contents", import.meta.url));
 
@@ -94,7 +94,7 @@ await pageBuilder.build({
 > 	JSONCanvasParser,
 > 	oneof,
 > 	DefaultThemeBuilder,
-> } from "https://deno.land/x/macana@v0.2.3/mod.ts"
+> } from "https://deno.land/x/macana@v0.2.4/mod.ts"
 > 
 > // Treat `contents/` directory as a Vault.
 > // By resolving from `import.meta.url`, `contents/` directory next to this
@@ -197,7 +197,7 @@ Macana uses abstraction layer for file I/O.
 FileSystem Reader provides listing directory and reading file contents capability.
 
 ```ts
-import { DenoFsReader } from "https://deno.land/x/macana@v0.2.3/mod.ts";
+import { DenoFsReader } from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 const fileSystemReader = new DenoFsReader(new URL("./contents", import.meta.url));
 
@@ -222,7 +222,7 @@ $ deno run --allow-read=contents build.ts
 FileSystem Writer provides capability to write to files and create directories.
 
 ```ts
-import { DenoFsWriter } from "https://deno.land/x/macana@v0.2.3/mod.ts";
+import { DenoFsWriter } from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 const fileSystemWriter = new DenoFsWriter(new URL("./.dist", import.meta.url));
 
@@ -250,7 +250,7 @@ Macana exports some useful function to wrap the FileSystem Writer for additional
 The resulted file formats are compatible with [Caddy](https://caddyserver.com/)'s [`precompressed`](https://caddyserver.com/docs/caddyfile/directives/file_server#syntax) directive.
 
 ```ts
-import { DenoFsWriter, precompress } from "https://deno.land/x/macana@v0.2.3/mod.ts";
+import { DenoFsWriter, precompress } from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 const fileSystemWriter = precompress()(
 	new DenoFsWriter(new URL("./.dist", import.meta.url))
@@ -274,7 +274,7 @@ await fileSystemWriter.write(["index.js"], text);
 In addition to that, if it detects the writes to different content to the same file, it aborts the build in order to prevent producing inconsistent build output.
 
 ```ts
-import { DenoFsWriter, noOverwrite } from "https://deno.land/x/macana@v0.2.3/mod.ts";
+import { DenoFsWriter, noOverwrite } from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 const fileSystemWriter = noOverwrite(
 	new DenoFsWriter(new URL("./.dist", import.meta.url))
@@ -304,7 +304,7 @@ import {
 	ObsidianMarkdownParser,
 	JSONCanvasParser,
 	oneof
-} from "https://deno.land/x/macana@v0.2.3/mod.ts";
+} from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 // This works, but you may (probably) want to tune it further
 const treeBuilder = new DefaultTreeBuilder({
@@ -338,7 +338,7 @@ import {
 	// Use file timestamps as creation/update date
 	// (does not work with Git, though)
 	useFileSystemTimestamps,
-} from "https://deno.land/x/macana@v0.2.3/mod.ts";
+} from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 const treeBuilder = new DefaultTreeBuilder({
 	defaultLanguage: "en",
@@ -359,7 +359,7 @@ Page Builder builds HTML and other assets from a document tree.
 If you don't like how Macana's default theme builder works, write your own.
 
 ```ts
-import { DefaultThemeBuilder } from "https://deno.land/x/macana@v0.2.3/mod.ts";
+import { DefaultThemeBuilder } from "https://deno.land/x/macana@v0.2.4/mod.ts";
 
 const pageBuilder = new DefaultThemeBuilder({
 	siteName: "<YOUR WEBSITE TITLE>",
