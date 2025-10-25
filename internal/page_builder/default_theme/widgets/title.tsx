@@ -13,9 +13,10 @@ const c = buildClasses("w-title", ["title"]);
 export const titleStyles = css`
 	.${c.title} {
 		font-weight: 700;
-		font-size: 2rem;
+		font-size: 1.8rem;
 		margin: 0;
-		line-height: calc(var(--baseline) * 2rem);
+		margin-block-end: calc(var(--baseline) * 1rem);
+		line-height: calc(var(--baseline) * 1rem);
 
 		color: var(--color-fg-sub);
 	}
